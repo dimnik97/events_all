@@ -23,8 +23,12 @@
         <a href="/accounts/logout/">logout</a>
 
     {% else %}
-        <a href="/accounts/login/">Войдите</a><br>
-        <a href="/accounts/signup/">Или зарегестрируйтесь</a>
+        {% if request.path != '/accounts/signin/' %}
+            <a href="/accounts/login/">Войдите</a><br>
+        {% endif %}
+        {% if request.path != '/accounts/signup/' %}
+            <a href="/accounts/signup/">Или зарегестрируйтесь</a>
+        {% endif %}
     {% endif %}
 </div>
 Конец хидера
