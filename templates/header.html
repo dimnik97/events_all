@@ -1,0 +1,30 @@
+<!-- Главное меню -->
+Это хидер
+{% load staticfiles %}
+
+<link rel="stylesheet" media="all" href={% static "css/style.css" %} type="text/css">
+
+<ul>
+    {% load menubuilder %}
+    {% menu main_menu %}
+
+    {% for item in menuitems %}
+        <li {% if item.current %}class="active"{% endif %}>
+            <a href="{{ item.url }}" title="{{ item.title|escape }}">{{ item.title }}</a>
+        </li>
+    {% endfor %}
+</ul>
+<!-- Главное меню -->
+<div>
+    {% if user.is_authenticated %}
+        First name  : {{ user.first_name }} <br>
+        Last name: {{ user.last_name }} <br>
+        City: {{ locate.city }} <br>
+        <a href="/accounts/logout/">logout</a>
+
+    {% else %}
+        <a href="/accounts/login/">Войдите</a><br>
+        <a href="/accounts/signup/">Или зарегестрируйтесь</a>
+    {% endif %}
+</div>
+Конец хидера

@@ -1,0 +1,20 @@
+{% load staticfiles i18n %}
+<head>
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+</head>
+
+<body>
+    <header class="navbar navbar-fixed-top">
+        {% include "header.html" %}
+    </header>
+    <div id="main" role="main">
+        <div class="container">
+            {% block content %} {% endblock %}
+        </div>
+    </div>
+    <footer class="navbar navbar-fixed-bottom">
+        {% include "footer.html" %}
+    </footer>
+
+
+
