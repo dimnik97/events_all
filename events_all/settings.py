@@ -91,7 +91,7 @@ DATABASES = {
         'NAME': 'test2',
         'USER': 'postgreadmin',
         'PASSWORD': '4321',
-        'HOST': '10.54.65.105',
+        'HOST': '10.54.65.91',
         'PORT': '5432',
     }
 }
@@ -106,6 +106,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 5,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -149,7 +152,7 @@ ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 60
 LOGIN_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
-
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
 ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
 # EMAIL_BACKEND = "django.core.mail.backends.locmen.EmailBackend"
 AUTHENTICATION_BACKENDS = (

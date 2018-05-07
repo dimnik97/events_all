@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django_ipgeobase.models import IPGeoBase
 
+import helper
+
 
 
 #Необходимо для того, чтобы не запрашивался токен
@@ -30,20 +32,62 @@ class Users:
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-
     #TODO Переделать, проверка должна быть
     @csrf_exempt
     def signup_check(request):
         if request.method == 'POST':
             from urllib import parse
+            from django.core.validators import EmailValidator
+            from django.core.exceptions import ValidationError
+
             dict_ = dict(parse.parse_qsl(request.POST.get('data')))
+            validate_email = EmailValidator()
 
-            try: status = User.objects.filter(email__iexact=dict_['email']).exists()
-            except: status = None
-
+            status = ''
             data = {
                 'status': status
             }
+
+            try:
+                email = dict_['email']
+                data['status'] = helper.validate_error(
+                    str(User.objects.filter(email__iexact=dict_['email']).exists()),
+                    'e-mail'
+                )
+            except:
+                data['status'] = helper.validate_error('empty', 'e-mail')
+                return JsonResponse(data)
+
+            if '@' in email:
+                try:
+                    validate_email(email)
+                except ValidationError as e:
+                    data['status'] = helper.validate_error('format', 'e-mail')
+                    return JsonResponse(data)
+
+                min_length = 5
+                try:
+                    password = dict_['password1']
+                except:
+                    data['status'] = helper.validate_error('empty', 'password')
+                    return JsonResponse(data)
+
+                if len(password) < min_length:
+                    # Здесь ошибка
+                    data['status'] = 'Слишком короткий пароль! Минимальное количество символов' + min_length
+                    return JsonResponse(data)
+
+                # check for digit
+                if not any(char.isdigit() for char in password):
+                    data['status'] = 'Пароль должен содержать хотя бы одно число'
+                    return JsonResponse(data)
+
+                # check for letter
+                if not any(char.isalpha() for char in password):
+                    data['status'] = 'Пароль должен содержать хотя бы одну латинскую букву'
+                    return JsonResponse(data)
+            else:
+                data['status'] = helper.validate_error('format', 'e-mail')
         return JsonResponse(data)
 
     # Работает при помощи библиотеки ipgeobase

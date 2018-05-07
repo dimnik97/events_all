@@ -6,13 +6,17 @@ from cities.models import Countries
 
 # Форма регистрации
 class SignupForm(forms.Form):
-    first_name = forms.CharField(required=False, max_length=30, label='First name')
-    last_name = forms.CharField(required=False, max_length=30, label='Last name')
+    first_name = forms.CharField(
+        required=True, max_length=30, label='First name'
+    )
+    last_name = forms.CharField(
+        required=True, max_length=30, label='Last name'
+    )
 
     # profile
-    description = forms.CharField(required=False, max_length=500, label='Description')
-    phone = forms.CharField(required=False, max_length=30, label='Phone number') #TODO Добавить валидацию или маску
-    birth_date = forms.DateField(required=False, widget=forms.SelectDateWidget(years=range(1900, 2012)))
+    description = forms.CharField(required=True, max_length=500, label='Description')
+    phone = forms.CharField(required=True, max_length=30, label='Phone number') #TODO Добавить валидацию или маску
+    birth_date = forms.DateField(required=True, widget=forms.SelectDateWidget(years=range(1900, 2012)))
 
     # TODO Вернуться к этому позже
     # birth_country = forms.ModelChoiceField(

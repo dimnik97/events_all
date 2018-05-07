@@ -11,12 +11,24 @@
 
     <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="first_step">
+            {% for field in form.visible_fields %}
+                {{ field.errors }}
+                {{ field.label_tag }} {{ field }}
+            {% endfor %}
+        </div>
+        <div class="second_step d_none">
+            {% for hidden in form.hidden_fields %}
+                {{ hidden.errors }}
+                {{ hidden.label_tag }} {{ hidden }}
+            {% endfor %}
+        </div>
         {% if redirect_field_value %}
             <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
         {% endif %}
 
         <button type="button" class="next_step">{% trans "next_step" %} &raquo;</button>
+        <button type="button" class="prev_step d_none">{% trans "prev_step" %} &raquo;</button>
         <button type="submit" class="signup d_none">{% trans "Signup" %} &raquo;</button>
     </form>
 
