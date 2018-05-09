@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from profile import views
+from custom_profile import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),

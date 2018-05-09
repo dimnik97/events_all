@@ -1,5 +1,3 @@
-from django.db import models
-from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
@@ -9,7 +7,7 @@ from django_ipgeobase.models import IPGeoBase
 
 #Необходимо для того, чтобы не запрашивался токен
 from django.views.decorators.csrf import csrf_exempt
-from profile.validator import signup_validator
+from custom_profile.validator import signup_validator
 
 # Получение общей информации для пользователей
 class Users:

@@ -1,7 +1,6 @@
-from django.shortcuts import render, render_to_response
-from profile.models import Users
-from events_.models import Event, EventParty
-from profile.models import Users
+from django.shortcuts import render_to_response
+from events_.models import Event
+from custom_profile.models import Users
 
 def index(self):
     context = {

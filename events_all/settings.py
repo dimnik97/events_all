@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.vk',
-    'profile',
+    'custom_profile',
     'django_ipgeobase',
 ]
 
@@ -154,7 +154,7 @@ LOGIN_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_SIGNUP_FORM_CLASS = 'profile.forms.SignupForm'
+ACCOUNT_SIGNUP_FORM_CLASS = 'custom_profile.forms.SignupForm'
 
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'

@@ -1,5 +1,5 @@
 from django.db import models
-from profile.models import Profile
+from custom_profile.models import Profile
 from django.db.models.signals import post_save
 
 
