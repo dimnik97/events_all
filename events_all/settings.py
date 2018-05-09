@@ -31,8 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'dal',
-    'dal_select2',
     'cities',
     'main_app',
     'django.contrib.admin',
@@ -47,7 +45,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.vk',
-    'accounts',
+    'profile',
     'django_ipgeobase',
 ]
 
@@ -91,7 +89,7 @@ DATABASES = {
         'NAME': 'test2',
         'USER': 'postgreadmin',
         'PASSWORD': '4321',
-        'HOST': '10.54.65.91',
+        'HOST': '10.54.65.110',
         'PORT': '5432',
     }
 }
@@ -153,7 +151,11 @@ LOGIN_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
+ACCOUNT_SIGNUP_FORM_CLASS = 'profile.forms.SignupForm'
+
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
 # EMAIL_BACKEND = "django.core.mail.backends.locmen.EmailBackend"
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",

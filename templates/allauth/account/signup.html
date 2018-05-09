@@ -13,14 +13,34 @@
         {% csrf_token %}
         <div class="first_step">
             {% for field in form.visible_fields %}
-                {{ field.errors }}
-                {{ field.label_tag }} {{ field }}
+                <p>
+                    {{ field.errors }}
+                    {{ field.label_tag }} {{ field }}
+                    {% if field.id_for_label == 'id_password1' %}
+                        <img src="theicon" class='show_or_hide_pass' />
+                    {% endif %}
+                </p>
             {% endfor %}
         </div>
         <div class="second_step d_none">
+            <div>
+                <input type="radio" id="genderChoice1"
+                       name="gender" value="0">
+                <label for="contactChoice1">Мужчина</label>
+
+                <input type="radio" id="genderChoice2"
+                       name="gender" value="1">
+                <label for="contactChoice2">Женщина</label>
+
+                <input type="radio" id="genderChoice3"
+                       name="gender" value="2">
+                <label for="contactChoice3">Не указан</label>
+            </div>
             {% for hidden in form.hidden_fields %}
-                {{ hidden.errors }}
-                {{ hidden.label_tag }} {{ hidden }}
+                <p>
+                    {{ hidden.errors }}
+                    {{ hidden.label_tag }} {{ hidden }}
+                </p>
             {% endfor %}
         </div>
         {% if redirect_field_value %}
@@ -29,7 +49,7 @@
 
         <button type="button" class="next_step">{% trans "next_step" %} &raquo;</button>
         <button type="button" class="prev_step d_none">{% trans "prev_step" %} &raquo;</button>
-        <button type="submit" class="signup d_none">{% trans "Signup" %} &raquo;</button>
+        <button type="button" class="signup d_none">{% trans "Signup" %} &raquo;</button>
     </form>
 
 {% endblock %}

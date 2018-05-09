@@ -17,17 +17,18 @@
 <!-- Главное меню -->
 <div>
     {% if user.is_authenticated %}
+        <a href="/profile/">Аккаунт</a>
         First name  : {{ user.first_name }} <br>
         Last name: {{ user.last_name }} <br>
         City: {{ locate.city }} <br>
-        <a href="/accounts/logout/">logout</a>
+        <a href="/profile/logout/">logout</a>
 
     {% else %}
-        {% if request.path != '/accounts/signin/' %}
-            <a href="/accounts/login/">Войдите</a><br>
+        {% if request.path != '/profile/signin/' %}
+            <a href="/profile/login/">Войдите</a><br>
         {% endif %}
-        {% if request.path != '/accounts/signup/' %}
-            <a href="/accounts/signup/">Или зарегестрируйтесь</a>
+        {% if request.path != '/profile/signup/' %}
+            <a href="/profile/signup/">Или зарегестрируйтесь</a>
         {% endif %}
     {% endif %}
 </div>

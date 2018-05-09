@@ -1,5 +1,5 @@
 from django.shortcuts import render, render_to_response
-from accounts.models import Users
+from profile.models import Users
 
 def index(self):
     context = {

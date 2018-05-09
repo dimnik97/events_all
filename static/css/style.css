@@ -1,8 +1,9 @@
-.logged-out {
-    background: gainsboro url("/static/img/WhatAreYouLookingAt.jpg") no-repeat center 30px;
-    background-size: 90%;
-}
-
-.d_none{
+.d_none {
     display: none;
+}
+.invalide {
+    border:1px solid red;
+}
+.invalide[type=radio]{
+    outline: 1px solid red
 }
