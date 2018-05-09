@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('accounts', '0002_auto_20180501_0209'),
+        ('profile', '0002_auto_20180501_0209'),
     ]
 
     operations = [
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('start_time', models.DateTimeField(null=True)),
                 ('end_time', models.DateTimeField(null=True)),
                 ('participants', models.IntegerField(null=True)),
-                ('creator_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounts.Profile')),
+                ('creator_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='profile.Profile')),
             ],
         ),
         migrations.CreateModel(
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('event_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_.Event')),
-                ('user_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounts.Profile')),
+                ('user_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='profile.Profile')),
             ],
         ),
     ]
