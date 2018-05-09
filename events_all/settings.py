@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'events_',
     'dal',
     'dal_select2',
     'cities',
@@ -91,7 +92,7 @@ DATABASES = {
         'NAME': 'test2',
         'USER': 'postgreadmin',
         'PASSWORD': '4321',
-        'HOST': '10.54.65.105',
+        'HOST': '10.54.65.110',
         'PORT': '5432',
     }
 }

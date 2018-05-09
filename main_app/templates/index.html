@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ title }}</h1>
+    {% if events.count > 0 %}
+    <h2>Список событий</h2>
+    <table>
+        <tr><th>Id</th><th>Название</th><th>Создатель</th></tr>
+        {% for event in events %}
+        <tr><td>{{ event.id }}</td><td>{{ event.name }}</td><td>{{ event.creator_id.user.first_name }}</td><td><button class="subscribe_event">Пойти</button></td></tr>
+        {% endfor %}
+    </table>
+    {% endif %}
 {% endblock %}

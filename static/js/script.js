@@ -32,5 +32,25 @@ $(document).ready(function() {
                 }
             }
         });
-    })
+    });
+
+    debugger;
+    $('button.subscribe_event').on('click', function(){
+        debugger;
+        $.ajax({
+            type: "POST",
+            url: "/main_app/subscribe_event/",
+            data:{
+
+            },
+            dataType: 'json',
+            success: function(data){
+
+            }
+        });
+
+    });
+
+
+
 });
