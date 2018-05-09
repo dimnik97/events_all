@@ -31,6 +31,12 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+<<<<<<< HEAD
+    'events_',
+    'dal',
+    'dal_select2',
+=======
+>>>>>>> e37b78319d6bd3996b7a0729297e2f8a74e3a0ab
     'cities',
     'main_app',
     'django.contrib.admin',

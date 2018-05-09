@@ -36,6 +36,26 @@ $(document).ready(function() {
         });
     });
 
+<<<<<<< HEAD
+    debugger;
+    $('button.subscribe_event').on('click', function(){
+        debugger;
+        $.ajax({
+            type: "POST",
+            url: "/main_app/subscribe_event/",
+            data:{
+
+            },
+            dataType: 'json',
+            success: function(data){
+
+            }
+        });
+
+    });
+
+
+=======
     $('#signup_form .prev_step').on('click', function () {
         $form = $('#signup_form');
         $('.second_step input[type=show]').each(function() {
@@ -115,5 +135,6 @@ $(document).ready(function() {
             f_birth_date ||
             f_sex);
     }
+>>>>>>> e37b78319d6bd3996b7a0729297e2f8a74e3a0ab
 
 });
