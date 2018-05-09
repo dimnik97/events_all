@@ -31,9 +31,12 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+<<<<<<< HEAD
     'events_',
     'dal',
     'dal_select2',
+=======
+>>>>>>> e37b78319d6bd3996b7a0729297e2f8a74e3a0ab
     'cities',
     'main_app',
     'django.contrib.admin',
@@ -48,7 +51,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.vk',
-    'accounts',
+    'profile',
     'django_ipgeobase',
 ]
 
@@ -107,6 +110,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 5,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -150,8 +156,12 @@ ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 60
 LOGIN_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_SIGNUP_FORM_CLASS = 'profile.forms.SignupForm'
 
-ACCOUNT_SIGNUP_FORM_CLASS = 'accounts.forms.SignupForm'
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
 # EMAIL_BACKEND = "django.core.mail.backends.locmen.EmailBackend"
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",

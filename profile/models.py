@@ -1,4 +1,3 @@
-import json
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -8,10 +7,10 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django_ipgeobase.models import IPGeoBase
 
-
-
 #Необходимо для того, чтобы не запрашивался токен
 from django.views.decorators.csrf import csrf_exempt
+from profile.validator import signup_validator
+
 # Получение общей информации для пользователей
 class Users:
     # Получение модели юзера
@@ -30,21 +29,10 @@ class Users:
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-
     #TODO Переделать, проверка должна быть
     @csrf_exempt
     def signup_check(request):
-        if request.method == 'POST':
-            from urllib import parse
-            dict_ = dict(parse.parse_qsl(request.POST.get('data')))
-
-            try: status = User.objects.filter(email__iexact=dict_['email']).exists()
-            except: status = None
-
-            data = {
-                'status': status
-            }
-        return JsonResponse(data)
+        return JsonResponse(signup_validator.email_and_password(request))
 
     # Работает при помощи библиотеки ipgeobase
     # Иногда необходимо апдейтить базу python manage.py ipgeobase_update
@@ -68,16 +56,16 @@ class Users:
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    description = models.TextField(max_length=500, blank=True)
+    description = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phone = models.TextField(null=True, blank = True)
     sex = models.IntegerField(default=0)
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            Profile.objects.create(user=instance)
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.profile.save()

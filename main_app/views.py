@@ -1,6 +1,10 @@
 from django.shortcuts import render, render_to_response
+<<<<<<< HEAD
 from accounts.models import Users
 from events_.models import Event, EventParty
+=======
+from profile.models import Users
+>>>>>>> e37b78319d6bd3996b7a0729297e2f8a74e3a0ab
 
 def index(self):
     context = {
