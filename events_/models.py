@@ -1,4 +1,6 @@
 from django.db import models
+from django.views.decorators.csrf import csrf_exempt
+
 from custom_profile.models import Profile
 from django.db.models.signals import post_save
 
@@ -14,7 +16,7 @@ class Event(models.Model):
     participants = models.IntegerField(null=True,blank=True)
 
     def get_events(self):
-        events = self.objects.all()
+        events = Event.objects.all()
         return events
 
 
@@ -24,6 +26,12 @@ class EventParty(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ForeignKey(Profile, on_delete = models.CASCADE)
     event_id = models.ForeignKey(Event, on_delete = models.CASCADE)
+
+    @csrf_exempt
+    def subscribe_event(request):
+        ev_id = int(request.POST['event_id'])
+        pass
+
 
 
 
