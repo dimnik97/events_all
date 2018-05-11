@@ -11,12 +11,16 @@ from custom_profile.validator import signup_validator
 
 # Получение общей информации для пользователей
 class Users:
-    # Получение модели юзера
-    def get_user(self):
+    # Получение модели залогиненного юзера
+    def get_user(id):
         try:
-            return User.objects.get(id=self.user.id)
+            return User.objects.get(id=id)
         except User.DoesNotExist:
             return None
+
+    @models.permalink
+    def get_absolute_url(user_id):
+        return "/profile/%i/" % user_id
 
     # Определение IP юзера
     def get_client_ip(request):
@@ -31,6 +35,7 @@ class Users:
     @csrf_exempt
     def signup_check(request):
         return JsonResponse(signup_validator.email_and_password(request))
+
 
     # Работает при помощи библиотеки ipgeobase
     # Иногда необходимо апдейтить базу python manage.py ipgeobase_update
@@ -50,6 +55,9 @@ class Users:
         ipgeobases = IPGeoBase.objects.by_ip(ip)
         if ipgeobases.exists():
             return ipgeobases[0]
+
+
+
 
 
 class Profile(models.Model):

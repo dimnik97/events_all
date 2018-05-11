@@ -92,7 +92,11 @@ DATABASES = {
         'NAME': 'test2',
         'USER': 'postgreadmin',
         'PASSWORD': '4321',
+<<<<<<< HEAD
         'HOST': '10.54.65.11',
+=======
+        'HOST': '10.220.12.53',
+>>>>>>> dd5e212959819d6b1e2e4a1145c9494c931b9395
         'PORT': '5432',
     }
 }
