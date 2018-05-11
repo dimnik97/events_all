@@ -15,7 +15,7 @@ class Event(models.Model):
     end_time = models.DateTimeField(null=True,blank=True)
     participants = models.IntegerField(null=True,blank=True)
 
-    def get_events(self):
+    def get_events():
         events = Event.objects.all()
         return events
 
