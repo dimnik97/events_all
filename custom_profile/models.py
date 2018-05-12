@@ -6,18 +6,19 @@ from django.http import JsonResponse
 from django_ipgeobase.models import IPGeoBase
 
 #Необходимо для того, чтобы не запрашивался токен
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from custom_profile.validator import signup_validator
 
 # Получение общей информации для пользователей
 class Users:
-    # Получение модели залогиненного юзера
+    # Получение модели юзера по id
     def get_user(id):
         try:
             return User.objects.get(id=id)
         except User.DoesNotExist:
             return None
 
+    # Возвращает абсолютный URL
     @models.permalink
     def get_absolute_url(user_id):
         return "/profile/%i/" % user_id
@@ -56,7 +57,7 @@ class Users:
         if ipgeobases.exists():
             return ipgeobases[0]
 
-
+# Модель с дополнительными полями для user
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=1000, blank=True)
@@ -64,11 +65,13 @@ class Profile(models.Model):
     phone = models.TextField(null=True, blank = True)
     sex = models.IntegerField(default=0)
 
+    # Создание юзера с дополнительной информацией
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:
             Profile.objects.create(user=instance)
 
+    # Сохранение юзера с дополнительной информацией
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
@@ -76,3 +79,33 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.first_name
 
+    # Получение списка всех юзеров
+    # TODO в будущем грохнуть метод
+    def get_users():
+        events = User.objects.all()
+        return events
+
+
+
+    # Модель "Дрзуей"
+class Subscribers(models.Model):
+    # STUDENT_TYPE_CHOICES = (
+    #     ('0', 'В ожидании'),
+    #     ('1', 'Запрос дружбы'),
+    #     ('2', 'Подтверждение дружбы'),
+    # )
+    # status = models.CharField(max_length=1, choices=STUDENT_TYPE_CHOICES)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    subscriber = models.ForeignKey(Profile, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'subscriber',)
+
+    # Подписка
+    def subscribe(request):
+        subs_model = Subscribers()
+        subs_model.user = request.user.id
+        subs_model.subscriber = int(request.POST['user_id'])
+        subs_model.save()
+        request.user
+        return print('a')
