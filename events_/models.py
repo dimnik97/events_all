@@ -1,6 +1,7 @@
 from django.db import models
 from django.views.decorators.csrf import csrf_exempt
 
+
 from custom_profile.models import Profile
 from django.db.models.signals import post_save
 
@@ -19,6 +20,9 @@ class Event(models.Model):
         events = Event.objects.all()
         return events
 
+    def __str__(self):
+        return self.name + ' Создатель: ' + self.creator_id.user.first_name
+
 
 
 
@@ -27,11 +31,20 @@ class EventParty(models.Model):
     user_id = models.ForeignKey(Profile, on_delete = models.CASCADE)
     event_id = models.ForeignKey(Event, on_delete = models.CASCADE)
 
+    class Meta:
+        unique_together = ('user_id', 'event_id',)
+
     @csrf_exempt
     def subscribe_event(request):
-        ev_id = int(request.POST['event_id'])
+        # функция подписки на событие
+        new_subscriber = EventParty()
+        new_subscriber.event_id = Event.objects.get(id=int(request.POST['event_id']))
+        new_subscriber.user_id = Profile.objects.get(id=request.user.id)
+        new_subscriber.save()
         pass
 
+    def __str__(self):
+        return self.user_id.user.first_name + " Участник: " + self.event_id.name
 
 
 

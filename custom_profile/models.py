@@ -76,6 +76,9 @@ class Profile(models.Model):
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
 
+    def __str__(self):
+        return self.user.first_name
+
     # Получение списка всех юзеров
     # TODO в будущем грохнуть метод
     def get_users():
