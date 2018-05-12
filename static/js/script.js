@@ -25,9 +25,8 @@ $(document).ready(function() {
     });
 
 
-
-        // Валидация первого шага регистрации
-        $('#signup_form .next_step').on('click', function () {
+    // Валидация первого шага регистрации
+    $('#signup_form .next_step').on('click', function () {
 
         $form = $('#signup_form');
         $('label, input[type!="hidden"]', $form);
@@ -175,7 +174,5 @@ $(document).ready(function() {
             }
         });
     });
-
-
 
 });

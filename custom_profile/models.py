@@ -89,20 +89,25 @@ class Profile(models.Model):
 
     # Модель "Дрзуей"
 class Subscribers(models.Model):
-    # user = models.ManyToManyField(Profile)
-    # subscriber = models.ForeignKey(Profile, related_name="Users.id", null=True, on_delete=models.CASCADE)
-
-    user_id = models.ForeignKey(Profile, related_name='friendship_creator_set', on_delete=models.CASCADE)
-    subscriber_id = models.ForeignKey(Profile, related_name='friend_set', on_delete=models.CASCADE)
+    users = models.ManyToManyField(Profile)
+    current_user = models.ForeignKey(Profile, related_name="owner", null=True, on_delete=models.CASCADE)
 
     # class Meta:
-    #     unique_together = ('user_id', 'subscriber_id',)
+    #     unique_together = ('users', 'current_user',)
 
-    # Подписка
-    # def subscribe(request):
-    #     subs_model = Subscribers()
-    #     subs_model.user = request.user.id
-    #     subs_model.subscriber = int(request.POST['user_id'])
-    #     subs_model.save()
-    #     request.user
-    #     return print('a')
+    def __str__(self):
+        return self.user_id.user.first_name + " Подписан на: " + self.subscriber_id.first_name
+
+    @classmethod
+    def make_friend(cls, current_user, new_friend):
+        friend, created = cls.objects.get_or_create(
+            current_user=current_user
+        )
+        friend.users.add(new_friend)
+
+    @classmethod
+    def remove_friend(cls, current_user, new_friend):
+        friend, created = cls.objects.get_or_create(
+            current_user=current_user
+        )
+        friend.users.remove(new_friend)
