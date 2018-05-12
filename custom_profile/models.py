@@ -89,23 +89,20 @@ class Profile(models.Model):
 
     # Модель "Дрзуей"
 class Subscribers(models.Model):
-    # STUDENT_TYPE_CHOICES = (
-    #     ('0', 'В ожидании'),
-    #     ('1', 'Запрос дружбы'),
-    #     ('2', 'Подтверждение дружбы'),
-    # )
-    # status = models.CharField(max_length=1, choices=STUDENT_TYPE_CHOICES)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    subscriber = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    # user = models.ManyToManyField(Profile)
+    # subscriber = models.ForeignKey(Profile, related_name="Users.id", null=True, on_delete=models.CASCADE)
 
-    class Meta:
-        unique_together = ('user', 'subscriber',)
+    user_id = models.ForeignKey(Profile, related_name='friendship_creator_set', on_delete=models.CASCADE)
+    subscriber_id = models.ForeignKey(Profile, related_name='friend_set', on_delete=models.CASCADE)
+
+    # class Meta:
+    #     unique_together = ('user_id', 'subscriber_id',)
 
     # Подписка
-    def subscribe(request):
-        subs_model = Subscribers()
-        subs_model.user = request.user.id
-        subs_model.subscriber = int(request.POST['user_id'])
-        subs_model.save()
-        request.user
-        return print('a')
+    # def subscribe(request):
+    #     subs_model = Subscribers()
+    #     subs_model.user = request.user.id
+    #     subs_model.subscriber = int(request.POST['user_id'])
+    #     subs_model.save()
+    #     request.user
+    #     return print('a')
