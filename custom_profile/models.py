@@ -57,9 +57,6 @@ class Users:
             return ipgeobases[0]
 
 
-
-
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=1000, blank=True)

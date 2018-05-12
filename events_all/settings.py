@@ -86,13 +86,20 @@ WSGI_APPLICATION = 'events_all.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+import socket
+
+import getpass
+host = '10.54.65.59'
+if (getpass.getuser() == 'dmitrij'):
+    host = socket.gethostbyname(socket.getfqdn())
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'test2',
         'USER': 'postgreadmin',
         'PASSWORD': '4321',
-        'HOST': '10.54.65.59',
+        'HOST': host,
         'PORT': '5432',
     }
 }
