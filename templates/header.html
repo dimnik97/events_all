@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 <link rel="stylesheet" media="all" href={% static "css/style.css" %} type="text/css">
-
+<!-- Главное меню -->
 <ul>
     {% load menubuilder %}
     {% menu main_menu %}
@@ -15,23 +15,5 @@
     {% endfor %}
 </ul>
 <!-- Главное меню -->
-<div>
-    {% block signin %}
-        {% if user.is_authenticated %}
-            <a href="/profile/{{ user.id }}">Аккаунт</a>
-            First name  : {{ user.first_name }} <br>
-            Last name: {{ user.last_name }} <br>
-            City: {{ locate.city }} <br>
-            <a href="/accounts/logout/">logout</a>
 
-        {% else %}
-            {% if request.path != '/profile/signin/' %}
-                <a href="/accounts/login/">Войдите</a><br>
-            {% endif %}
-            {% if request.path != '/profile/signup/' %}
-                <a href="/accounts/signup/">Или зарегестрируйтесь</a>
-            {% endif %}
-        {% endif %}
-    {% endblock %}
-</div>
 Конец хидера

@@ -1,6 +1,29 @@
-{% extends "base.html" %}
+{% extends "main_template.html" %}
 
-
+{% block signin %}
+    empty
+{% endblock %}
 {% block content %}
-    wecewce
+    Полное имя {{ user.first_name }} {{ user.last_name }} <br>
+    {{ user.email }} <br>
+    {{ user.profile.birth_date }} <br>
+    {{ user.profile.description }} <br>
+    {{ user.profile.phone }} <br>
+    {{ user.profile.sex }} <br>
+
+    {% if user %}
+        <button>Настройки</button>
+    {% endif %}
+
+    <div>
+        <span>Список подписок</span>
+        <ul>
+            {% for item in users %}
+                <li data-user_id="{{ item.id }}">
+                    {{ item.first_name }}  {{ item.last_name }}
+                    <input class="add_to_friend" type="button" value="Подписаться">
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}

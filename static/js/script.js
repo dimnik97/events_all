@@ -1,6 +1,33 @@
 $(document).ready(function() {
-    // Валидация первого шага регистрации
-    $('#signup_form .next_step').on('click', function () {
+    // Проброс токена CSRF во все запросы ajax
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                // Only send the token to relative URLs i.e. locally.
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            }
+        }
+    });
+
+
+
+        // Валидация первого шага регистрации
+        $('#signup_form .next_step').on('click', function () {
 
         $form = $('#signup_form');
         $('label, input[type!="hidden"]', $form);
@@ -50,8 +77,8 @@ $(document).ready(function() {
 
             }
         });
-
     });
+
 
     $('#signup_form .prev_step').on('click', function () {
         $form = $('#signup_form');
@@ -132,5 +159,23 @@ $(document).ready(function() {
             f_birth_date ||
             f_sex);
     }
+
+    // ПОдписка на пользователей
+    $('input.add_to_friend').on('click', function(){
+        user_id = $(this).closest("li").data('user_id');
+        $.ajax({
+            type: "POST",
+            url: "/profile/subscribe/",
+            data:{
+                'user_id': user_id
+            },
+            dataType: 'json',
+            success: function(data){
+                // Проверка на ошибки и прочее
+            }
+        });
+    });
+
+
 
 });

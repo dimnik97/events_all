@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from custom_profile.models import Users
+from custom_profile.models import Profile
 from django.shortcuts import get_object_or_404, render_to_response
 
 
@@ -9,6 +9,7 @@ def index(request, id):
 
     context = {
         'title': 'Профиль',
-        'user': user
+        'user': user,
+        'users': Profile.get_users()
     }
     return render_to_response('user_profile.html', context)
