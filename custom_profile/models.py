@@ -85,14 +85,7 @@ class Profile(models.Model):
         events = User.objects.all()
         return events
 
-    # Подписка
-    def subscribe(request):
-        subs_model = Subscribers()
-        subs_model.user = request.user.id
-        subs_model.subscriber = int(request.POST['user_id'])
-        subs_model.save()
-        request.user
-        return print('a')
+
 
     # Модель "Дрзуей"
 class Subscribers(models.Model):
@@ -108,6 +101,11 @@ class Subscribers(models.Model):
     class Meta:
         unique_together = ('user', 'subscriber',)
 
-    def save_user_profile(sender, instance, **kwargs):
-
-        instance.profile.save()
+    # Подписка
+    def subscribe(request):
+        subs_model = Subscribers()
+        subs_model.user = request.user.id
+        subs_model.subscriber = int(request.POST['user_id'])
+        subs_model.save()
+        request.user
+        return print('a')
