@@ -161,16 +161,22 @@ $(document).ready(function() {
 
     // ПОдписка на пользователей
     $('input.add_to_friend').on('click', function(){
-        user_id = $(this).closest("li").data('user_id');
+        var user_id = $(this).closest("li").data('user_id'),
+            verb = $(this).closest("li").data('verb');
+        debugger;
         $.ajax({
             type: "POST",
-            url: "/profile/subscribe/",
+            url: "/profile/add_or_remove_friends/",
             data:{
-                'user_id': user_id
+                'user_id': user_id,
+                'verb': verb
             },
             dataType: 'json',
             success: function(data){
-                // Проверка на ошибки и прочее
+                if (verb == 'remove')
+                    $(this).closest("li").data('verb', 'add');
+                else
+                    $(this).closest("li").data('verb', 'remove');
             }
         });
     });

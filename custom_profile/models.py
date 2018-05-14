@@ -85,6 +85,9 @@ class Profile(models.Model):
         events = User.objects.all()
         return events
 
+    def get_absolute_url(self):
+        return "/profile/%i/" % self.id
+
 
 
     # Модель "Дрзуей"
@@ -92,22 +95,16 @@ class Subscribers(models.Model):
     users = models.ManyToManyField(Profile)
     current_user = models.ForeignKey(Profile, related_name="owner", null=True, on_delete=models.CASCADE)
 
-    # class Meta:
-    #     unique_together = ('users', 'current_user',)
-
-    def __str__(self):
-        return self.user_id.user.first_name + " Подписан на: " + self.subscriber_id.first_name
-
     @classmethod
     def make_friend(cls, current_user, new_friend):
-        friend, created = cls.objects.get_or_create(
+        subscribers, created = cls.objects.get_or_create(
             current_user=current_user
         )
-        friend.users.add(new_friend)
+        subscribers.users.add(new_friend)
 
     @classmethod
     def remove_friend(cls, current_user, new_friend):
-        friend, created = cls.objects.get_or_create(
+        subscribers, created = cls.objects.get_or_create(
             current_user=current_user
         )
-        friend.users.remove(new_friend)
+        subscribers.users.remove(new_friend)

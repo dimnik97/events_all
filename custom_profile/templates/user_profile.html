@@ -16,12 +16,24 @@
     {% endif %}
 
     <div>
-        <span>Список подписок</span>
+        <span>Список всех пользователей</span>
         <ul>
             {% for item in users %}
-                <li data-user_id="{{ item.id }}">
-                    {{ item.first_name }}  {{ item.last_name }}
+                <li data-user_id="{{ item.id }}" data-verb="add">
+                    <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
                     <input class="add_to_friend" type="button" value="Подписаться">
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div>
+        <span>Подписки</span>
+        <ul>
+            {% for item in friends %}
+                <li data-user_id="{{ item.user.id }}" data-verb="remove">
+                    <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+                    <input class="add_to_friend" type="button" value="Отписаться">
                 </li>
             {% endfor %}
         </ul>
