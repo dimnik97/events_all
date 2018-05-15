@@ -171,12 +171,19 @@ $(document).ready(function() {
                 'user_id': user_id,
                 'verb': verb
             },
-            dataType: 'json',
+            dataType: 'application/json',
             success: function(data){
-                if (verb == 'remove')
+                if (verb == 'remove') {
+                    debugger;
                     $(this).closest("li").data('verb', 'add');
-                else
+                    $(this).val('Отменить подписку');
+                    $(this).data('verb', 'remove');
+                }
+                else {
                     $(this).closest("li").data('verb', 'remove');
+                    $(this).val('Подписаться');
+                    $(this).data('verb', 'add');
+                }
             }
         });
     });

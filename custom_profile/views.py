@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.views.generic import ListView
 
 from custom_profile.models import Profile, Subscribers
 from django.shortcuts import get_object_or_404, render_to_response
@@ -17,6 +18,7 @@ def index(request, id):
         "friends": friends
     }
     return render_to_response('user_profile.html', context)
+
 
 @login_required
 def add_or_remove_friends(request):

@@ -108,3 +108,8 @@ class Subscribers(models.Model):
             current_user=current_user
         )
         subscribers.users.remove(new_friend)
+
+    # Возвращает абсолютный URL
+        @models.permalink
+        def get_absolute_url(user_id):
+            return "/profile/%i/" % user_id
