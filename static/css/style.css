@@ -7,3 +7,6 @@
 .invalide[type=radio]{
     outline: 1px solid red
 }
+button {
+    font-size: 12px;
+}

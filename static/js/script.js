@@ -159,33 +159,33 @@ $(document).ready(function() {
             f_sex);
     }
 
-    // ПОдписка на пользователей
-    $('input.add_to_friend').on('click', function(){
-        var user_id = $(this).closest("li").data('user_id'),
-            verb = $(this).closest("li").data('verb');
-        debugger;
+
+    // Подписка на пользователей
+    // Мод. Subscribers
+    $('.add_to_friend').on('click', function(){
+        var user_id = $(this).data('user_id'),
+            action = $(this).data('action'),
+            $this = $(this);
         $.ajax({
             type: "POST",
             url: "/profile/add_or_remove_friends/",
             data:{
                 'user_id': user_id,
-                'verb': verb
+                'action': action
             },
-            dataType: 'application/json',
-            success: function(data){
-                if (verb == 'remove') {
-                    debugger;
-                    $(this).closest("li").data('verb', 'add');
-                    $(this).val('Отменить подписку');
-                    $(this).data('verb', 'remove');
-                }
-                else {
-                    $(this).closest("li").data('verb', 'remove');
-                    $(this).val('Подписаться');
-                    $(this).data('verb', 'add');
+            dataType: 'json',
+            success: function(data) {
+                if (data) {
+                    if (action == 'add') {
+                        $this.text('отписаться');
+                        $this.data('action', 'remove');
+                    }
+                    else {
+                        $this.text('Подписаться');
+                        $this.data('action', 'add');
+                    }
                 }
             }
         });
     });
-
 });

@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django_ipgeobase.models import IPGeoBase
 
 #Необходимо для того, чтобы не запрашивался токен
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 from custom_profile.validator import signup_validator
 
 # Получение общей информации для пользователей
@@ -110,6 +110,6 @@ class Subscribers(models.Model):
         subscribers.users.remove(new_friend)
 
     # Возвращает абсолютный URL
-        @models.permalink
-        def get_absolute_url(user_id):
-            return "/profile/%i/" % user_id
+    @models.permalink
+    def get_absolute_url(user_id):
+        return "/profile/%i/" % user_id
