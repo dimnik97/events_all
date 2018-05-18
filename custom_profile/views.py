@@ -7,14 +7,14 @@ from django.shortcuts import get_object_or_404, render_to_response
 
 def index(request, id):
     user = get_object_or_404(User, id=id)
-    friend_object, created = Subscribers.objects.get_or_create(current_user=request.user.userprofile)
-    friends = [friend for friend in friend_object.users.all() if friend != request.user.userprofile]
+    # friend_object, created = Subscribers.objects.get_or_create(current_user=request.user.userprofile)
+    # friends = [friend for friend in friend_object.users.all() if friend != request.user.userprofile]
 
     context = {
         'title': 'Профиль',
         'user': user,
         'users': Profile.get_users(),
-        "friends": friends
+        # "friends": friends
     }
     return render_to_response('user_profile.html', context)
 
