@@ -9,16 +9,15 @@ from django.shortcuts import get_object_or_404, render_to_response
 def index(request, id):
     account = None
     if request.user.is_authenticated:
-        account = request.user.profile.id  # Залогиненный пользователь
-    user = get_object_or_404(User, id=id) # Отвечает за юзера, который отобразится в профиле
+        account = request.user.id  # Залогиненный пользователь
+    user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
 
-    # obj = Subscribers.objects.get(users=user.profile, current_user=request.user.profile)
-    is_friend = 'add'
+    friend_flag = 'add'
     try:
         if Subscribers.objects.filter(users=user.profile, current_user=request.user.profile):
-            is_friend = 'remove'
+            friend_flag = 'remove'
     except:
-        is_friend = 'add'
+        friend_flag = 'add'
 
     friend_object, created = Subscribers.objects.get_or_create(current_user= user.profile)
     friends = [friend for friend in friend_object.users.all() if friend != user.profile]
@@ -29,9 +28,10 @@ def index(request, id):
         'users': Profile.get_users(),
         'friends': friends,
         'account': account,
-        'is_friend': is_friend
+        'friend_flag': friend_flag
     }
     return render_to_response('user_profile.html', context)
+
 
 # Добавление или удаление подписки
 @login_required

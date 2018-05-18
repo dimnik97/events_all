@@ -8,7 +8,7 @@
             {% if account and account != user.id %}
                 {# TODO Посмотреть, написать как-нибудь по другому #}
                 <button class="add_to_friend" data-user_id="{{ user.id }}" data-action="{{ is_friend }}">
-                    {% if is_friend == 'add'%}
+                    {% if friend_flag == 'add'%}
                         Подписаться
                     {% else %}
                         Отписаться
