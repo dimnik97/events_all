@@ -31,11 +31,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'bootstrap4',
     'events_',
     'dal',
     'dal_select2',
     'cities',
     'main_app',
+    'custom_profile',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,7 +50,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.vk',
-    'custom_profile',
     'django_ipgeobase',
 ]
 
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'events_all.urls'
 
@@ -87,7 +89,6 @@ WSGI_APPLICATION = 'events_all.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 import socket
-
 import getpass
 host = '10.54.65.59'
 if (getpass.getuser() == 'dmitrij'):
@@ -144,6 +145,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 
 PROJECT_ROOT = os.path.normpath(os.path.dirname(__file__))
 STATICFILES_DIRS = (
@@ -171,3 +173,5 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 )
+
+X_FRAME_OPTIONS = 'DENY'

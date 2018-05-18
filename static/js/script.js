@@ -161,20 +161,33 @@ $(document).ready(function() {
             f_sex);
     }
 
-    // ПОдписка на пользователей
-    $('input.add_to_friend').on('click', function(){
-        user_id = $(this).closest("li").data('user_id');
+
+    // Подписка на пользователей
+    // Мод. Subscribers
+    $('.add_to_friend').on('click', function(){
+        var user_id = $(this).data('user_id'),
+            action = $(this).data('action'),
+            $this = $(this);
         $.ajax({
             type: "POST",
-            url: "/profile/subscribe/",
+            url: "/profile/add_or_remove_friends/",
             data:{
-                'user_id': user_id
+                'user_id': user_id,
+                'action': action
             },
             dataType: 'json',
-            success: function(data){
-                // Проверка на ошибки и прочее
+            success: function(data) {
+                if (data) {
+                    if (action == 'add') {
+                        $this.text('отписаться');
+                        $this.data('action', 'remove');
+                    }
+                    else {
+                        $this.text('Подписаться');
+                        $this.data('action', 'add');
+                    }
+                }
             }
         });
     });
-
 });

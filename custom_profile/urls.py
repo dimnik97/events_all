@@ -1,8 +1,7 @@
 from django.conf.urls import url
 from custom_profile import views
-from custom_profile.models import Profile
 
 urlpatterns = [
     url(r'^(?P<id>[0-9]+)$', views.index, name='index'),
-    # url(r'subscri/be/$', Profile.subscribe, name='subscribe'),
+    url(r'add_or_remove_friends/$', views.add_or_remove_friends, name='add_or_remove_friends'),
 ]

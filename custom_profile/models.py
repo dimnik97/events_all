@@ -1,12 +1,19 @@
+import hashlib
+import os
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
+from PIL import Image
 
 #Необходимо для того, чтобы не запрашивался токен
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.csrf import csrf_exempt
+
+import helper
 from custom_profile.validator import signup_validator
 
 # Получение общей информации для пользователей
@@ -62,7 +69,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField(null=True, blank=True)
-    phone = models.TextField(null=True, blank = True)
+    phone = models.TextField(null=True, blank=True)
     sex = models.IntegerField(default=0)
 
     # Создание юзера с дополнительной информацией
@@ -85,29 +92,99 @@ class Profile(models.Model):
         events = User.objects.all()
         return events
 
+    def get_absolute_url(self):
+        return "/profile/%i/" % self.id
 
 
-    # Модель "Дрзуей"
+# Модель "Дрзуей"
 class Subscribers(models.Model):
     users = models.ManyToManyField(Profile)
     current_user = models.ForeignKey(Profile, related_name="owner", null=True, on_delete=models.CASCADE)
 
-    # class Meta:
-    #     unique_together = ('users', 'current_user',)
-
-    def __str__(self):
-        return self.user_id.user.first_name + " Подписан на: " + self.subscriber_id.first_name
-
     @classmethod
     def make_friend(cls, current_user, new_friend):
-        friend, created = cls.objects.get_or_create(
+        subscribers, created = cls.objects.get_or_create(
             current_user=current_user
         )
-        friend.users.add(new_friend)
+        subscribers.users.add(new_friend)
 
     @classmethod
     def remove_friend(cls, current_user, new_friend):
-        friend, created = cls.objects.get_or_create(
+        subscribers, created = cls.objects.get_or_create(
             current_user=current_user
         )
-        friend.users.remove(new_friend)
+        subscribers.users.remove(new_friend)
+
+    # Возвращает абсолютный URL
+    @models.permalink
+    def get_absolute_url(user_id):
+        return "/profile/%i/" % user_id
+
+
+# Аватарки и миниатюры пользователей
+class AccountImage(models.Model):
+    users = models.ManyToManyField(Profile)
+    hash_name = models.TextField(max_length=50, blank=True)
+    last_update = models.DateField(null=True, blank=True)
+    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'))
+
+    # Добавляем к свойствам объектов модели путь к миниатюре
+    def _get_mini_path(self):
+        return helper._add_mini(self.image.path)
+
+    mini_path = property(_get_mini_path)
+    # Добавляем к свойствам объектов модели урл миниатюры
+    def _get_mini_url(self):
+        return helper._add_mini(self.image.url)
+
+    mini_url = property(_get_mini_url)
+
+    # Создаем свою save
+    # Добавляем:
+    # - создание миниатюры
+    # - удаление миниатюры и основного изображения
+    #   при попытке записи поверх существующей записи
+    def save(self, force_insert=False, force_update=False, using=None):
+        try:
+            obj = AccountImage.objects.get(id=self.id)
+            if obj.image.path != self.image.path:
+                helper._del_mini(obj.image.path)
+                obj.image.delete()
+        except:
+            pass
+        super(AccountImage, self).save()
+        img = Image.open(self.image.path)
+        img.thumbnail(
+            (128, 128),
+            Image.ANTIALIAS
+        )
+        img.save(self.mini_path, 'JPEG')
+
+    #     # Делаем свою delete с учетом миниатюры
+    #     def delete(self, using=None):
+    #         try:
+    #             obj = Photo.objects.get(id=self.id)
+    #             _del_mini(obj.image.path)
+    #             obj.image.delete()
+    #         except (Photo.DoesNotExist, ValueError):
+    #             pass
+    #         super(Photo, self).delete()
+    #
+    #     def get_absolute_url(self):
+    #         return ('photo_detail', None, {'object_id': self.id})
+
+    # # Класс для админки с отображением миниатюры в листе изображений (get_mini_html)
+    # # и возможностью физического, пакетного удаления
+    # # изображений и миниатюр (full_delete_selected)
+    # class PhotoAdmin(admin.ModelAdmin):
+    #     admin.site.disable_action('delete_selected')
+    #
+    #     def full_delete_selected(self, request, obj):
+    #         for o in obj.all():
+    #             o.delete()
+    #
+    #     full_delete_selected.short_description = 'Удалить выбранные иллюстрации'
+    #     actions = ['full_delete_selected']
+    #     list_display = ('title', 'captions', 'get_mini_html')
+    #
+    # admin.site.register(Photo, PhotoAdmin)
