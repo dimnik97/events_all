@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.forms import inlineformset_factory
 from django.http import HttpResponse, Http404
 
-from custom_profile.models import Profile, Subscribers
+from custom_profile.models import Profile, Subscribers, Profile_avatar, Users
 from django.shortcuts import get_object_or_404, render_to_response
 
 
@@ -12,6 +13,8 @@ def index(request, id):
         account = request.user.id  # Залогиненный пользователь
     user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
 
+    avatar, created = Profile_avatar.objects.get_or_create(user=user.profile)
+
     friend_flag = 'add'
     try:
         if Subscribers.objects.filter(users=user.profile, current_user=request.user.profile):
@@ -19,7 +22,7 @@ def index(request, id):
     except:
         friend_flag = 'add'
 
-    friend_object, created = Subscribers.objects.get_or_create(current_user= user.profile)
+    friend_object, created = Subscribers.objects.get_or_create(current_user=user.profile)
     friends = [friend for friend in friend_object.users.all() if friend != user.profile]
 
     context = {
@@ -28,7 +31,8 @@ def index(request, id):
         'users': Profile.get_users(),
         'friends': friends,
         'account': account,
-        'friend_flag': friend_flag
+        'friend_flag': friend_flag,
+        'avatar': avatar
     }
     return render_to_response('user_profile.html', context)
 
@@ -53,3 +57,20 @@ def add_or_remove_friends(request):
         return HttpResponse(str(200))
     else:
         raise Http404
+
+
+def edit(request):
+    if request.method == 'POST':
+        form = Profile(request.POST)
+        if form.is_valid():
+            pass  # does nothing, just trigger the validation
+    else:
+        BookFormSet = inlineformset_factory(User, Profile, fields=('title',))
+        user = request.user
+        form = BookFormSet(instance=user)
+
+    context = {
+        'title': 'Профиль',
+        'form': form
+    }
+    return render_to_response('edit.html', context)

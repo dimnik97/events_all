@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import os
 
@@ -14,6 +15,7 @@ from PIL import Image
 from django.views.decorators.csrf import csrf_exempt
 
 import helper
+from custom_profile import forms
 from custom_profile.validator import signup_validator
 
 # Получение общей информации для пользователей
@@ -64,6 +66,7 @@ class Users:
         if ipgeobases.exists():
             return ipgeobases[0]
 
+
 # Модель с дополнительными полями для user
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -71,6 +74,18 @@ class Profile(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     phone = models.TextField(null=True, blank=True)
     sex = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = ('Профили')
+        verbose_name_plural = ('Профили')
+
+    def clean(self):
+        cleaned_data = super(Profile, self).clean()
+        name = cleaned_data.get('name')
+        email = cleaned_data.get('email')
+        message = cleaned_data.get('message')
+        if not name and not email and not message:
+            raise forms.ValidationError('You have to write something!')
 
     # Создание юзера с дополнительной информацией
     @receiver(post_save, sender=User)
@@ -101,6 +116,10 @@ class Subscribers(models.Model):
     users = models.ManyToManyField(Profile)
     current_user = models.ForeignKey(Profile, related_name="owner", null=True, on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name = ('Подписчики')
+        verbose_name_plural = ('Подписчики')
+
     @classmethod
     def make_friend(cls, current_user, new_friend):
         subscribers, created = cls.objects.get_or_create(
@@ -122,11 +141,14 @@ class Subscribers(models.Model):
 
 
 # Аватарки и миниатюры пользователей
-class AccountImage(models.Model):
-    users = models.ManyToManyField(Profile)
-    hash_name = models.TextField(max_length=50, blank=True)
-    last_update = models.DateField(null=True, blank=True)
-    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'))
+class Profile_avatar(models.Model):
+    user = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
+    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'), default='media/avatar/default/img.jpg')
+
+    class Meta:
+        verbose_name = ('Аватары')
+        verbose_name_plural = ('Аватары')
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_mini_path(self):
@@ -146,45 +168,29 @@ class AccountImage(models.Model):
     #   при попытке записи поверх существующей записи
     def save(self, force_insert=False, force_update=False, using=None):
         try:
-            obj = AccountImage.objects.get(id=self.id)
+            obj = Profile_avatar.objects.get(id=self.id)
             if obj.image.path != self.image.path:
                 helper._del_mini(obj.image.path)
                 obj.image.delete()
         except:
             pass
-        super(AccountImage, self).save()
+        super(Profile_avatar, self).save()
         img = Image.open(self.image.path)
         img.thumbnail(
             (128, 128),
             Image.ANTIALIAS
         )
-        img.save(self.mini_path, 'JPEG')
+        img.save(self.mini_path)
 
-    #     # Делаем свою delete с учетом миниатюры
-    #     def delete(self, using=None):
-    #         try:
-    #             obj = Photo.objects.get(id=self.id)
-    #             _del_mini(obj.image.path)
-    #             obj.image.delete()
-    #         except (Photo.DoesNotExist, ValueError):
-    #             pass
-    #         super(Photo, self).delete()
-    #
-    #     def get_absolute_url(self):
-    #         return ('photo_detail', None, {'object_id': self.id})
+    # Делаем свою delete с учетом миниатюры
+    def delete(self, using=None):
+        try:
+            obj = Profile_avatar.objects.get(id=self.id)
+            helper._del_mini(obj.image.path)
+            obj.image.delete()
+        except (Profile_avatar.DoesNotExist, ValueError):
+            pass
+        super(Profile_avatar, self).delete()
 
-    # # Класс для админки с отображением миниатюры в листе изображений (get_mini_html)
-    # # и возможностью физического, пакетного удаления
-    # # изображений и миниатюр (full_delete_selected)
-    # class PhotoAdmin(admin.ModelAdmin):
-    #     admin.site.disable_action('delete_selected')
-    #
-    #     def full_delete_selected(self, request, obj):
-    #         for o in obj.all():
-    #             o.delete()
-    #
-    #     full_delete_selected.short_description = 'Удалить выбранные иллюстрации'
-    #     actions = ['full_delete_selected']
-    #     list_display = ('title', 'captions', 'get_mini_html')
-    #
-    # admin.site.register(Photo, PhotoAdmin)
+    def get_absolute_url(self):
+        return ('photo_detail', None, {'object_id': self.id})
