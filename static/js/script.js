@@ -62,8 +62,8 @@ $(document).ready(function() {
         });
     });
 
-    // функция для подписки на событие
-    $('button.subscribe_event').on('click', function(){
+    // функция для подписки/отписки на событие
+    $('.subscribe_event').on('click', function(){
         event_id = $(this).closest("div.event_item").data('event_id');
         $.ajax({
             type: "POST",
@@ -77,6 +77,8 @@ $(document).ready(function() {
             }
         });
     });
+
+
 
 
     $('#signup_form .prev_step').on('click', function () {

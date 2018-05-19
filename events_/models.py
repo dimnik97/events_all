@@ -1,4 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -10,7 +12,7 @@ class Event(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
     description = models.TextField(null=True,blank=True)
-    creator_id = models.ForeignKey(Profile, on_delete = models.CASCADE)
+    creator_id = models.ForeignKey(User, on_delete = models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True,blank=True)
     end_time = models.DateTimeField(null=True,blank=True)
@@ -21,14 +23,14 @@ class Event(models.Model):
         return events
 
     def __str__(self):
-        return self.name + ' Создатель: ' + self.creator_id.user.first_name
+        return self.name + ' Создатель: ' + self.creator_id.first_name
 
 
 
 
 class EventParty(models.Model):
     id = models.AutoField(primary_key=True)
-    user_id = models.ForeignKey(Profile, on_delete = models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete = models.CASCADE)
     event_id = models.ForeignKey(Event, on_delete = models.CASCADE)
 
     class Meta:
@@ -36,15 +38,23 @@ class EventParty(models.Model):
 
     @csrf_exempt
     def subscribe_event(request):
-        # функция подписки на событие
-        new_subscriber = EventParty()
-        new_subscriber.event_id = Event.objects.get(id=int(request.POST['event_id']))
-        new_subscriber.user_id = Profile.objects.get(id=request.user.id)
-        new_subscriber.save()
-        pass
+        # функция подписки/отписки на событие
+        if request.is_ajax():
+            try:
+                new_subscriber = EventParty()
+                event_id = Event.objects.get(id=int(request.POST['event_id']))
+                new_subscriber.event_id = event_id
+                new_subscriber.user_id = request.user.id
+                new_subscriber.save()
+            except KeyError:
+                return HttpResponse('Error')
+
+        return HttpResponse(str(200))
+
+
 
     def __str__(self):
-        return self.user_id.user.first_name + " Участник: " + self.event_id.name
+        return self.user_id.first_name + " Участник: " + self.event_id.name
 
 
 
