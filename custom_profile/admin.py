@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import Profile, Subscribers, Profile_avatar
+from .models import Profile, Subscribers, ProfileAvatar
 
 
 class AuthorAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Profile, AuthorAdmin)
 admin.site.register(Subscribers, AuthorAdmin)
-admin.site.register(Profile_avatar, AuthorAdmin)
+admin.site.register(ProfileAvatar, AuthorAdmin)
