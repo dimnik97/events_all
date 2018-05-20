@@ -142,7 +142,7 @@ class Subscribers(models.Model):
 
 # Аватарки и миниатюры пользователей
 class Profile_avatar(models.Model):
-    user = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    user = models.OneToOneField(Profile, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'), default='media/avatar/default/img.jpg')
 
