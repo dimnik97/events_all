@@ -39,3 +39,4 @@ class SignupForm(forms.Form):
         user.profile.phone = self.cleaned_data['phone']
         user.profile.birth_date = self.cleaned_data['birth_date']
         user.save()
+

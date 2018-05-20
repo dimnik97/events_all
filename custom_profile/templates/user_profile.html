@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
     <div class="row">
-        <div class="col-4">
+        <div class="col-3 profile_left">
             {% if account and account != user.id %}
                 {# TODO Посмотреть, написать как-нибудь по другому #}
                 <button class="add_to_friend" data-user_id="{{ user.id }}" data-action="{{ is_friend }}">
@@ -15,6 +15,9 @@
                     {% endif %}
                 </button>
             {% endif %}
+
+            <p><img src="{{ avatar.image.url }}" width="200px" height="200px"></p>
+
             Полное имя {{ user.first_name }} {{ user.last_name }} <br>
             Email {{ user.email }} <br>
             Дата рождения {{ user.profile.birth_date }} <br>
@@ -23,7 +26,7 @@
             Гендерная принадлежность {{ user.profile.sex }} <br>
 
             {% if account and account == user.id %}
-                <button>Настройки</button>
+                <a href="profile/edit" class="btn btn-default">Настройки</a>
             {% endif %}
 
 
@@ -34,6 +37,9 @@
                         <li>
                             <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
                             <button class="add_to_friend"  data-user_id="{{ item.id }}" data-action="add">Подписаться</button>
+                            {% if not item.profile  %}
+                                !!!!
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
@@ -53,6 +59,6 @@
                 </ul>
             </div>
         </div>
-        <div class="col-8">Тут будут выводится события</div>
+        <div class="col-9">Тут будут выводится события</div>
     </div>
 {% endblock %}
