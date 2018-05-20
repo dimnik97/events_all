@@ -18,15 +18,9 @@ import helper
 from custom_profile import forms
 from custom_profile.validator import signup_validator
 
+
 # Получение общей информации для пользователей
 class Users:
-    # Получение модели юзера по id
-    def get_user(id):
-        try:
-            return User.objects.get(id=id)
-        except User.DoesNotExist:
-            return None
-
     # Возвращает абсолютный URL
     @models.permalink
     def get_absolute_url(user_id):
@@ -41,8 +35,6 @@ class Users:
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-    #TODO Переделать, проверка должна быть
-    @csrf_exempt
     def signup_check(request):
         return JsonResponse(signup_validator.email_and_password(request))
 
@@ -61,8 +53,8 @@ class Users:
     def get_user_locations(request):
         ip = "212.49.98.48"
         # ipp = Users.get_client_ip(request)
-
         ipgeobases = IPGeoBase.objects.by_ip(ip)
+
         if ipgeobases.exists():
             return ipgeobases[0]
 
@@ -113,8 +105,8 @@ class Profile(models.Model):
 
 # Модель "Дрзуей"
 class Subscribers(models.Model):
-    users = models.ManyToManyField(Profile)
-    current_user = models.ForeignKey(Profile, related_name="owner", null=True, on_delete=models.CASCADE)
+    users = models.ManyToManyField(User)
+    current_user = models.ForeignKey(User, related_name="owner", null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = ('Подписчики')
@@ -141,10 +133,10 @@ class Subscribers(models.Model):
 
 
 # Аватарки и миниатюры пользователей
-class Profile_avatar(models.Model):
-    user = models.OneToOneField(Profile, on_delete=models.CASCADE, default=True)
+class ProfileAvatar(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'), default='media/avatar/default/img.jpg')
+    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'), default='avatar/default/img.png')
 
     class Meta:
         verbose_name = ('Аватары')
@@ -161,7 +153,6 @@ class Profile_avatar(models.Model):
 
     mini_url = property(_get_mini_url)
 
-
     # Создаем свою save
     # Добавляем:
     # - создание миниатюры
@@ -169,13 +160,13 @@ class Profile_avatar(models.Model):
     #   при попытке записи поверх существующей записи
     def save(self, force_insert=False, force_update=False, using=None):
         try:
-            obj = Profile_avatar.objects.get(id=self.id)
+            obj = ProfileAvatar.objects.get(id=self.id)
             if obj.image.path != self.image.path:
                 helper._del_mini(obj.image.path)
                 obj.image.delete()
         except:
             pass
-        super(Profile_avatar, self).save()
+        super(ProfileAvatar, self).save()
         img = Image.open(self.image.path)
         img.thumbnail(
             (128, 128),
@@ -186,12 +177,12 @@ class Profile_avatar(models.Model):
     # Делаем свою delete с учетом миниатюры
     def delete(self, using=None):
         try:
-            obj = Profile_avatar.objects.get(id=self.id)
+            obj = ProfileAvatar.objects.get(id=self.id)
             helper._del_mini(obj.image.path)
             obj.image.delete()
-        except (Profile_avatar.DoesNotExist, ValueError):
+        except (ProfileAvatar.DoesNotExist, ValueError):
             pass
-        super(Profile_avatar, self).delete()
+        super(ProfileAvatar, self).delete()
 
     def get_absolute_url(self):
         return ('photo_detail', None, {'object_id': self.id})

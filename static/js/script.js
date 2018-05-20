@@ -203,4 +203,29 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('.all_subscribers').on('click', function () {
+        // debugger;
+        $( "#dialog" ).dialog({
+            title: 'Подписчики',
+            height: '700',
+            width: '500',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                // ensure that the titlebar is never outside the document
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+        }).dialog('open');
+    })
 });

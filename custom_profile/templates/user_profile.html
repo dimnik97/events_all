@@ -26,9 +26,8 @@
             Гендерная принадлежность {{ user.profile.sex }} <br>
 
             {% if account and account == user.id %}
-                <a href="profile/edit" class="btn btn-default">Настройки</a>
+                <a href="edit" class="btn btn-default">Настройки</a>
             {% endif %}
-
 
             <div>
                 <span>Список всех пользователей</span>
@@ -46,19 +45,28 @@
             </div>
 
             <div>
-                <span>Подписки</span>
+                <span class="all_subscribers">Подписки {{ friends|length }}</span>
                 <ul>
                     {% for item in friends %}
-                        <li>
+                        <div>
+                            <a href="/profile/{{ item.user.id }}">
+                                <img src="{{ item.profile_avatar.mini_url }}" class="avatar_round">
+                            </a>
                             <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
                             {% if account and account == user.id %}
                                 <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
                             {% endif %}
-                        </li>
+                        </div>
                     {% endfor %}
                 </ul>
             </div>
         </div>
         <div class="col-9">Тут будут выводится события</div>
     </div>
+
+    <div id="dialog" class="d_none">
+        <div class="content"></div>
+    </div>
+
+
 {% endblock %}
