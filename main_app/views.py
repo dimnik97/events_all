@@ -10,31 +10,30 @@ def index(request):
     user = User.objects.get(id=user_id)
     #
     # # todo вынести в отдельную функцию
-    # for number in range(len(events)):
-    #     try:
-    #
-    #
-    #         current_event = events[number]
-    #         EventParty.objects.get(user_id=user, event_id=current_event)
-    #
-    #         events_dict.append({
-    #             'event': events[number],
-    #             'party_flag': 1
-    #         })
-    #
-    #     except:
-    #         events_dict.append({
-    #             'event': events[number],
-    #             'party_flag': 0
-    #         })
+    for number in range(len(events)):
+        try:
+
+            current_event = events[number]
+            EventParty.objects.get(user_id=user, event_id=current_event)
+
+            events_dict.append({
+                'event': events[number],
+                'party_flag': 1
+            })
+
+        except:
+            events_dict.append({
+                'event': events[number],
+                'party_flag': 0
+            })
 
     context = {
         'title': "Лента событий",
 
-        'events': events,
+        'events': events_dict,
 
 
-        'user': Users.get_user(user_id),
+        'user': user,
         'locate': Users.get_user_locations(user_id),
         # 'user_url': Users.get_absolute_url(user_id)
     }

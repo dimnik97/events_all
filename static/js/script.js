@@ -64,8 +64,9 @@ $(document).ready(function() {
 
     // функция для подписки/отписки на событие
     $('.subscribe_event').on('click', function(){
-        var event_id = $(this).closest("div.event_item").data('event_id'),
-        atcion_type = $(this).data('action');
+        $this = $(this);
+        var event_id = $this.closest("div.event_item").data('event_id'),
+        atcion_type = $this.data('action');
         $.ajax({
             type: "POST",
             url: "/main_app/subscribe_event/",
@@ -76,12 +77,12 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(data){
                 if (data) {
-                    if (action == 'subscribedd') {
+                    if (atcion_type == 'subscribe') {
                         $this.text('Отписаться');
                         $this.data('action', 'unsubscribe');
                     }
                     else {
-                        $this.text('Пойтиы');
+                        $this.text('Пойти');
                         $this.data('action', 'subscribe');
                     }
                 }

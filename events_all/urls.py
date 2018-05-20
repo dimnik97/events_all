@@ -27,6 +27,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('profile/', include('custom_profile.urls')),
     path('cities/', include('cities.urls')),
+    path('events/', include('events_.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

@@ -1,0 +1,29 @@
+{% extends "main_template.html" %}
+
+{% block signin %}
+{% endblock %}
+{% block content %}
+
+    <div data-event="{{ event.id }}">
+        <h1>Событие:</h1>
+        <p><img src="{{ avatar.image.url }}" width="200px" height="200px"></p>
+        Название: {{ event.name }}
+        Создатель: {{ event.creator_id.first_name }}
+
+    </div>
+    <div>
+        Участники
+        <ul>
+            {% for item in subs %}
+                <li>
+                    <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
+                    <button class="add_to_friend"  data-user_id="{{ item.id }}" data-action="add">Подписаться</button>
+                    {% if not item.profile  %}
+                        !!!!
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+{% endblock %}

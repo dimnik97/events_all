@@ -3,14 +3,14 @@
 {% block content %}
     <h2>Список событий</h2>
     {% for event in events %}
-        <div class="event_item" data-event_id="{{event.id}}" >
-            {{ event.id }}    {{ event.name }}    {{ event.creator_id.user.first_name }}
+        <div class="event_item" data-event_id="{{event.event.id}}" >
+            {{ event.event.id }}    {{ event.event.name }}    {{ event.event.creator_id.user.first_name }}
 
-{#            {% if event.party_flag == 1 %}#}
-                <button class="subscribe_event" data-action="subscribe">Отписаться</button>
-{#            {% elif event.party_flag == 0 %}#}
-{#                <button class="subscribe_event" data-action="subscribe">Пойти</button>#}
-{#            {% endif %}#}
+            {% if event.party_flag == 1 %}
+                <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
+            {% elif event.party_flag == 0 %}
+                <button class="subscribe_event" data-action="subscribe">Пойти</button>
+            {% endif %}
         </div>
     {% empty %}
         <p>There are no athletes. Only computer programmers.</p>
