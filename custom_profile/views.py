@@ -7,11 +7,9 @@ from django.shortcuts import get_object_or_404, render_to_response
 
 
 def index(request, id):
-<<<<<<< HEAD
     user = get_object_or_404(User, id=id)
     # friend_object, created = Subscribers.objects.get_or_create(current_user=request.user.userprofile)
     # friends = [friend for friend in friend_object.users.all() if friend != request.user.userprofile]
-=======
     account = None
     if request.user.is_authenticated:
         account = request.user.id  # Залогиненный пользователь
@@ -26,19 +24,14 @@ def index(request, id):
 
     friend_object, created = Subscribers.objects.get_or_create(current_user= user.profile)
     friends = [friend for friend in friend_object.users.all() if friend != user.profile]
->>>>>>> efa85d67bf03ea7b8137840357e64f6c6b760ea6
 
     context = {
         'title': 'Профиль',
         'user': user,
         'users': Profile.get_users(),
-<<<<<<< HEAD
-        # "friends": friends
-=======
         'friends': friends,
         'account': account,
         'friend_flag': friend_flag
->>>>>>> efa85d67bf03ea7b8137840357e64f6c6b760ea6
     }
     return render_to_response('user_profile.html', context)
 

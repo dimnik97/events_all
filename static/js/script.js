@@ -64,15 +64,27 @@ $(document).ready(function() {
 
     // функция для подписки/отписки на событие
     $('.subscribe_event').on('click', function(){
-        event_id = $(this).closest("div.event_item").data('event_id');
+        var event_id = $(this).closest("div.event_item").data('event_id'),
+        atcion_type = $(this).data('action');
         $.ajax({
             type: "POST",
             url: "/main_app/subscribe_event/",
             data:{
-                'event_id': event_id
+                'event_id': event_id,
+                'action': atcion_type
             },
             dataType: 'json',
             success: function(data){
+                if (data) {
+                    if (action == 'subscribedd') {
+                        $this.text('Отписаться');
+                        $this.data('action', 'unsubscribe');
+                    }
+                    else {
+                        $this.text('Пойтиы');
+                        $this.data('action', 'subscribe');
+                    }
+                }
 
             }
         });

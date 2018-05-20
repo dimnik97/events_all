@@ -1,5 +1,4 @@
 from hashlib import md5
-from os import path as op, os
 from time import time
 
 

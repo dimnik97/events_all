@@ -122,7 +122,7 @@ class Subscribers(models.Model):
 
 
 # Аватарки и миниатюры пользователей
-class AccountImage(models.Model):
+class Profile_avatar(models.Model):
     users = models.ManyToManyField(Profile)
     hash_name = models.TextField(max_length=50, blank=True)
     last_update = models.DateField(null=True, blank=True)
@@ -139,6 +139,7 @@ class AccountImage(models.Model):
 
     mini_url = property(_get_mini_url)
 
+
     # Создаем свою save
     # Добавляем:
     # - создание миниатюры
@@ -146,13 +147,13 @@ class AccountImage(models.Model):
     #   при попытке записи поверх существующей записи
     def save(self, force_insert=False, force_update=False, using=None):
         try:
-            obj = AccountImage.objects.get(id=self.id)
+            obj = Profile_avatar.objects.get(id=self.id)
             if obj.image.path != self.image.path:
                 helper._del_mini(obj.image.path)
                 obj.image.delete()
         except:
             pass
-        super(AccountImage, self).save()
+        super(Profile_avatar, self).save()
         img = Image.open(self.image.path)
         img.thumbnail(
             (128, 128),
