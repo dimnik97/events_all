@@ -40,3 +40,18 @@ class SignupForm(forms.Form):
         user.profile.birth_date = self.cleaned_data['birth_date']
         user.save()
 
+class Edit_profile(forms.Form):
+    first_name = forms.CharField(required=True, max_length=30, label='Имя')
+    last_name = forms.CharField(required=True, max_length=30, label='Фамилия')
+    # profile
+    description = forms.CharField(required=False, max_length=2000, widget=forms.Textarea(), label='Описание')
+    birth_date = forms.DateField(required=False, widget=forms.SelectDateWidget(years=range(1900, 2012)), label='Дата рождения')
+    phone = forms.CharField(required=False, max_length=30, label='Телефонный номер')
+
+    # def save_model(self, request, user):
+    #     user.first_name = self.cleaned_data['first_name']
+    #     user.last_name = self.cleaned_data['last_name']
+    #     # profile
+    #     user.profile.phone = self.cleaned_data['phone']
+    #     user.profile.birth_date = self.cleaned_data['birth_date']
+    #     user.save()

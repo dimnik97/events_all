@@ -15,3 +15,27 @@ button {
     border: #003366 1px solid;
     border-radius: 5px;
 }
+
+.avatar_round {
+    width: 40px;
+    height: 40px;
+    border-radius: 100px; /* Радиус скругления */
+    border: 1px solid black; /* Параметры рамки */
+    box-shadow: 0 0 7px #666; /* Параметры тени */
+}
+
+.all_subscribers {
+    cursor: pointer;
+}
+
+.ui-widget-overlay.ui-front {
+    opacity:0.75;
+    filter: Alpha(Opacity=50);
+    background-color: black;
+}
+div.content {
+    width: 300px
+}
+#id_birth_date_day, #id_birth_date_month, #id_birth_date_year {
+    width: 33%;
+}

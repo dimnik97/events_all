@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.forms import inlineformset_factory
 from django.http import HttpResponse, Http404
+from django.middleware.csrf import get_token
 
-from custom_profile.models import Profile, Subscribers, Profile_avatar, Users
+from custom_profile.forms import Edit_profile
+from custom_profile.models import Profile, Subscribers, ProfileAvatar
 from django.shortcuts import get_object_or_404, render_to_response
 
 
@@ -13,7 +14,7 @@ def index(request, id):
         account = request.user.id  # Залогиненный пользователь
     user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
 
-    avatar, created = Profile_avatar.objects.get_or_create(user=user.profile)
+    avatar, created = ProfileAvatar.objects.get_or_create(user=user.profile)
 
     friend_flag = 'add'
     try:
@@ -61,16 +62,25 @@ def add_or_remove_friends(request):
 
 def edit(request):
     if request.method == 'POST':
-        form = Profile(request.POST)
+        form = Edit_profile(request.POST)
         if form.is_valid():
+            Edit_profile.save_model()
             pass  # does nothing, just trigger the validation
     else:
-        BookFormSet = inlineformset_factory(User, Profile, fields=('title',))
+        # BookFormSet = inlineformset_factory(User, Profile, fields=('title',))
+        # user = request.user
         user = request.user
-        form = BookFormSet(instance=user)
+        form = Edit_profile({'first_name': user.first_name,
+                             'last_name': user.last_name,
+                             'email': user.email,
+                             'birth_date': user.profile.birth_date,
+                             'phone': user.profile.phone
+                             })
 
     context = {
         'title': 'Профиль',
-        'form': form
+        'form': form,
+        "csrf_token": get_token(request),
+        'avatar': ProfileAvatar.objects.get(user=request.user.id)
     }
     return render_to_response('edit.html', context)
