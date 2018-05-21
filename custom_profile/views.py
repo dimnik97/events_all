@@ -14,7 +14,7 @@ def index(request, id):
         account = request.user.id  # Залогиненный пользователь
     user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
 
-    avatar, created = ProfileAvatar.objects.get_or_create(user=user.profile)
+    avatar, created = ProfileAvatar.objects.get_or_create(user=user)
 
     friend_flag = 'add'
     try:
@@ -23,8 +23,8 @@ def index(request, id):
     except:
         friend_flag = 'add'
 
-    friend_object, created = Subscribers.objects.get_or_create(current_user=user.profile)
-    friends = [friend for friend in friend_object.users.all() if friend != user.profile]
+    friend_object, created = Subscribers.objects.get_or_create(current_user=user)
+    friends = [friend for friend in friend_object.users.all() if friend != user]
 
     context = {
         'title': 'Профиль',
@@ -45,9 +45,8 @@ def add_or_remove_friends(request):
         try:
             user_id = request.POST['user_id']
             action = request.POST['action']
-            n_f = get_object_or_404(User, id=user_id)
-            owner = request.user.profile
-            new_friend = Profile.objects.get(user=n_f)
+            owner = request.user
+            new_friend = User.objects.get(id=user_id)
 
             if action == "add":
                 Subscribers.make_friend(owner, new_friend)
