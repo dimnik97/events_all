@@ -10,6 +10,12 @@
         Название: {{ event.name }}
         Создатель: {{ event.creator_id.first_name }}
 
+        {% if party_flag == 1 %}
+            <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
+        {% elif party_flag == 0 %}
+            <button class="subscribe_event" data-action="subscribe">Пойти</button>
+        {% endif %}
+
     </div>
     <div>
         Участники
