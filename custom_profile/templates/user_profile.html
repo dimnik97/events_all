@@ -49,12 +49,12 @@
                 <ul>
                     {% for item in friends %}
                         <div>
-                            <a href="/profile/{{ item.user.id }}">
-                                <img src="{{ item.profile_avatar.mini_url }}" class="avatar_round">
+                            <a href="/profile/{{ item.id }}">
+                                <img src="{{ item.profileavatar.mini_url }}" class="avatar_round">
                             </a>
-                            <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+                            <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
                             {% if account and account == user.id %}
-                                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
+                                <button class="add_to_friend" data-user_id="{{ item.id }}" data-action="remove">Отписаться</button>
                             {% endif %}
                         </div>
                     {% endfor %}
