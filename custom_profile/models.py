@@ -11,7 +11,7 @@ from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
 from PIL import Image
 
-#Необходимо для того, чтобы не запрашивался токен
+# Необходимо для того, чтобы не запрашивался токен
 from django.views.decorators.csrf import csrf_exempt
 
 import helper
@@ -37,7 +37,6 @@ class Users:
 
     def signup_check(request):
         return JsonResponse(signup_validator.email_and_password(request))
-
 
     # Работает при помощи библиотеки ipgeobase
     # Иногда необходимо апдейтить базу python manage.py ipgeobase_update
@@ -186,3 +185,49 @@ class ProfileAvatar(models.Model):
 
     def get_absolute_url(self):
         return ('photo_detail', None, {'object_id': self.id})
+
+
+# Аватарки и миниатюры пользователей
+class UserSettings(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
+    CHOICES_M = (('1', 'Открыть сообщения для всех'),
+                 ('2', 'Написать могут только те, на кого я подписан'),
+                 ('3', 'Закрыть сообщения для всех'))
+
+    CHOICES_D = (('1', 'Видно всем'),
+                 ('2', 'Видно только подписчикам'),
+                 ('3', 'Скрыть для всех'))
+
+    CHOICES_I = (('1', 'Приглашать могут все'),
+                 ('2', 'Приглашать могут только те, на кого я подписан '),)
+
+    CHOICES_N = (('1', 'Включено'),
+                 ('2', 'Выключено'),)
+
+    messages = models.CharField(
+        max_length=2,
+        choices=CHOICES_M,
+        default=1,
+    )
+    birth_date = models.CharField(
+        max_length=2,
+        choices=CHOICES_D,
+        default=1,
+    )
+    invite = models.CharField(
+        max_length=2,
+        choices=CHOICES_I,
+        default=1,
+    )
+    near_invite = models.CharField(
+        max_length=2,
+        choices=CHOICES_N,
+        default=1,
+    )
+
+    class Meta:
+        verbose_name = ('Пользовательские настройки')
+        verbose_name_plural = ('Пользовательские настройки')
+
+    def __str__(self):
+        return 'Настройки пользователя ' + str(self.user.first_name)

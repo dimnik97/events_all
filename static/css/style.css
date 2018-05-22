@@ -34,7 +34,10 @@ button {
     background-color: black;
 }
 div.content {
-    width: 300px
+    width: 700px
+}
+input.content {
+    width: 200px
 }
 #id_birth_date_day, #id_birth_date_month, #id_birth_date_year {
     width: 33%;
