@@ -11,12 +11,13 @@ def index(request, id):
 
     avatar, created = Event_avatar.objects.get_or_create(event=event_detail)
 
-    sub_flag = 'subscribe'
+
+    # party_flag = 1, если пользователь уже подписан на выбранное событие
     try:
         if EventParty.objects.get(user_id=user, event_id=event_detail):
-            sub_flag = 'unsubscribe'
+            party_flag = 1
     except:
-        sub_flag = 'subscribe'
+        party_flag = 0
 
     ev_object, created = EventParty.objects.get_or_create(event_id=id)
     subs = [friend for friend in ev_object.user_id.all()]
@@ -26,7 +27,7 @@ def index(request, id):
         'user': user,
         'event': event_detail,
         'subs': subs,
-        'sub_flag': sub_flag,
+        'party_flag': party_flag,
         'avatar': avatar
     }
     return render_to_response('event_detail.html', context)

@@ -147,6 +147,7 @@ class ProfileAvatar(models.Model):
 
     mini_path = property(_get_mini_path)
     # Добавляем к свойствам объектов модели урл миниатюры
+
     def _get_mini_url(self):
         return helper._add_mini(self.image.url)
 
