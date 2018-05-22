@@ -76,19 +76,26 @@ class EditUserSettings(forms.Form):
     CHOICES_M = (('1', 'Открыть сообщения для всех',),
                ('2', 'Написать могут только те, на кого я подписан',),
                ('3', 'Закрыть сообщения для всех',))
-    message_p = forms.ChoiceField(widget=forms.Select, choices=CHOICES_M, label='Настройки сообщений')
+    messages = forms.ChoiceField(widget=forms.Select, choices=CHOICES_M, label='Настройки сообщений')
 
     CHOICES_D = (('1', 'Видно всем',),
                ('2', 'Видно только подписчикам',),
                ('3', 'Скрыть для всех',))
-    birth_date_p = forms.ChoiceField(widget=forms.Select, choices=CHOICES_D, label='Отображения даты рождения')
+    birth_date = forms.ChoiceField(widget=forms.Select, choices=CHOICES_D, label='Отображения даты рождения')
 
     CHOICES_I = (('1', 'Приглашать могут все',),
                  ('2', 'Приглашать могут только те, на кого я подписан ',),)
-    invite_p = forms.ChoiceField(widget=forms.Select, choices=CHOICES_I, label='Приглашения')
+    invite = forms.ChoiceField(widget=forms.Select, choices=CHOICES_I, label='Приглашения')
 
     CHOICES_N = (('1', 'Включено',),
                  ('2', 'Выключено',),)
-    near_invite_p = forms.ChoiceField(widget=forms.Select, choices=CHOICES_N, label='События недалеко')
+    near_invite = forms.ChoiceField(widget=forms.Select, choices=CHOICES_N, label='События недалеко')
 
-    # def save(self, request):
+    def save(self, request):
+        user = request.user
+        user.usersettings.messages = self.cleaned_data['messages']
+        user.usersettings.birth_date = self.cleaned_data['birth_date']
+        user.usersettings.invite = self.cleaned_data['invite']
+        user.usersettings.near_invite = self.cleaned_data['near_invite']
+        user.save()
+        return HttpResponse(str(200))

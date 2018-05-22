@@ -62,19 +62,29 @@ def add_or_remove_friends(request):
 
 def edit(request):
     if request.user.is_authenticated:
+        user = request.user
         if request.method == 'POST':
-            form = EditProfile(request.POST)
-            if form.is_valid():
-                form.save(request)
-        else:
-            user = request.user
-            form = EditProfile({'first_name': user.first_name,
-                                'last_name': user.last_name,
-                                'email': user.email,
-                                'birth_date': user.profile.birth_date,
-                                'phone': user.profile.phone
-                                })
-            form_private = EditUserSettings()
+            if request.POST['type'] == 'main_info':
+                form = EditProfile(request.POST)
+                if form.is_valid():
+                    form.save(request)
+
+            elif request.POST['type'] == 'settings':
+                form_private = EditUserSettings(request.POST)
+                if form_private.is_valid():
+                    form_private.save(request)
+
+        form = EditProfile({'first_name': user.first_name,
+                            'last_name': user.last_name,
+                            'email': user.email,
+                            'birth_date': user.profile.birth_date,
+                            'phone': user.profile.phone
+                            })
+        form_private = EditUserSettings({'messages': user.usersettings.messages,
+                                         'birth_date': user.usersettings.birth_date,
+                                         'invite': user.usersettings.invite,
+                                         'near_invite': user.usersettings.near_invite,
+                                         })
         context = {
             'title': 'Профиль',
             'form': form,

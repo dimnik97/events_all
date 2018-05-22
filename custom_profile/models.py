@@ -12,7 +12,6 @@ from django_ipgeobase.models import IPGeoBase
 from PIL import Image
 
 # Необходимо для того, чтобы не запрашивался токен
-from django.views.decorators.csrf import csrf_exempt
 
 import helper
 from custom_profile import forms
@@ -70,6 +69,9 @@ class Profile(models.Model):
         verbose_name = ('Профили')
         verbose_name_plural = ('Профили')
 
+    def __str__(self):
+        return self.user.first_name + self.user.last_name + ' (' + self.user.username + ')'
+
     def clean(self):
         cleaned_data = super(Profile, self).clean()
         name = cleaned_data.get('name')
@@ -88,9 +90,6 @@ class Profile(models.Model):
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
-
-    def __str__(self):
-        return self.user.first_name
 
     # Получение списка всех юзеров
     # TODO в будущем грохнуть метод
