@@ -1,6 +1,9 @@
 .d_none {
     display: none;
 }
+.field_d_none {
+    display: none;
+}
 .invalide {
     border:1px solid red;
 }

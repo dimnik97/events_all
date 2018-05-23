@@ -74,12 +74,12 @@ def edit(request):
                 if form_private.is_valid():
                     form_private.save(request)
 
-        form = EditProfile({'first_name': user.first_name,
-                            'last_name': user.last_name,
-                            'email': user.email,
-                            'birth_date': user.profile.birth_date,
-                            'phone': user.profile.phone
-                            })
+        # form = EditProfile({'first_name': user.first_name,
+        #                     'last_name': user.last_name,
+        #                     'email': user.email,
+        #                     'birth_date': user.profile.birth_date,
+        #                     'phone': user.profile.phone
+        #                     })
         form_private = EditUserSettings({'messages': user.usersettings.messages,
                                          'birth_date': user.usersettings.birth_date,
                                          'invite': user.usersettings.invite,

@@ -11,11 +11,9 @@ from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
 from PIL import Image
 
-# Необходимо для того, чтобы не запрашивался токен
-
 import helper
 from custom_profile import forms
-from custom_profile.validator import signup_validator
+from custom_profile.validator import SignupValidator
 
 
 # Получение общей информации для пользователей
@@ -35,7 +33,7 @@ class Users:
         return ip
 
     def signup_check(request):
-        return JsonResponse(signup_validator.email_and_password(request))
+        return SignupValidator.email_and_password(request)
 
     # Работает при помощи библиотеки ipgeobase
     # Иногда необходимо апдейтить базу python manage.py ipgeobase_update
