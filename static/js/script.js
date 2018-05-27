@@ -27,49 +27,115 @@ $(document).ready(function() {
         }
     });
 
+    // Валидация второго шага регистрации
+    $('.signup', '#signup').on('click', function(event) {
+        if ( validateForm() ) { // если есть ошибки возвращает true
+            event.preventDefault();
+            return
+        }
+        $('#signup').submit();
+    });
+
+    function validateForm() {
+        $form = $('#signup');
+        $('.invalid-feedback', $form).remove();
+        $('input', $form).removeClass('is-invalid');
+
+        var first_name  = $('#id_first_name'),
+            last_name  = $('#id_last_name'),
+            phone = $("#id_phone"),
+            f_first_name = false,
+            f_last_name = false,
+            f_phone = false,
+            f_sex = false;
+
+        if ( first_name.val().length < 1 ) {
+            first_name.after('<div class="invalid-feedback"> ' + 'Поле имя не заполнено' + '</div>');
+            first_name.addClass('is-invalid');
+            f_first_name = true;
+        }
+        if ( last_name.val().length < 1 ) {
+            last_name.after('<div class="invalid-feedback"> ' + 'Поле фамилии не заполнено' + '</div>');
+            last_name.addClass('is-invalid');
+            f_last_name = true;
+        }
+        if ( phone.val().length < 1 ) {
+            phone.after('<div class="invalid-feedback"> ' + 'Поле телефон не заполнено' + '</div>');
+            phone.addClass('is-invalid');
+            f_phone = true;
+        } else {
+            if ( !$.isNumeric(phone.val())) {
+                phone.after('<div class="invalid-feedback"> ' + 'Некорректный номер телефона' + '</div>');
+                phone.addClass('is-invalid');
+                f_phone = true;
+            }
+        }
+
+        return (f_first_name ||
+            f_last_name ||
+            f_phone ||
+            f_sex);
+    }
+
+    $('.next_step').on('click', function(event){
+        event.preventDefault();
+        $form = $('#signup');
+        ajax_validate_first_step($form);
+    });
 
     // Валидация первого шага регистрации
-    $('#signup_form .next_step').on('click', function () {
-
-        $form = $('#signup_form');
-        $('label, input[type!="hidden"]', $form);
-
-        $values = $form.serialize();
-        $form.find('.errorlist').remove();
-
+    function ajax_validate_first_step(form) {
         $.ajax({
-            type: "POST",
-            url: "/main_app/signup_check/",
-            data:{
-                "data": $values,
-            },
-            dataType: 'json',
-            success: function(data){
-                if(data.status == false) {
-                    $('.next_step, .first_step', $form).hide();
-                    $('.signup, .second_step, .prev_step', $form).show();
-                    $('.second_step input[type=hidden]').each(function() {
-                        $(this).attr('type', 'show');
-                    });
-                    $('#id_birth_date').datepicker({
-                        dateFormat: "dd.mm.yy"
-                    });
-                    return
+            url : "/main_app/signup_check/",
+            type : "POST",
+            data : form.serialize(),
+            success : function(json) {
+                $('input').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
+
+                if (json.email !== undefined) {
+                    $('#id_email').addClass('is-invalid');
+                    $('#id_email').after('<div class="invalid-feedback"> ' + json.email + '</div>');
+                }
+                if (json.password1 !== undefined) {
+                    $('#id_password1').addClass('is-invalid');
+                    $('#id_password1').after('<div class="invalid-feedback"> ' + json.password1.split("'")[1] + '</div>');
                 }
                 else {
-                    $form.prepend('<ul class="errorlist"><li></li></ul>');
-                    $errorlist = $('.errorlist').find('li');
-                    $errorlist.text(data.status);
+                    $('.field_d_none').addClass('form-group').removeClass('field_d_none');
+                    $('.first_step, .next_step').hide();
+                    $('.prev_step, .signup').show();
                 }
+            },
+            error : function(xhr,errmsg,err) {
+                $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                    " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
             }
         });
+    };
+
+    // Возврат на первый шаг
+    $('.prev_step').on('click', function () {
+        $form = $('#signup');
+        $('.form-group', $form).addClass('field_d_none').removeClass('form-group');
+        $('.next_step, .first_step', $form).show();
+        $('.signup, .second_step, .prev_step', $form).hide();
+    });
+
+    $('.show_or_hide_pass', '#signup_form').on('mousedown', function () {
+        $('#id_password1', $(this).parent()).attr('type','text');
+    });
+
+    $('.show_or_hide_pass', '#signup_form').on('mouseup', function () {
+        $('#id_password1', $(this).parent()).attr('type','password');
     });
 
     // функция для подписки/отписки на событие
     $('.subscribe_event').on('click', function(){
-        $this = $(this);
-        var event_id = $this.closest("div.event_item").data('event_id'),
-        atcion_type = $this.data('action');
+        var event_id = $(this).closest("div.event_item").data('event_id'),
+            atcion_type = $(this).data('action'),
+            $this = $(this);
         $.ajax({
             type: "POST",
             url: "/main_app/subscribe_event/",
@@ -112,92 +178,8 @@ $(document).ready(function() {
     //     });
     // });
 
-
-
-
-    $('#signup_form .prev_step').on('click', function () {
-        $form = $('#signup_form');
-        $('.second_step input[type=show]').each(function() {
-            $(this).attr('type', 'hidden');
-        });
-        $('.next_step, .first_step', $form).show();
-        $('.signup, .second_step, .prev_step', $form).hide();
-    });
-
-    $('.show_or_hide_pass', '#signup_form').on('mousedown', function () {
-        $('#id_password1', $(this).parent()).attr('type','text');
-    });
-
-    $('.show_or_hide_pass', '#signup_form').on('mouseup', function () {
-        $('#id_password1', $(this).parent()).attr('type','password');
-    });
-
-    $('.signup', '#signup_form').on('click', function(event) {
-        if ( validateForm() ) { // если есть ошибки возвращает true
-            event.preventDefault();
-            return
-        }
-        $('#signup_form').submit();
-    });
-
-    function validateForm() {
-        $form = $('#signup_form');
-        $form.find('.errorlist').remove();
-        $form.prepend('<ul class="errorlist"><li></li></ul>');
-        $errorlist = $('.errorlist').find('li');
-        $('input', $form).removeClass('invalide');
-
-        var first_name  = $('#id_first_name'),
-            last_name  = $('#id_last_name'),
-            phone = $("#id_phone"),
-            birth_date = $('#id_birth_date'),
-            f_first_name = false,
-            f_last_name = false,
-            f_phone = false,
-            f_birth_date = false,
-            f_sex = false;
-
-        if ( first_name.val().length < 1 ) {
-            $errorlist.text('Поле имя не заполнено');
-            first_name.addClass('invalide');
-            f_first_name = true;
-        }
-        if ( last_name.val().length < 1 ) {
-            $errorlist.text('Поле фамилии не заполнено');
-            last_name.addClass('invalide');
-            f_last_name = true;
-        }
-        if ( phone.val().length < 1 ) {
-            $errorlist.text('Поле телефон не заполнено');
-            phone.addClass('invalide');
-            f_phone = true;
-        } else {
-            if ( !$.isNumeric(phone.val())) {
-                $errorlist.text('Некорректный номер телефона');
-                phone.addClass('invalide');
-                f_phone = true;
-            }
-        }
-        if ( birth_date.val().length < 1 ) {
-            $errorlist.text('Поле дата рождения не заполнено');
-            birth_date.addClass('invalide');
-            f_birth_date = true;
-        }
-        if ( $('input[name=gender]:checked').val() == null) {
-            $('input[name=gender]').addClass('invalide');
-            f_sex = true;
-        }
-
-        return (f_first_name ||
-            f_last_name ||
-            f_phone ||
-            f_birth_date ||
-            f_sex);
-    }
-
-
-    // Подписка на пользователей
-    // Мод. Subscribers
+// Подписка на пользователей
+// Мод. Subscribers
     $('.add_to_friend').on('click', function(){
         var user_id = $(this).data('user_id'),
             action = $(this).data('action'),
@@ -239,7 +221,6 @@ $(document).ready(function() {
                 my: 'center',
                 at: 'center',
                 collision: 'fit',
-                // ensure that the titlebar is never outside the document
                 using: function(pos) {
                     var topOffset = $(this).css(pos).offset().top;
                     if (topOffset < 0) {
@@ -248,5 +229,43 @@ $(document).ready(function() {
                 }
             },
         }).dialog('open');
-    })
+    });
+
+    $('#main_info').on('submit', function(e){
+        ajax_validate_form($(this), e)
+    });
+
+    $('#settings').on('submit', function(e){
+        ajax_validate_form($(this), e)
+    });
+
+    // Ajax для форм
+    function ajax_validate_form($form, e){
+        e.preventDefault();
+        var data = $form.serialize();
+
+        $.ajax({
+            type: "POST",
+            url: "/profile/edit",
+            data: data,
+            dataType: 'json',
+            success: function(data) {
+                ajax_validate_form_data($form, data);
+            }
+        });
+    };
+
+    // Обработка данных валидации
+    function ajax_validate_form_data($form, data) {
+        $('input').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+        if (data != '200') {
+            var errors = data;
+            for (var i = 0; i < errors.length; i++) {
+                var $field = $form.find(errors[i].key);
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback"> ' + errors[i].desc + '</div>');
+            }
+        }
+    }
 });

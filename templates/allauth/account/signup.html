@@ -6,51 +6,53 @@
 
 {% block content %}
     <h1>{% trans "Sign Up" %}</h1>
-
     <p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</p>
+    <div class="content">
+        <form method="post" novalidate method="POST" id="signup" action="{% url 'account_signup' %}">
+            {% csrf_token %}
+            {% load widget_tweaks %}
 
-    <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
-        {% csrf_token %}
-        <div class="first_step">
+            {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field }}
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             {% for field in form.visible_fields %}
-                <p>
-                    {{ field.errors }}
-                    {{ field.label_tag }} {{ field }}
-                    {% if field.id_for_label == 'id_password1' %}
-                        <img src="theicon" class='show_or_hide_pass' />
-                    {% endif %}
-                </p>
-            {% endfor %}
-        </div>
-        <div class="second_step d_none">
-            <div>
-                <input type="radio" id="genderChoice1"
-                       name="gender" value="0">
-                <label for="contactChoice1">Мужчина</label>
-
-                <input type="radio" id="genderChoice2"
-                       name="gender" value="1">
-                <label for="contactChoice2">Женщина</label>
-
-                <input type="radio" id="genderChoice3"
-                       name="gender" value="2">
-                <label for="contactChoice3">Не указан</label>
+                {% if field.help_text  %}
+                    <div class={{ field.help_text }} >
+                {% else %}
+                    <div class='first_step' >
+                {% endif %}
+            {{ field.label_tag }}
+            {% if form.is_bound %}
+                {% if field.errors %}
+                    {% render_field field class="form-control is-invalid" %}
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {% render_field field class="form-control is-valid" %}
+                {% endif %}
+            {% else %}
+                {% render_field field class="form-control" %}
+            {% endif %}
             </div>
-            {% for hidden in form.hidden_fields %}
-                <p>
-                    {{ hidden.errors }}
-                    {{ hidden.label_tag }} {{ hidden }}
-                </p>
             {% endfor %}
-        </div>
-        {% if redirect_field_value %}
-            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-        {% endif %}
 
-        <button type="button" class="next_step">{% trans "next_step" %} &raquo;</button>
-        <button type="button" class="prev_step d_none">{% trans "prev_step" %} &raquo;</button>
-        <button type="button" class="signup d_none">{% trans "Signup" %} &raquo;</button>
-    </form>
+            <button type="button" class="next_step btn btn-primary">{% trans "next_step" %} &raquo;</button>
+            <button type="button" class="prev_step d_none btn btn-primary">{% trans "prev_step" %} &raquo;</button>
+            <button type="button" class="signup d_none btn btn-primary">{% trans "Signup" %} &raquo;</button>
+        </form>
+    </div>
 
 {% endblock %}
 

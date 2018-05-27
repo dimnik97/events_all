@@ -3,23 +3,22 @@
 {% block signin %}
 {% endblock %}
 {% block content %}
-    <img class="product-image" src="{{ avatar.image.url }}" width="200px" height="200px" />
     <div class="content">
-        <form method="post" novalidate>
+        <form method="post" id="main_info" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
+            <input name="type" class="d_none" value="main_info">
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
-    </div>
-    <hr>
-    Настройки приватности (Добавить подсказки при наведении)
-    <div class="content">
-        <form method="post" novalidate>
+        <hr>
+        Настройки приватности (Добавить подсказки при наведении)
+        <form method="post" id="settings" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form_private %}
+            <input name="type" class="d_none" value="settings">
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
+        Хотите выйти из аккаунта?
+        <a class="btn btn-primary" href="/accounts/logout/">logout</a>
     </div>
-    Хотите выйти из аккаунта?
-    <a class="btn btn-primary" href="/accounts/logout/">logout</a>
 {% endblock %}

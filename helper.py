@@ -20,7 +20,7 @@ def _del_mini(p):
         os.remove(mini_path)
 
 
-def upload_to(instance, filename, prefix=None, unique=False):
+def upload_to(instance, filename, prefix=None, unique=False, postfix=None):
     ext = op.splitext(filename)[1]
     name = str(instance.pk or '') + filename + (str(time()) if unique else '')
 
@@ -29,16 +29,19 @@ def upload_to(instance, filename, prefix=None, unique=False):
         basedir = op.join(basedir, prefix)
     filename = md5(name.encode('utf8')).hexdigest() + ext
 
-    return op.join(basedir, prefix, filename[:2], filename[2:4], filename)
+    return op.join(basedir, prefix, filename[:2], filename[2:4], filename, postfix)
 
 
-# Принимает ключ, возвращает строку с ошибкой
-def validate_error(key, field_name):
-    status = {
-        'empty': 'Поле ' + field_name + ' не заполнено',
-        'format': 'Неверный формат ' + field_name,
-        'exist': field_name + ' уже существует в базе',
-        'True': field_name + ' уже существует в базе',
-        'False': ''
-    }
-    return status[key]
+def parse_from_error_to_json(request, form):
+    data = []
+    for k, v in form._errors.items():
+        text = {
+            'desc': ', '.join(v),
+        }
+        if k == '__all__':
+            text['key'] = '#%s' % request.POST.get('form')
+        else:
+            text['key'] = '#id_%s' % k
+        data.append(text)
+    return data
+
