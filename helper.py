@@ -20,7 +20,7 @@ def _del_mini(p):
         os.remove(mini_path)
 
 
-def upload_to(instance, filename, prefix=None, unique=False):
+def upload_to(instance, filename, prefix=None, unique=False, postfix=None):
     ext = op.splitext(filename)[1]
     name = str(instance.pk or '') + filename + (str(time()) if unique else '')
 
@@ -29,7 +29,7 @@ def upload_to(instance, filename, prefix=None, unique=False):
         basedir = op.join(basedir, prefix)
     filename = md5(name.encode('utf8')).hexdigest() + ext
 
-    return op.join(basedir, prefix, filename[:2], filename[2:4], filename)
+    return op.join(basedir, prefix, filename[:2], filename[2:4], filename, postfix)
 
 
 def parse_from_error_to_json(request, form):
@@ -44,3 +44,4 @@ def parse_from_error_to_json(request, form):
             text['key'] = '#id_%s' % k
         data.append(text)
     return data
+

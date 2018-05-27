@@ -4,7 +4,6 @@
 {% endblock %}
 {% block content %}
     <div class="content">
-        <img class="product-image" src="{{ avatar.image.url }}" width="200px" height="200px" />
         <form method="post" id="main_info" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}

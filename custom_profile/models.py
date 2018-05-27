@@ -6,7 +6,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
-from django.http import JsonResponse
 from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
 from PIL import Image
@@ -132,7 +131,10 @@ class Subscribers(models.Model):
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'), default='avatar/default/img.png')
+    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
+                              default='avatar/default/img.png')
+    reduced_image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar', postfix='_reduced'),
+                                      default='avatar/default/img.png')
 
     class Meta:
         verbose_name = ('Аватары')
@@ -165,6 +167,21 @@ class ProfileAvatar(models.Model):
             pass
         super(ProfileAvatar, self).save()
         img = Image.open(self.image.path)
+        # img.save(self.reduced_image.path, optimize=True, quality=15,
+        #          progressive=True)
+
+        new_photo = img
+        new_photo.thumbnail(
+            (1024, 1024),
+            resample=Image.ANTIALIAS,
+        )
+        save_args = {'format': format}
+        if format == 'JPEG':
+            save_args['quality'] = 85
+        new_photo.save(self.reduced_image.path, **save_args)
+
+
+        # Миниатюрка
         img.thumbnail(
             (128, 128),
             Image.ANTIALIAS
