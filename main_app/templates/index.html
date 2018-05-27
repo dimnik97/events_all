@@ -4,6 +4,10 @@
     <h2>Список событий</h2>
     {% for event in events %}
         <div class="event_item" data-event_id="{{event.event.id}}" >
+
+            <a href="/events/{{ event.event.id }}">
+                <img src="{{ event.event.event_avatar.mini_url }}" class="avatar_round">
+            </a>
             {{ event.event.id }}    {{ event.event.name }}    {{ event.event.creator_id.user.first_name }}
 
             {% if event.party_flag == 1 %}

@@ -27,11 +27,20 @@ class Event(models.Model):
         return str(self.id) + '  Событие: ' + self.name + ' Создатель: ' + self.creator_id.first_name
 
 
+# после создания события, создатель автоматически добавляется в участники этого события
+def event_creating_post_save(sender, instance, created, **kwargs):
+    if created:
+        EventParty.subscr_to_event(instance, instance.creator_id)
+
+
+post_save.connect(event_creating_post_save, sender=Event)
+
+
 class Event_avatar(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar_event'),
-                              default='media/avatar/default/img.jpg')
+                              default='media/avatar_event/avatar_event/default/img.png')
 
     class Meta:
         verbose_name = ('Аватары')
@@ -106,12 +115,3 @@ class EventParty(models.Model):
     def __str__(self):
         return self.event_id.name
 
-
-# после создания события, создатель автоматически добавляется в участники этого события
-def event_creating_post_save(sender, instance, created, **kwargs):
-    if created:
-        event_join = EventParty()
-        event_join.user_id = instance.creator_id
-        event_join.event_id = instance
-        event_join.save()
-post_save.connect(event_creating_post_save, sender=Event)

@@ -1,5 +1,8 @@
 $(document).ready(function() {
     // Проброс токена CSRF во все запросы ajax
+    debugger;
+    $('.datetimepicker').datepicker();
+
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
             function getCookie(name) {
@@ -90,6 +93,24 @@ $(document).ready(function() {
             }
         });
     });
+    // $('.subscribe_event').on('click', function(){
+    //     $this = $(this);
+    //
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "/events/edit/",
+    //         data:{
+    //
+    //         },
+    //         dataType: 'json',
+    //         success: function(data){
+    //             if (data) {
+    //
+    //             }
+    //
+    //         }
+    //     });
+    // });
 
 
 
