@@ -131,10 +131,14 @@ class Subscribers(models.Model):
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
-                              default='avatar/default/img.png')
-    reduced_image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar', postfix='_reduced'),
-                                      default='avatar/default/img.png')
+    image = models.ImageField(
+        upload_to=curry(helper.upload_to, prefix='avatar'),
+        # upload_to=helper.upload_to,
+        default='avatar/default/img.png')
+    reduced_image = models.ImageField(
+        upload_to=curry(helper.upload_to, prefix='avatar', postfix='_reduced'),
+        # upload_to=helper.upload_to,
+        default='avatar/default/img.png')
 
     class Meta:
         verbose_name = ('Аватары')

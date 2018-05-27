@@ -13,10 +13,10 @@ class EditEvent(forms.Form):
     name = forms.CharField(required=True, max_length=30, label='Имя')
     description = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Описание')
     start_time = forms.CharField(required=False,
-                                 widget=forms.TextInpit(attrs={"class": "datetimepicker"}),
+                                 # widget=forms.TextInpit(attrs={"class": "datetimepicker"}),
                                  label='Дата начала')
     end_time = forms.CharField(required=False,
-                               widget=forms.TextInpit(attrs={"class": "datetimepicker"}),
+                               # widget=forms.TextInpit(attrs={"class": "datetimepicker"}),
                                label='Дата окончания')
 
     def save(self, request):
