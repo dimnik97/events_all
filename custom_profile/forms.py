@@ -13,8 +13,6 @@ class SignupForm(forms.Form):
     last_name = forms.CharField(
         required=True, max_length=30, label='Фамилия', help_text='field_d_none'
     )
-
-    # profile
     GENDER = (('1', 'Мужской'), ('2', 'Женский'))
     phone = forms.CharField(required=False, max_length=30, help_text='field_d_none',
                             label='Телефонный номер (необязательно)')
@@ -32,12 +30,11 @@ class SignupForm(forms.Form):
     def signup(self, request, user):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        # profile
         user.profile.phone = self.cleaned_data['phone']
         user.profile.sex = self.cleaned_data['gender']
+
         from custom_profile.models import ProfileAvatar
-        avatar = ProfileAvatar.objects.create(user=user)
-        # avatar.id = request.user.id
+        ProfileAvatar.objects.create(user=user)
         user.save()
 
 
@@ -51,8 +48,6 @@ class EditProfile(forms.Form):
     CHOICES_СITY = (('1', 'Не работает',),)
     city = forms.ChoiceField(widget=forms.Select, choices=CHOICES_СITY, label='Город', required=False)
 
-    # city = forms.CharField(required=False, max_length=30, label='Город')
-    # profile
     description = forms.CharField(required=False, max_length=2000, widget=forms.Textarea(), label='Пара слов обо мне')
     birth_date = forms.DateField(required=False,
                                  widget=forms.SelectDateWidget(years=range(1900, 2012)),
@@ -98,3 +93,7 @@ class EditUserSettings(forms.Form):
         user.usersettings.near_invite = self.cleaned_data['near_invite']
         user.save()
         return HttpResponse(str(200))
+
+
+class UserAvatarForm(forms.Form):
+    messages = forms.ImageField(widget=forms.Select, label='Настройки сообщений')

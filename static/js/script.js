@@ -130,9 +130,9 @@ $(document).ready(function() {
 
     // функция для подписки/отписки на событие
     $('.subscribe_event').on('click', function(){
-        $this = $(this);
-        var event_id = $this.closest("div.event_item").data('event_id'),
-            atcion_type = $this.data('action');
+        var event_id = $(this).closest("div.event_item").data('event_id'),
+            atcion_type = $(this).data('action'),
+            $this = $(this);
         $.ajax({
             type: "POST",
             url: "/main_app/subscribe_event/",
@@ -208,5 +208,43 @@ $(document).ready(function() {
                 }
             },
         }).dialog('open');
-    })
+    });
+
+    $('#main_info').on('submit', function(e){
+        ajax_validate_form($(this), e)
+    });
+
+    $('#settings').on('submit', function(e){
+        ajax_validate_form($(this), e)
+    });
+
+    // Ajax для форм
+    function ajax_validate_form($form, e){
+        e.preventDefault();
+        var data = $form.serialize();
+
+        $.ajax({
+            type: "POST",
+            url: "/profile/edit",
+            data: data,
+            dataType: 'json',
+            success: function(data) {
+                ajax_validate_form_data($form, data);
+            }
+        });
+    };
+
+    // Обработка данных валидации
+    function ajax_validate_form_data($form, data) {
+        $('input').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+        if (data != '200') {
+            var errors = data;
+            for (var i = 0; i < errors.length; i++) {
+                var $field = $form.find(errors[i].key);
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback"> ' + errors[i].desc + '</div>');
+            }
+        }
+    }
 });

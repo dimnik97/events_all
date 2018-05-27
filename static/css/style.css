@@ -26,11 +26,9 @@ button {
     border: 1px solid black; /* Параметры рамки */
     box-shadow: 0 0 7px #666; /* Параметры тени */
 }
-
 .all_subscribers {
     cursor: pointer;
 }
-
 .ui-widget-overlay.ui-front {
     opacity:0.75;
     filter: Alpha(Opacity=50);
@@ -44,4 +42,7 @@ input.content {
 }
 #id_birth_date_day, #id_birth_date_month, #id_birth_date_year {
     width: 33%;
+}
+body {
+    font: 12px Arial, sans-serif;
 }

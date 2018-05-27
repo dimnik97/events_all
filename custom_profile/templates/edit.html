@@ -4,8 +4,8 @@
 {% endblock %}
 {% block content %}
     <div class="content">
-    <img class="product-image" src="{{ avatar.image.url }}" width="200px" height="200px" />
-        <form method="post" novalidate>
+        <img class="product-image" src="{{ avatar.image.url }}" width="200px" height="200px" />
+        <form method="post" id="main_info" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <input name="type" class="d_none" value="main_info">
@@ -13,7 +13,7 @@
         </form>
         <hr>
         Настройки приватности (Добавить подсказки при наведении)
-        <form method="post" novalidate>
+        <form method="post" id="settings" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form_private %}
             <input name="type" class="d_none" value="settings">
