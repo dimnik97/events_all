@@ -91,7 +91,7 @@ class EditUserSettings(forms.Form):
         user.usersettings.birth_date = self.cleaned_data['birth_date']
         user.usersettings.invite = self.cleaned_data['invite']
         user.usersettings.near_invite = self.cleaned_data['near_invite']
-        user.save()
+        user.usersettings.save()
         return HttpResponse(str(200))
 
 

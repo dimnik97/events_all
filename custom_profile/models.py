@@ -133,8 +133,8 @@ class ProfileAvatar(models.Model):
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
                               default='avatar/default/img.png')
-    reduced_image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar', postfix='_reduced'),
-                                      default='avatar/default/img.png')
+    # reduced_image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar', postfix='reduced_'),
+    #                                   default='avatar/default/img.png')
 
     class Meta:
         verbose_name = ('Аватары')
@@ -142,15 +142,24 @@ class ProfileAvatar(models.Model):
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_mini_path(self):
-        return helper._add_mini(self.image.path)
+        return helper._add_mini(self.image.path, postfix='mini')
+
+    # Добавляем к свойствам объектов модели урл миниатюры
+    def _get_mini_url(self):
+        return helper._add_mini(self.image.url, postfix='mini')
+
+    # Добавляем к свойствам объектов модели путь к миниатюре
+    def _get_reduced_path(self):
+        return helper._add_mini(self.image.path, postfix='reduced')
+
+    # Добавляем к свойствам объектов модели урл миниатюры
+    def _get_reduced_url(self):
+        return helper._add_mini(self.image.url, postfix='reduced')
 
     mini_path = property(_get_mini_path)
-    # Добавляем к свойствам объектов модели урл миниатюры
-
-    def _get_mini_url(self):
-        return helper._add_mini(self.image.url)
-
     mini_url = property(_get_mini_url)
+    reduced_path = property(_get_reduced_path)
+    reduced_url = property(_get_reduced_url)
 
     # Создаем свою save
     # Добавляем:
@@ -161,32 +170,22 @@ class ProfileAvatar(models.Model):
         try:
             obj = ProfileAvatar.objects.get(id=self.id)
             if obj.image.path != self.image.path:
-                helper._del_mini(obj.image.path)
-                obj.image.delete()
+                helper._del_mini(obj.image.path, postfix='mini')
+                helper._del_mini(obj.image.path, postfix='reduced')
+                if 'default' not in obj.image:
+                    obj.image.delete()
         except:
             pass
         super(ProfileAvatar, self).save()
-        img = Image.open(self.image.path)
-        # img.save(self.reduced_image.path, optimize=True, quality=15,
-        #          progressive=True)
 
-        new_photo = img
-        new_photo.thumbnail(
-            (1024, 1024),
-            resample=Image.ANTIALIAS,
-        )
-        save_args = {'format': format}
-        if format == 'JPEG':
-            save_args['quality'] = 85
-        new_photo.save(self.reduced_image.path, **save_args)
+        mini = Image.open(self.image.path)
+        reduced = Image.open(self.image.path)
+        mini = helper.create_mini_image(mini)
+        reduced = helper.create_medium_image(reduced)
 
-
-        # Миниатюрка
-        img.thumbnail(
-            (128, 128),
-            Image.ANTIALIAS
-        )
-        img.save(self.mini_path)
+        quality_val = 85
+        mini.save(self.mini_path, quality=quality_val, optimize=True, progressive=True)
+        reduced.save(self.reduced_path, quality=quality_val, optimize=True, progressive=True)
 
     # Делаем свою delete с учетом миниатюры
     def delete(self, using=None):

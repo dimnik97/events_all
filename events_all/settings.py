@@ -70,8 +70,11 @@ ROOT_URLCONF = 'events_all.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),
+                 os.path.join(BASE_DIR, 'templates', 'allauth'),
+                 '/custom_profile/templates',
+                 ],
         'APP_DIRS': True,
-        'DIRS': [os.path.join(BASE_DIR, 'templates'), os.path.join(BASE_DIR, 'templates', 'allauth')],
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',

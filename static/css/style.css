@@ -46,3 +46,7 @@ input.content {
 body {
     font: 12px Arial, sans-serif;
 }
+.infinite-container {
+    height: 100px;
+    overflow: auto;
+}

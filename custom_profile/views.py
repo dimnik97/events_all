@@ -2,13 +2,15 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.middleware.csrf import get_token
+from django.template.loader import get_template, render_to_string
 from django.views.generic import FormView
 
 from custom_profile.forms import EditProfile, EditUserSettings
 from custom_profile.models import Profile, Subscribers, ProfileAvatar
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render_to_response, redirect, render
 
 from helper import parse_from_error_to_json
 
@@ -65,6 +67,25 @@ def add_or_remove_friends(request):
         raise Http404
 
 
+def get_subscribers(request):
+    numbers_list = range(1, 1000)
+    page = request.GET.get('page', 1)
+    paginator = Paginator(numbers_list, 20)
+    try:
+        numbers = paginator.page(page)
+    except PageNotAnInteger:
+        numbers = paginator.page(1)
+        page = 1
+    except EmptyPage:
+        numbers = paginator.page(paginator.num_pages)
+
+    html = render_to_string('subscribers.html', {'numbers': numbers})
+
+    data = {'html': html,
+            'pk': page}
+    return HttpResponse(json.dumps(html), content_type="application/json")
+
+
 class Edit(FormView):
     def edit_view(request):
         if request.user.is_authenticated:
@@ -85,7 +106,8 @@ class Edit(FormView):
                                 'last_name': user.last_name,
                                 'email': user.email,
                                 'birth_date': user.profile.birth_date,
-                                'phone': user.profile.phone
+                                'phone': user.profile.phone,
+                                'description': user.profile.description
                                 })
             form_private = EditUserSettings({'messages': user.usersettings.messages,
                                              'birth_date': user.usersettings.birth_date,
@@ -100,7 +122,7 @@ class Edit(FormView):
                 'avatar': ProfileAvatar.objects.get(user=request.user.id)
             }
 
-            return render_to_response('edit.html', context)
+            return render_to_response('edit_user_profile.html', context)
         else:
             return redirect('/accounts/login')
 

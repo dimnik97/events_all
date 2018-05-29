@@ -1,6 +1,6 @@
 $(document).ready(function() {
     // Проброс токена CSRF во все запросы ajax
-    debugger;
+    // debugger;
     $('.datetimepicker').datepicker();
 
     $.ajaxSetup({
@@ -207,36 +207,12 @@ $(document).ready(function() {
         });
     });
 
-    $('.all_subscribers').on('click', function () {
-        // debugger;
-        $( "#dialog" ).dialog({
-            title: 'Подписчики',
-            height: '700',
-            width: '500',
-            draggable: false,
-            resizable: false,
-            modal: true,
-            autoOpen: false,
-            position: {
-                my: 'center',
-                at: 'center',
-                collision: 'fit',
-                using: function(pos) {
-                    var topOffset = $(this).css(pos).offset().top;
-                    if (topOffset < 0) {
-                        $(this).css('top', pos.top - topOffset);
-                    }
-                }
-            },
-        }).dialog('open');
-    });
-
     $('#main_info').on('submit', function(e){
-        ajax_validate_form($(this), e)
+        ajax_validate_form($('#main_info'), e)
     });
 
     $('#settings').on('submit', function(e){
-        ajax_validate_form($(this), e)
+        ajax_validate_form($('#settings'), e)
     });
 
     // Ajax для форм
@@ -268,4 +244,47 @@ $(document).ready(function() {
             }
         }
     }
+
+    $('.all_subscribers').on('click', function () {
+        $('.infinite-more-link').attr('href', '/profile/get_subscribers?page=1');
+        var infinite = new Waypoint.Infinite({
+            element: $('.infinite-container')[0],
+            onBeforePageLoad: function () {
+            },
+            onAfterPageLoad: function ($items) {
+                $('.infinite-more-link').attr('href', '/profile/get_subscribers?page='+2);
+            }
+        });
+        // $.ajax({
+        //     type: "POST",
+        //     url: "/profile/get_subscribers",
+        //     dataType: 'json',
+        //     success: function(data) {
+        //         debugger;
+        //         $('.infinite-more-link').attr('href', '/profile/get_subscribers?page='+data.pk);
+        //         $('.infinite-container').append(data);
+        //     }
+        // });
+
+        // $( "#dialog" ).dialog({
+        //     title: 'Подписчики',
+        //     height: '700',
+        //     width: '500',
+        //     draggable: false,
+        //     resizable: false,
+        //     modal: true,
+        //     autoOpen: false,
+        //     position: {
+        //         my: 'center',
+        //         at: 'center',
+        //         collision: 'fit',
+        //         using: function(pos) {
+        //             var topOffset = $(this).css(pos).offset().top;
+        //             if (topOffset < 0) {
+        //                 $(this).css('top', pos.top - topOffset);
+        //             }
+        //         }
+        //     },
+        // }).dialog('open');
+    });
 });

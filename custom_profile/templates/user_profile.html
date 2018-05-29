@@ -9,15 +9,17 @@
                 {# TODO Посмотреть, написать как-нибудь по другому #}
                 <button class="add_to_friend" data-user_id="{{ user.id }}" data-action="{{ is_friend }}">
                     {% if friend_flag == 'add'%}
-                        Подписаться
-                    {% else %}
                         Отписаться
+                    {% else %}
+                        Подписаться
                     {% endif %}
                 </button>
             {% endif %}
-
-            <p><img src="{{ avatar.image.url }}" width="200px" height="200px"></p>
-
+            <div class="avatar_image">
+                <p>
+                    <img src="{{ avatar.image.url }}" width="300px" height="200px">
+                </p>
+            </div>
             Полное имя {{ user.first_name }} {{ user.last_name }} <br>
             Email {{ user.email }} <br>
             Дата рождения {{ user.profile.birth_date }} <br>
@@ -65,8 +67,11 @@
     </div>
 
     <div id="dialog" class="d_none">
-        <div class="content"></div>
+
     </div>
-
-
+    <div class="content">
+        <div class="infinite-container">
+        </div>
+        <a class="infinite-more-link" href="">More</a>
+    </div>
 {% endblock %}
