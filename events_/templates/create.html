@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
-    <img class="product-image" src="{{ avatar.image.url }}" width="200px" height="200px" />
+{#    <img class="product-image" src="{{ avatar.image.url }}" width="200px" height="200px" />#}
     <div class="content">
         <form method="post" novalidate enctype="multipart/form-data">
             {% csrf_token %}

@@ -1,8 +1,8 @@
 $(document).ready(function() {
+    $('[is_datepicker]').datetimepicker({
+        format:'Y-m-d H:i'
+    });
     // Проброс токена CSRF во все запросы ajax
-    // debugger;
-    $('.datetimepicker').datepicker();
-
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
             function getCookie(name) {

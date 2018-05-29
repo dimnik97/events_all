@@ -7,7 +7,6 @@ from events_.forms import EditEvent
 from .models import Event, EventParty, Event_avatar
 
 
-
 def index(request, id):
     event_detail = get_object_or_404(Event, id=id)
     user_id = request.user.pk
@@ -65,25 +64,51 @@ def subsc_unsubsc(request):
 
 
 def edit(request, id):
-    if request.user.is_authenticated:
+    user = request.user
+    if user.is_authenticated:
         event = get_object_or_404(Event, id=id)
-        if request.method == 'POST':
-            form = EditEvent(request.POST)
-            if form.is_valid():
-                form.save(request)
-        else:
-            user = request.user
-            form = EditEvent({'id': event.id,
-                              'name': event.name,
-                              'description': event.description,
-                              })
-        context = {
-            'title': 'Профиль',
-            'form': form,
-            "csrf_token": get_token(request),
-            'avatar': Event_avatar.objects.get(event=event)
-        }
+        if event.creator_id == user:
+            if request.method == 'POST':
+                form = EditEvent(request.POST, request.FILES)
+                if form.is_valid():
+                    form.save(request)
+            else:
+                form = EditEvent({'id': event.id,
+                                  'name': event.name,
+                                  'description': event.description,
+                                  'start_time': event.start_time,
+                                  'end_time': event.end_time,
+                                  })
+            context = {
+                'title': 'Редактирование события',
+                'form': form,
+                "csrf_token": get_token(request),
+                'avatar': Event_avatar.objects.get(event=event)
+            }
 
-        return render_to_response('edit.html', context)
+            return render_to_response('edit.html', context)
+        else:
+            raise Http404
+    else:
+        return redirect('/accounts/login')
+
+
+def create(request):
+    user = request.user
+    if user.is_authenticated:
+        if request.method == 'POST':
+            form = EditEvent(request.POST, request.FILES)
+            if form.is_valid():
+                form.save(request, 1)  # 1 - флаг для определения создания, а не редактирвания, обрабатывается в форме
+        else:
+            form = EditEvent({})
+
+        context = {
+            'title': 'Создание события',
+            'form': form,
+            "csrf_token": get_token(request)
+        }
+        return render_to_response('create.html', context)
+
     else:
         return redirect('/accounts/login')

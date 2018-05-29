@@ -133,8 +133,6 @@ class ProfileAvatar(models.Model):
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
                               default='avatar/default/img.png')
-    # reduced_image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar', postfix='reduced_'),
-    #                                   default='avatar/default/img.png')
 
     class Meta:
         verbose_name = ('Аватары')

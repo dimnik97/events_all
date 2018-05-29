@@ -1,6 +1,7 @@
 {% extends "main_template.html" %}
 
 {% block content %}
+    <button class="btn btn-grey"><a href="/events/create">Создать событие</a></button>
     <h2>Список событий</h2>
     {% for event in events %}
         <div class="event_item" data-event_id="{{event.event.id}}" >
