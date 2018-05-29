@@ -1,7 +1,12 @@
 $(document).ready(function() {
     // Проброс токена CSRF во все запросы ajax
-    debugger;
-    $('.datetimepicker').datepicker();
+
+
+
+    $('[is_datepicker]').datetimepicker({
+        format:'Y-m-d H:i'
+    });
+
 
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {

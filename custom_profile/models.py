@@ -135,10 +135,10 @@ class ProfileAvatar(models.Model):
         upload_to=curry(helper.upload_to, prefix='avatar'),
         # upload_to=helper.upload_to,
         default='avatar/default/img.png')
-    reduced_image = models.ImageField(
-        upload_to=curry(helper.upload_to, prefix='avatar', postfix='_reduced'),
+    # reduced_image = models.ImageField(
+    #     upload_to=curry(helper.upload_to, prefix='avatar', postfix='_reduced'),
         # upload_to=helper.upload_to,
-        default='avatar/default/img.png')
+        # default='avatar/default/img.png')
 
     class Meta:
         verbose_name = ('Аватары')
