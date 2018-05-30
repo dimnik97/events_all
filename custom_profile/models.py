@@ -195,9 +195,11 @@ class ProfileAvatar(models.Model):
     def delete(self, using=None):
         try:
             obj = ProfileAvatar.objects.get(id=self.id)
-            helper._del_mini(obj.image.path, postfix='mini')
-            helper._del_mini(obj.image.path, postfix='reduced')
-            obj.image.delete()
+            path = obj.image.path
+            helper._del_mini(path, postfix='mini')
+            helper._del_mini(path, postfix='reduced')
+            if 'default' not in path:
+                obj.image.delete()
         except (ProfileAvatar.DoesNotExist, ValueError):
             pass
         super(ProfileAvatar, self).delete()
