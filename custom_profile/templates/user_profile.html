@@ -47,7 +47,8 @@
             </div>
 
             <div>
-                <span class="all_subscribers">Подписки {{ friends|length }}</span>
+                <span data-url="/profile/get_subscribers?user={{ user.id }}"
+                      class="all_subscribers">Подписки {{ friends|length }}</span>
                 <ul>
                     {% for item in friends %}
                         <div>
@@ -69,9 +70,6 @@
     <div id="dialog" class="d_none">
 
     </div>
-    <div class="content">
-        <div class="infinite-container">
-        </div>
-        <a class="infinite-more-link" href="">More</a>
+    <div class="content_paginator">
     </div>
 {% endblock %}

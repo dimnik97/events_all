@@ -67,25 +67,6 @@ def add_or_remove_friends(request):
         raise Http404
 
 
-def get_subscribers(request):
-    numbers_list = range(1, 1000)
-    page = request.GET.get('page', 1)
-    paginator = Paginator(numbers_list, 20)
-    try:
-        numbers = paginator.page(page)
-    except PageNotAnInteger:
-        numbers = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        numbers = paginator.page(paginator.num_pages)
-
-    html = render_to_string('subscribers.html', {'numbers': numbers})
-
-    data = {'html': html,
-            'pk': page}
-    return HttpResponse(json.dumps(html), content_type="application/json")
-
-
 class Edit(FormView):
     def edit_view(request):
         if request.user.is_authenticated:
@@ -126,3 +107,27 @@ class Edit(FormView):
         else:
             return redirect('/accounts/login')
 
+
+def get_subscribers(request):
+    user_id = request.GET.get('user', 1)
+    is_my_account = False
+    if str(request.user.id) == user_id:
+        is_my_account = True
+    friend_object, created = Subscribers.objects.get_or_create(current_user=user_id)
+    friends = [friend for friend in friend_object.users.all() if friend != user_id]
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(friends, 20)
+    try:
+        friends = paginator.page(page)
+    except PageNotAnInteger:
+        friends = paginator.page(1)
+    except EmptyPage:
+        friends = paginator.page(paginator.num_pages)
+
+    context = {
+        'friends': friends,
+        'user_id': user_id,
+        'is_my_account': is_my_account
+    }
+    return render(request, 'subscribers.html', context)

@@ -246,25 +246,16 @@ $(document).ready(function() {
     }
 
     $('.all_subscribers').on('click', function () {
-        $('.infinite-more-link').attr('href', '/profile/get_subscribers?page=1');
-        var infinite = new Waypoint.Infinite({
-            element: $('.infinite-container')[0],
-            onBeforePageLoad: function () {
-            },
-            onAfterPageLoad: function ($items) {
-                $('.infinite-more-link').attr('href', '/profile/get_subscribers?page='+2);
+        var url = $(this).data('url');
+        $.ajax({
+            url: url,
+            success: function (data) {
+                $('.content_paginator').html(data);
+                var infinite = new Waypoint.Infinite({
+                  element: $('.infinite-container')[0]
+                });
             }
         });
-        // $.ajax({
-        //     type: "POST",
-        //     url: "/profile/get_subscribers",
-        //     dataType: 'json',
-        //     success: function(data) {
-        //         debugger;
-        //         $('.infinite-more-link').attr('href', '/profile/get_subscribers?page='+data.pk);
-        //         $('.infinite-container').append(data);
-        //     }
-        // });
 
         // $( "#dialog" ).dialog({
         //     title: 'Подписчики',

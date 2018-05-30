@@ -56,11 +56,17 @@ class Users:
 
 # Модель с дополнительными полями для user
 class Profile(models.Model):
+    CHOICES_M = (('1', 'Мужчина'),
+                 ('2', 'Женщина'),)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phone = models.TextField(null=True, blank=True)
-    sex = models.IntegerField(default=0)
+    sex = models.IntegerField(
+        max_length=2,
+        choices=CHOICES_M,
+        default=1,
+    )
 
     class Meta:
         verbose_name = ('Профили')
@@ -189,7 +195,8 @@ class ProfileAvatar(models.Model):
     def delete(self, using=None):
         try:
             obj = ProfileAvatar.objects.get(id=self.id)
-            helper._del_mini(obj.image.path)
+            helper._del_mini(obj.image.path, postfix='mini')
+            helper._del_mini(obj.image.path, postfix='reduced')
             obj.image.delete()
         except (ProfileAvatar.DoesNotExist, ValueError):
             pass

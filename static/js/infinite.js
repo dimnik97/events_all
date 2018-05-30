@@ -34,13 +34,12 @@ https://github.com/imakewebthings/waypoints/blob/master/licenses.txt
       this.$container.addClass(this.options.loadingClass)
 
       $.get($(this.options.more).attr('href'), $.proxy(function(data) {
-        debugger;
-        var $data = $($.parseHTML(data))
-        var $newMore = $data.find(this.options.more)
+        var $data = $($.parseHTML(data));
+        var $newMore = $data.filter(this.options.more);
 
-        var $items = $data.find(this.options.items)
+        var $items = $data.find(this.options.items);
         if (!$items.length) {
-          $items = $data.filter(this.options.items)
+          $items = $data.filter(this.options.items);
         }
 
         this.$container.append($items)
