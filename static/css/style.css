@@ -50,3 +50,56 @@ body {
     /*height: 100px;*/
     overflow: auto;
 }
+
+.uploader {
+    position:relative;
+    overflow:hidden;
+    width:500px;
+    height:500px;
+    background:#f3f3f3;
+    border:2px dashed #e8e8e8;
+}
+
+#id_image{
+    position:absolute;
+    width:500px;
+    height:500px;
+    top:-50px;
+    left:0;
+    z-index:2;
+    opacity:0;
+    cursor:pointer;
+}
+
+.uploader img{
+    position:absolute;
+    width:500px;
+    height:500px;
+    top:-1px;
+    left:-1px;
+    z-index:1;
+    border:none;
+}
+.rotate_buttons {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    z-index: 120;
+    display: none;
+}
+#div_output_image {
+    position: relative;
+    height: 500px;
+    width: 500px
+}
+.help_image_div {
+    position: absolute;
+    width:500px;
+    height:500px;
+    top:-1px;
+    left:-1px;
+    z-index:2;
+    border:none;
+}

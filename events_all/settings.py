@@ -97,6 +97,7 @@ import getpass
 host = '10.54.65.115'
 if (getpass.getuser() == 'dmitrij'):
     host = socket.gethostbyname(socket.getfqdn())
+    print(host)
 
 DATABASES = {
     'default': {
@@ -157,6 +158,11 @@ STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, '..', 'static'),
 )
 
+# EMAIL_BACKEND = "django.core.mail.backends.locmen.EmailBackend"
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
 SITE_ID = 1
 
 ACCOUNT_LOGOUT_ON_GET = True
@@ -172,11 +178,5 @@ ACCOUNT_SIGNUP_FORM_CLASS = 'custom_profile.forms.SignupForm'
 
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
-
-# EMAIL_BACKEND = "django.core.mail.backends.locmen.EmailBackend"
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-)
 
 X_FRAME_OPTIONS = 'DENY'

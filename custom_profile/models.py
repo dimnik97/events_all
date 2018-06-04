@@ -1,6 +1,4 @@
 import datetime
-import hashlib
-import os
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -10,7 +8,7 @@ from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
 from PIL import Image
 
-import helper
+from events_all import helper
 from custom_profile import forms
 from custom_profile.validator import SignupValidator
 
@@ -62,7 +60,7 @@ class Profile(models.Model):
     description = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phone = models.TextField(null=True, blank=True)
-    sex = models.IntegerField(
+    sex = models.IntegerField( # CharField
         max_length=2,
         choices=CHOICES_M,
         default=1,

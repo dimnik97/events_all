@@ -4,7 +4,7 @@ import datetime
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import helper
+from events_all import helper
 
 
 class Migration(migrations.Migration):

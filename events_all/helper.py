@@ -2,9 +2,6 @@ import os
 from hashlib import md5
 from time import time
 from os import path as op
-
-
-# Изменение (filename, URL) вставкой '.mini' и изменение расширения на jpg
 from PIL import Image
 
 
@@ -30,6 +27,14 @@ def upload_to(instance, filename, prefix=None, unique=False):
     filename = md5(name.encode('utf8')).hexdigest() + ext
 
     return op.join(prefix, filename[:2], filename[2:4], filename)
+
+
+def temporary_path(filename):
+    ext = op.splitext(filename)[1]
+    name = filename + str(time())
+    filename = md5(name.encode('utf8')).hexdigest() + ext
+
+    return op.join('temporary', filename[:2], filename[2:4], filename)
 
 
 def parse_from_error_to_json(request, form):
@@ -61,7 +66,7 @@ def create_medium_image(img):
     width = img.width
 
     max_width = 1440
-    max_height = 960
+    max_height = 1440
     if width >= max_width or height >= max_height:
         correlation = width / height
         height = width / correlation

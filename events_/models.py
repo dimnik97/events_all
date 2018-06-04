@@ -4,7 +4,7 @@ from PIL import Image
 from django.utils.functional import curry
 
 import datetime
-import helper
+from events_all import helper
 from custom_profile.models import Profile
 from django.db.models.signals import post_save
 

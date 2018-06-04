@@ -1,0 +1,30 @@
+{% extends "main_template.html" %}
+
+{% block content %}
+
+    <div class="uploader">
+        <div id='div_output_image'>
+            <img id='output_image'/>
+        </div>
+        <div class="help_image_div"></div>
+        <form id="uploadimages" name="uploadimages" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ image_file }}
+        </form>
+        <div class="rotate_buttons">
+            <span class="rotate-left"><i class="fas fa-undo"></i></span>
+            <span class="rotate-right"><i class="fas fa-redo"></i></span>
+        </div>
+    </div>
+    <div class="uploader d_none">
+        <div id='div_output_image'>
+            <img id='output_image'/>
+        </div>
+    </div>
+    <button class="btn reset_" onclick="reset_all()">Выбрать другое</button>
+    <button class="btn to_first_step" onclick="reset_all()">Назад</button>
+    <button class="btn to_second_step">Далее</button>
+    <p id="file_info"></p>
+    <div class="imgAreaSelect"></div>
+
+{% endblock %}

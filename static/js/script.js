@@ -246,36 +246,36 @@ $(document).ready(function() {
     }
 
     $('.all_subscribers').on('click', function () {
+        $( "#dialog" ).dialog({
+            title: 'Подписчики',
+            height: '700',
+            width: '500',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+        }).dialog('open');
+
         var url = $(this).data('url');
         $.ajax({
             url: url,
             success: function (data) {
                 $('.content_paginator').html(data);
                 var infinite = new Waypoint.Infinite({
-                  element: $('.infinite-container')[0]
+                    element: $('.infinite-container')[0]
                 });
             }
         });
-
-        // $( "#dialog" ).dialog({
-        //     title: 'Подписчики',
-        //     height: '700',
-        //     width: '500',
-        //     draggable: false,
-        //     resizable: false,
-        //     modal: true,
-        //     autoOpen: false,
-        //     position: {
-        //         my: 'center',
-        //         at: 'center',
-        //         collision: 'fit',
-        //         using: function(pos) {
-        //             var topOffset = $(this).css(pos).offset().top;
-        //             if (topOffset < 0) {
-        //                 $(this).css('top', pos.top - topOffset);
-        //             }
-        //         }
-        //     },
-        // }).dialog('open');
     });
 });

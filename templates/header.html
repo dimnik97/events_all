@@ -6,11 +6,13 @@
 {# Load CSS and JavaScript#}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
-
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+      integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 <link rel="stylesheet" media="all" href={% static "css/style.css" %} type="text/css">
 <link rel="stylesheet" media="all" href={% static "css/jquery.datetimepicker.css" %} type="text/css">
 <link rel="stylesheet" media="all" href={% static "css/jquery-ui.css" %} type="text/css">
 <link rel="stylesheet" media="all" href={% static "css/jquery-ui.theme.css" %} type="text/css">
+<link rel="stylesheet" type="text/css" href={% static "css/imgareaselect-default.css"%} />
 <!-- Главное меню -->
 <ul>
     {% load menubuilder %}
