@@ -278,4 +278,46 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('.change_avatar, .change_mini').on('click', function () {
+        var url = $(this).data('url'),
+            title = $(this).html();
+
+        $( "#dialog_img" ).dialog({
+            title: title,
+            height: '700',
+            width: '700',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            beforeClose: function(){
+                $('.help_image_div').imgAreaSelect({
+                    remove: true
+                });
+                $('#output_image').imgAreaSelect({
+                    remove: true
+                });
+            },
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+        }).dialog('open');
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function (data) {
+                $( "#dialog_img" ).html(data);
+            }
+        });
+    });
 });

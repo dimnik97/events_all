@@ -1,0 +1,29 @@
+<div class="CropImageModule_wrapper_mini" data-url="{{ url }}" data-save_url="{{ save_url }}">
+    <div class="uploader_mini">
+        <div id="div_output_image_mini" data-orig_height="{{ image_attr.orig_height }}" data-orig_width="{{ image_attr.orig_width }}">
+            <img id='output_image' src="{{ reduced }}"
+                 style='width:{{ image_attr.width }}; height:{{ image_attr.height }};
+                         margin-top:{{ image_attr.margin_top }}; margin-left:{{ image_attr.margin_left }}; '
+                 onload="load_reduced_image()" />
+        </div>
+    </div>
+    <div><p id="file_info"></p></div>
+    <button class="btn change_mini">Далее</button>
+    <p id="file_info"></p>
+    <div class="imgAreaSelect"></div>
+</div>
+<div class="imgareaselect_wrapper"></div>
+
+<script>
+    var $id_image = $('#id_image'),
+        $reset_ = $('.reset_'),
+        $to_first_step = $('.to_first_step'),
+        url = $('.CropImageModule_wrapper').data('url'),
+        save_url = $('.CropImageModule_wrapper').data('save_url'),
+        orig_height,
+        orig_width;
+
+    $id_image.attr('accept', 'image/*');
+    $reset_.hide();
+    $to_first_step.hide();
+</script>

@@ -11,6 +11,7 @@ from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.views.generic import FormView
 
+from custom_profile.CropImageModule import CropImageModule
 from custom_profile.forms import EditProfile, EditUserSettings, ImageUploadForm
 from custom_profile.models import Profile, Subscribers, ProfileAvatar
 from django.shortcuts import get_object_or_404, render_to_response, render
@@ -108,85 +109,39 @@ class Edit(FormView):
 
         return render_to_response('edit_user_profile.html', context)
 
-    @login_required(login_url='/accounts/login/')
-    def load_image(request):
+    def change_avatar(request):
         if request.method == 'POST' and request.is_ajax():
-            if 'image' in request.FILES:
-                image = request.FILES['image']
-                status = 200
-
-                if int(image.size) > 26214400:
-                    status = 'size_error'
-
-                image_types = [
-                    'image/png', 'image/jpg',
-                    'image/jpeg', 'image/pjpeg', 'image/gif'
-                ]
-                if image.content_type not in image_types:
-                    data = json.dumps({
-                        'status': 405,
-                        'error': _('Bad image format.')
-                    })
-                    return HttpResponse(
-                        data, content_type="application/json", status=405)
-
-                path = helper.temporary_path(image.name)
-                path = default_storage.save(path, ContentFile(image.read()))
-                img_url = os.path.join(settings.MEDIA_URL, path)
-
-                pil_im = Image.open(image)
-
-                width = pil_im.width
-                height = pil_im.height
-                coefficient = width / height
-
-                image_info = {
-                    'width': width,
-                    'height': height,
-                    'coefficient': coefficient
-                }
-                data = json.dumps({
-                    'status': status,
-                    'link': img_url,
-                    'name': image.name,
-                    'image_info': image_info
-                })
-                return HttpResponse(data, content_type='application/json')
-            return HttpResponse(_('Invalid request!'))
-
+            return CropImageModule.load_image(request)
         context = {
             'image_file': ImageUploadForm(),
             'avatar': ProfileAvatar.objects.get(user=request.user.id),
+            'url': request.META['PATH_INFO'],
+            'save_url': '/profile/save_image'
         }
-        return render_to_response('load_image.html', context)
+        return render(request, 'change_avatar.html', context)
 
-    def load_image_to_crop(request):
+    def change_mini(request):
         if request.method == 'POST' and request.is_ajax():
-            if 'image' in request.FILES:
-                image = request.FILES['image']
-                status = 200
+            return CropImageModule.load_image(request)
 
-                if int(image.size) > 26214400:
-                    status = 'size_error'
+        url = request.user.profileavatar.reduced_url
+        path = request.user.profileavatar.reduced_path
 
-                image_types = [
-                    'image/png', 'image/jpg',
-                    'image/jpeg', 'image/pjpeg', 'image/gif'
-                ]
-                if image.content_type not in image_types:
-                    data = json.dumps({
-                        'status': 405,
-                        'error': _('Bad image format.')
-                    })
-                    return HttpResponse(
-                        data, content_type="application/json", status=405)
+        image_attr = CropImageModule.get_image_size(path)
 
-                data = json.dumps({
-                    'status': status,
-                })
-                return HttpResponse(data, content_type='application/json')
-            return HttpResponse(_('Invalid request!'))
-        return HttpResponse(_('Invalid request type!'))
+        context = {
+            'image_file': ImageUploadForm(),
+            'reduced': url,
+            'image_attr': image_attr,
+            'url': request.META['PATH_INFO'],
+            'save_url': '/profile/save_image'
+        }
+        return render(request, 'change_mini.html', context)
+
+    def save_image(request):
+        if request.method == 'POST' and request.is_ajax():
+            model = request.user.profileavatar
+            return CropImageModule.save_image(request, model)
 
 
 def get_subscribers(request):

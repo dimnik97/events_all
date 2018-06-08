@@ -1,23 +1,18 @@
-var $id_image = $('#id_image'),
-    $reset_ = $('.reset_'),
-    $to_first_step = $('.to_first_step');
+$('body').on('change', '#id_image', function (e) {
+    var file = document.getElementById("id_image").files[0];
+    $('.to_second_step').on('click', function () {
+        to_second_step();
+    });
 
-    $id_image.attr('accept', 'image/*');
-    $reset_.hide();
-    $to_first_step.hide();
+    $('span.rotate-right').on('click', function () {
+        rotate_image('right');
+    });
 
-$('#id_image').on('change', function (e) {
-    var file = document.getElementById("id_image").files[0],
-        ext = "не определилось",
-        text = $('#file_info');
+    $('span.rotate-left').on('click', function () {
+        rotate_image('left');
+    });
 
     if (file.size < 26214400) {
-        text.text([
-            "Размер файла: " + file.size + " B",
-            "Расширение: " + ext,
-            "MIME тип: " + file.type
-        ].join("<br>"));
-
         var $image = $('#id_image');
         $image.hide();
         $image.css('cursor', 'default');
@@ -25,7 +20,7 @@ $('#id_image').on('change', function (e) {
         var form = new FormData($('.uploader').find('form').get(0));
         $('.upload-progress').show();
         $.ajax({
-            url: '/profile/load_image',
+            url: url,
             type: 'POST',
             data: form,
             async: true,
@@ -40,6 +35,9 @@ $('#id_image').on('change', function (e) {
                         $image_ = $('#output_image'),
                         max_width = '500px',
                         max_height = '500px';
+
+                    orig_height = response.image_info.height;
+                    orig_width = response.image_info.width;
                     if (coefficient < 1) {
                         $image_.css('width', 'auto').css('height', max_height);
                     } else if (coefficient == 1){
@@ -58,14 +56,14 @@ $('#id_image').on('change', function (e) {
                             middle_width = ($('.uploader').outerWidth() - $image_.outerWidth(true)) / 2;
                         $image_.css('margin-top', String(middle_height) + 'px').css('margin-left', String(middle_width) + 'px');
                         $help_image_div.css('margin-top', String(middle_height) + 'px').
-                            css('margin-left', String(middle_width) + 'px').
-                            css('height', $image_.height() + 'px').
-                            css('width', $image_.width() + 'px');
+                        css('margin-left', String(middle_width) + 'px').
+                        css('height', $image_.height() + 'px').
+                        css('width', $image_.width() + 'px');
                         $help_image_div.css('z-index', 2);
                         $image_.show();
-                        imgAreaSelect_($help_image_div);
+                        imgAreaSelect_($help_image_div, '');
                         $reset_.show();
-                    }
+                    };
                     img.src = response.link;
                     $('.rotate_buttons').show();
                 } else if (response.status == 'size_error') {
@@ -92,14 +90,6 @@ $('#id_image').on('change', function (e) {
     }
 });
 
-$('span.rotate-right').on('click', function () {
-    rotate_image('right');
-});
-
-$('span.rotate-left').on('click', function () {
-    rotate_image('left');
-});
-
 function rotate_image(direction) {
     var $div_image_ = $('#div_output_image'),
         angle = $div_image_.getRotateAngle();
@@ -122,6 +112,7 @@ function rotate_image(direction) {
         margin_left = $help_image_div.css('margin-left');
 
     $help_image_div
+        .data('rotate', angle)
         .width(height)
         .height(width)
         .css('margin-top', margin_left)
@@ -130,7 +121,7 @@ function rotate_image(direction) {
     $help_image_div.imgAreaSelect({
         remove: true
     });
-    imgAreaSelect_($help_image_div);
+    imgAreaSelect_($help_image_div, '');
 }
 
 var crop_x1,
@@ -140,10 +131,15 @@ var crop_x1,
     crop_height,
     crop_width;
 
-function imgAreaSelect_($help_image_div) {
+function imgAreaSelect_($help_image_div, aspectRatio='') {
     var ias = $help_image_div.imgAreaSelect({
         handles: true,
         instance: true,
+        aspectRatio: aspectRatio,
+        minWidth: '100',
+        minHeight: '100',
+        persistent: true,
+        // parent: $('.imgareaselect_wrapper'),
         onSelectEnd: function (img, selection) {
             crop_x1 = selection.x1;
             crop_x2 = selection.x2;
@@ -208,24 +204,79 @@ function reset_all() {
     $reset_.hide();
 }
 
-$('.to_second_step').on('click', function () {
-    var src = $('#output_image').attr('src'),
-        $help_image_div = $('.help_image_div');
+function to_second_step() {
+    var $help_image_div = $('.help_image_div'),
+        form = new FormData($('.uploader').find('form').get(0));
 
-    $help_image_div.getSelection();
+    var crop_y = orig_height / $help_image_div.height(),
+        crop_x = orig_width / $help_image_div.width();
+    var crop_x1_ = crop_x1 * crop_x,
+        crop_x2_ = crop_x2 * crop_x,
+        crop_y1_ = crop_y1 * crop_y,
+        crop_y2_ = crop_y2 * crop_y,
+        crop_height_ = crop_height * crop_y,
+        crop_width_ = crop_width * crop_x;
+
+    form.append('crop_x1', crop_x1_);
+    form.append('crop_x2', crop_x2_);
+    form.append('crop_y1', crop_y1_);
+    form.append('crop_y2', crop_y2_);
+    form.append('crop_height', crop_height_);
+    form.append('crop_width', crop_width_);
+    form.append('rotate', $help_image_div.data('rotate'));
     $.ajax({
-            url: '/profile/load_image_to_crop',
+        url: save_url,
+        type: 'POST',
+        data: form,
+        async: true,
+        cache: false,
+        contentType: false,
+        enctype: 'multipart/form-data',
+        processData: false,
+        success: function (response) {
+            $('.upload-progress').show();
+            var text = $('#file_info');
+            if (response.status == 200) {
+                text.text('Успешно сохранено');
+            } else if (response.status == 'size_error') {
+                text.text('Размер загружаемого файла не должен превышать 25МБ')
+            }
+            else {
+                console.log(response);
+            }
+        },
+        error: function(response) {
+            console.log("error", response);
+            $('.upload-progress').hide();
+        }
+    });
+};
+
+
+function load_reduced_image() {
+    imgAreaSelect_($('#output_image'), '1:1', $('.uploader_mini'));
+    $('.change_mini').off('click').on('click',function () {
+        var save_url = $('.CropImageModule_wrapper_mini').data('save_url'),
+            img = $('#output_image'),
+            orig_height = $('#div_output_image_mini').data('orig_height'),
+            orig_width = $('#div_output_image_mini').data('orig_width'),
+            crop_y = orig_height / img.height(),
+            crop_x = orig_width / img.width(),
+            form = {
+                'crop_x1': crop_x1 * crop_x,
+                'crop_x2': crop_x2 * crop_x,
+                'crop_y1': crop_y1 * crop_y,
+                'crop_y2': crop_y2 * crop_y,
+                'image_type': 'mini',
+            };
+        $.ajax({
+            url: save_url,
             type: 'POST',
             data: form,
-            async: true,
-            cache: false,
-            contentType: false,
-            enctype: 'multipart/form-data',
-            processData: false,
             success: function (response) {
                 $('.upload-progress').hide();
                 if (response.status == 200) {
-
+                    console.log('OK')
                 } else if (response.status == 'size_error') {
                     text.text('Размер загружаемого файла не должен превышать 25МБ')
                 }
@@ -238,7 +289,10 @@ $('.to_second_step').on('click', function () {
                 $('.upload-progress').hide();
             }
         });
-});
+    })
+
+}
+
 
 
 
