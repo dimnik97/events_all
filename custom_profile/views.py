@@ -21,7 +21,7 @@ from events_all.helper import parse_from_error_to_json
 
 
 @login_required(login_url='/accounts/login/')
-def index(request, id):
+def detail(request, id):
     account = request.user.id  # Залогиненный пользователь
     user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
 

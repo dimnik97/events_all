@@ -2,7 +2,7 @@ from django.conf.urls import url
 from custom_profile import views, forms
 
 urlpatterns = [
-    url(r'^(?P<id>[0-9]+)$', views.index, name='index'),
+    url(r'^(?P<id>[0-9]+)$', views.detail, name='detail'),
     url(r'^edit$', views.Edit.edit_view, name='edit'),
     url(r'^change_avatar', views.Edit.change_avatar, name='change_avatar'),
     url(r'^change_mini', views.Edit.change_mini, name='change_mini'),
