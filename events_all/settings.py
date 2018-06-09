@@ -32,12 +32,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'bootstrap4',
-    'events_',
     'dal',
     'dal_select2',
-    'cities',
-    'main_app',
-    'custom_profile',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,6 +48,12 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.vk',
     'django_ipgeobase',
     'widget_tweaks',
+    # Наши приложения
+    'company_profile',
+    'custom_profile',
+    'cities',
+    'main_app',
+    'events_',
 ]
 
 MIDDLEWARE = [
