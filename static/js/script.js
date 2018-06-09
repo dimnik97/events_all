@@ -252,45 +252,78 @@ $(document).ready(function() {
     }
 
     $('.all_subscribers').on('click', function () {
-        $('.infinite-more-link').attr('href', '/profile/get_subscribers?page=1');
-        var infinite = new Waypoint.Infinite({
-            element: $('.infinite-container')[0],
-            onBeforePageLoad: function () {
+        $( "#dialog" ).dialog({
+            title: 'Подписчики',
+            height: '700',
+            width: '500',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
             },
-            onAfterPageLoad: function ($items) {
-                $('.infinite-more-link').attr('href', '/profile/get_subscribers?page='+2);
+        }).dialog('open');
+
+        var url = $(this).data('url');
+        $.ajax({
+            url: url,
+            success: function (data) {
+                $('.content_paginator').html(data);
+                var infinite = new Waypoint.Infinite({
+                    element: $('.infinite-container')[0]
+                });
             }
         });
-        // $.ajax({
-        //     type: "POST",
-        //     url: "/profile/get_subscribers",
-        //     dataType: 'json',
-        //     success: function(data) {
-        //         debugger;
-        //         $('.infinite-more-link').attr('href', '/profile/get_subscribers?page='+data.pk);
-        //         $('.infinite-container').append(data);
-        //     }
-        // });
+    });
 
-        // $( "#dialog" ).dialog({
-        //     title: 'Подписчики',
-        //     height: '700',
-        //     width: '500',
-        //     draggable: false,
-        //     resizable: false,
-        //     modal: true,
-        //     autoOpen: false,
-        //     position: {
-        //         my: 'center',
-        //         at: 'center',
-        //         collision: 'fit',
-        //         using: function(pos) {
-        //             var topOffset = $(this).css(pos).offset().top;
-        //             if (topOffset < 0) {
-        //                 $(this).css('top', pos.top - topOffset);
-        //             }
-        //         }
-        //     },
-        // }).dialog('open');
+    $('.change_avatar, .change_mini').on('click', function () {
+        var url = $(this).data('url'),
+            title = $(this).html();
+
+        $( "#dialog_img" ).dialog({
+            title: title,
+            height: '700',
+            width: '700',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            beforeClose: function(){
+                $('.help_image_div').imgAreaSelect({
+                    remove: true
+                });
+                $('#output_image').imgAreaSelect({
+                    remove: true
+                });
+            },
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+        }).dialog('open');
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function (data) {
+                $( "#dialog_img" ).html(data);
+            }
+        });
     });
 });

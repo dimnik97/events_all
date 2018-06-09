@@ -1,5 +1,19 @@
 <div class="infinite-container">
-    {% for number in numbers %}
-        <div class="infinite-item">{{ number }}</div>
+    {% for item in friends %}
+        <div>
+            <a href="/profile/{{ item.id }}">
+                <img src="{{ item.profileavatar.mini_url }}" class="avatar_round">
+            </a>
+            <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
+            {% if is_my_account %}
+                <button class="add_to_friend" data-user_id="{{ item.id }}" data-action="remove">Отписаться</button>
+            {% endif %}
+        </div>
     {% endfor %}
 </div>
+
+{% if numbers.has_next %}
+    <a class="infinite-more-link"
+       href="/profile/get_subscribers?user={{ user_id }}&page={{ numbers.next_page_number }}">More
+    </a>
+{% endif %}

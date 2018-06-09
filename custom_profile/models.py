@@ -1,6 +1,4 @@
 import datetime
-import hashlib
-import os
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -10,7 +8,7 @@ from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
 from PIL import Image
 
-import helper
+from events_all import helper
 from custom_profile import forms
 from custom_profile.validator import SignupValidator
 
@@ -56,11 +54,17 @@ class Users:
 
 # Модель с дополнительными полями для user
 class Profile(models.Model):
+    CHOICES_M = (('1', 'Мужчина'),
+                 ('2', 'Женщина'),)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phone = models.TextField(null=True, blank=True)
-    sex = models.IntegerField(default=0)
+    sex = models.IntegerField( # CharField
+        max_length=2,
+        choices=CHOICES_M,
+        default=1,
+    )
 
     class Meta:
         verbose_name = ('Профили')
@@ -164,9 +168,9 @@ class ProfileAvatar(models.Model):
     # - создание миниатюры
     # - удаление миниатюры и основного изображения
     #   при попытке записи поверх существующей записи
-    def save(self, force_insert=False, force_update=False, using=None):
+    def save(self, admin_panel=True, image_type='avatar', force_insert=False, force_update=False, using=None, request=None,):
         try:
-            obj = ProfileAvatar.objects.get(id=self.id)
+            obj = ProfileAvatar.objects.get(id=self.user.profileavatar.id)
             if obj.image.path != self.image.path:
                 helper._del_mini(obj.image.path, postfix='mini')
                 helper._del_mini(obj.image.path, postfix='reduced')
@@ -176,21 +180,56 @@ class ProfileAvatar(models.Model):
             pass
         super(ProfileAvatar, self).save()
 
-        mini = Image.open(self.image.path)
-        reduced = Image.open(self.image.path)
-        mini = helper.create_mini_image(mini)
-        reduced = helper.create_medium_image(reduced)
+        if admin_panel:
+            mini = Image.open(self.image.path)
+            reduced = Image.open(self.image.path)
+            mini = helper.create_mini_image(mini)
+            reduced = helper.create_medium_image(reduced)
 
-        quality_val = 85
-        mini.save(self.mini_path, quality=quality_val, optimize=True, progressive=True)
-        reduced.save(self.reduced_path, quality=quality_val, optimize=True, progressive=True)
+            quality_val = 85
+            mini.save(self.mini_path, quality=quality_val, optimize=True, progressive=True)
+            reduced.save(self.reduced_path, quality=quality_val, optimize=True, progressive=True)
+        else:
+            # Редактирование с клиента
+            if image_type == 'avatar':
+                # Редактирование аватарки(учитывая поворот и кроп) и создание миниатюры по умолчанию
+                reduced = Image.open(self.image.path)
+
+                if request.POST['rotate'] == 'undefined':
+                    angle = 0
+                else:
+                    angle = 360 - int(request.POST['rotate'])
+                new_response = reduced.rotate(angle).crop((float(request.POST['crop_x1']),
+                                                           float(request.POST['crop_y1']),
+                                                           float(request.POST['crop_x2']),
+                                                           float(request.POST['crop_y2'])))
+
+                quality_val = 85
+                reduced = helper.create_medium_image(new_response)
+                reduced.save(self.reduced_path, quality=quality_val, optimize=True, progressive=True)
+
+                mini = helper.create_mini_image(new_response)
+                mini.save(self.mini_path, optimize=True, progressive=True)
+            elif image_type == 'mini':
+                # Редактирование миниатюры
+                reduced = Image.open(self.reduced_path)
+                mini = reduced.crop((float(request.POST['crop_x1']),
+                                     float(request.POST['crop_y1']),
+                                     float(request.POST['crop_x2']),
+                                     float(request.POST['crop_y2'])))
+                # mini = helper.create_mini_image(mini)
+                mini.save(self.mini_path, optimize=True, progressive=True)
+
 
     # Делаем свою delete с учетом миниатюры
     def delete(self, using=None):
         try:
             obj = ProfileAvatar.objects.get(id=self.id)
-            helper._del_mini(obj.image.path)
-            obj.image.delete()
+            path = obj.image.path
+            helper._del_mini(path, postfix='mini')
+            helper._del_mini(path, postfix='reduced')
+            if 'default' not in path:
+                obj.image.delete()
         except (ProfileAvatar.DoesNotExist, ValueError):
             pass
         super(ProfileAvatar, self).delete()

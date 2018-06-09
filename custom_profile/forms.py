@@ -6,6 +6,9 @@ from cities.models import Countries
 
 
 # Форма регистрации
+from events_all.widgets import CustomDatePicker
+
+
 class SignupForm(forms.Form):
     first_name = forms.CharField(
         required=True, max_length=30, label='Имя', help_text='field_d_none'
@@ -27,14 +30,16 @@ class SignupForm(forms.Form):
     #     widget=autocomplete.ModelSelect2(url='country-autocomplete')
     # )
 
+    # Create User and related models (ProfileAvatar, UserSettings)
     def signup(self, request, user):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.profile.phone = self.cleaned_data['phone']
         user.profile.sex = self.cleaned_data['gender']
 
-        from custom_profile.models import ProfileAvatar
+        from custom_profile.models import ProfileAvatar, UserSettings
         ProfileAvatar.objects.create(user=user)
+        UserSettings.objects.create(user=user)
         user.save()
 
 
@@ -49,10 +54,14 @@ class EditProfile(forms.Form):
     city = forms.ChoiceField(widget=forms.Select, choices=CHOICES_СITY, label='Город', required=False)
 
     description = forms.CharField(required=False, max_length=2000, widget=forms.Textarea(), label='Пара слов обо мне')
-    birth_date = forms.DateField(required=False,
-                                 widget=forms.SelectDateWidget(years=range(1900, 2012)),
+    birth_date = forms.CharField(required=False,
+                                 widget=CustomDatePicker(),
                                  label='Дата рождения')
     phone = forms.CharField(required=False, max_length=30, label='Телефонный номер')
+
+    CHOICES_M = (('1', 'Мужской',),
+                 ('2', 'Женский',))
+    sex = forms.ChoiceField(widget=forms.Select, choices=CHOICES_M, label='Пол', required=False)
 
     def save(self, request):
         user = request.user
@@ -62,6 +71,7 @@ class EditProfile(forms.Form):
         user.profile.description = self.cleaned_data['description']
         user.profile.phone = self.cleaned_data['phone']
         user.profile.birth_date = self.cleaned_data['birth_date']
+        user.profile.sex = self.cleaned_data['sex']
         user.save()
         return HttpResponse(str(200))
 
@@ -95,5 +105,7 @@ class EditUserSettings(forms.Form):
         return HttpResponse(str(200))
 
 
-class UserAvatarForm(forms.Form):
-    messages = forms.ImageField(widget=forms.Select, label='Настройки сообщений')
+class ImageUploadForm(forms.Form):
+    image = forms.ImageField(label='')
+
+

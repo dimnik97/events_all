@@ -17,19 +17,22 @@
             {% endif %}
             <div class="avatar_image">
                 <p>
-                    <img src="{{ avatar.image.url }}" width="300px" height="200px">
+                    <img src="{{ avatar.reduced_url }}" width="300px" height="200px">
                 </p>
             </div>
+
+             {% if account and account == user.id %}
+                <button class="change_avatar" data-url="/profile/change_avatar">Смена аватара</button>
+                <button class="change_mini" data-url="/profile/change_mini">Смена миниатюры</button>
+                <a href="edit" class="btn btn-default">Настройки</a> <br>
+            {% endif %}
+
             Полное имя {{ user.first_name }} {{ user.last_name }} <br>
             Email {{ user.email }} <br>
             Дата рождения {{ user.profile.birth_date }} <br>
             Описание {{ user.profile.description }} НЕОБЯЗАТЕЛЬНОЕ<br>
             Телефон {{ user.profile.phone }}  МБ ЕГО НЕОБЯЗАТЕЛЬНЫМ?<br>
             Гендерная принадлежность {{ user.profile.sex }} <br>
-
-            {% if account and account == user.id %}
-                <a href="edit" class="btn btn-default">Настройки</a>
-            {% endif %}
 
             <div>
                 <span>Список всех пользователей</span>
@@ -47,7 +50,8 @@
             </div>
 
             <div>
-                <span class="all_subscribers">Подписки {{ friends|length }}</span>
+                <span data-url="/profile/get_subscribers?user={{ user.id }}"
+                      class="all_subscribers">Подписки {{ friends|length }}</span>
                 <ul>
                     {% for item in friends %}
                         <div>
@@ -67,11 +71,10 @@
     </div>
 
     <div id="dialog" class="d_none">
-
-    </div>
-    <div class="content">
-        <div class="infinite-container">
+        <div class="content_paginator">
         </div>
-        <a class="infinite-more-link" href="">More</a>
+    </div>
+    <div id="dialog_img" class="d_none">
+
     </div>
 {% endblock %}

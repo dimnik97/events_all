@@ -32,12 +32,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'bootstrap4',
-    'events_',
     'dal',
     'dal_select2',
-    'cities',
-    'main_app',
-    'custom_profile',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,6 +48,12 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.vk',
     'django_ipgeobase',
     'widget_tweaks',
+    # Наши приложения
+    'company_profile',
+    'custom_profile',
+    'cities',
+    'main_app',
+    'events_',
 ]
 
 MIDDLEWARE = [
@@ -97,6 +99,7 @@ import getpass
 host = '10.229.8.37'
 if (getpass.getuser() == 'dmitrij'):
     host = socket.gethostbyname(socket.getfqdn())
+    print(host)
 
 DATABASES = {
     'default': {
@@ -157,6 +160,11 @@ STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, '..', 'static'),
 )
 
+# EMAIL_BACKEND = "django.core.mail.backends.locmen.EmailBackend"
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
 SITE_ID = 1
 
 ACCOUNT_LOGOUT_ON_GET = True
@@ -172,11 +180,5 @@ ACCOUNT_SIGNUP_FORM_CLASS = 'custom_profile.forms.SignupForm'
 
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
-
-# EMAIL_BACKEND = "django.core.mail.backends.locmen.EmailBackend"
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-)
 
 X_FRAME_OPTIONS = 'DENY'
