@@ -132,7 +132,7 @@ class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
-                              default='avatar/default/img.png')
+                              default='avatar/default/img.jpg')
 
     class Meta:
         verbose_name = ('Аватары')

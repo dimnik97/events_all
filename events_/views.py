@@ -25,6 +25,9 @@ def index(request, id):
     except:
         party_flag = 0
 
+    # преобразовываем дату в нужный формат. При выводе на js будет вызвана функция пересчета времени относительно часового пояса пользователя
+    event_detail.start_time = event_detail.start_time.strftime("%Y-%m-%d %H:%M")
+
     ev_object, created = EventParty.objects.get_or_create(event_id=id)
     subs = [friend for friend in ev_object.user_id.all()]
 
@@ -99,7 +102,8 @@ def create(request):
         if request.method == 'POST':
             form = EditEvent(request.POST, request.FILES)
             if form.is_valid():
-                form.save(request, 1)  # 1 - флаг для определения создания, а не редактирвания, обрабатывается в форме
+                response = form.save(request, 1)  # 1 - флаг для определения создания, а не редактирвания, обрабатывается в форме
+                return redirect('/events/' + str(int(response.content)))
         else:
             form = EditEvent({})
 

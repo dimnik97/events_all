@@ -9,11 +9,20 @@ from custom_profile.models import Profile
 from django.db.models.signals import post_save
 
 
+class EventCategory(models.Model):
+    name = models.CharField(max_length = 30)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.id) + " " + str(self.name)
+
+
 class Event(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
     description = models.TextField(null=True,blank=True)
     creator_id = models.ForeignKey(User, on_delete = models.CASCADE)
+    category = models.ForeignKey(EventCategory, on_delete = models.CASCADE, default=1)
     create_time = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True,blank=True)
     end_time = models.DateTimeField(null=True,blank=True)
@@ -40,7 +49,7 @@ class Event_avatar(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar_event'),
-                              default='media/avatar_event/avatar_event/default/img.png')
+                              default='avatar_event/default/img.jpg')
 
     class Meta:
         verbose_name = ('Аватары')
@@ -48,13 +57,24 @@ class Event_avatar(models.Model):
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_mini_path(self):
-        return helper._add_mini(self.image.path)
-
-    mini_path = property(_get_mini_path)
+        return helper._add_mini(self.image.path, postfix='mini')
 
     # Добавляем к свойствам объектов модели урл миниатюры
     def _get_mini_url(self):
-        return helper._add_mini(self.image.url)
+        return helper._add_mini(self.image.url, postfix='mini')
+
+    # Добавляем к свойствам объектов модели путь к миниатюре
+    def _get_reduced_path(self):
+        return helper._add_mini(self.image.path, postfix='reduced')
+
+    # Добавляем к свойствам объектов модели урл миниатюры
+    def _get_reduced_url(self):
+        return helper._add_mini(self.image.url, postfix='reduced')
+
+    mini_path = property(_get_mini_path)
+    mini_url = property(_get_mini_url)
+    reduced_path = property(_get_reduced_path)
+    reduced_url = property(_get_reduced_url)
 
     mini_url = property(_get_mini_url)
 
@@ -67,30 +87,36 @@ class Event_avatar(models.Model):
         try:
             obj = Event_avatar.objects.get(id=self.id)
             if obj.image.path != self.image.path:
-                helper._del_mini(obj.image.path)
-                obj.image.delete()
+                helper._del_mini(obj.image.path, postfix='mini')
+                helper._del_mini(obj.image.path, postfix='reduced')
+                if 'default' not in obj.image:
+                    obj.image.delete()
         except:
             pass
+
         super(Event_avatar, self).save()
-        img = Image.open(self.image.path)
-        img.thumbnail(
-            (128, 128),
-            Image.ANTIALIAS
-        )
-        img.save(self.mini_path)
+        mini = Image.open(self.image.path)
+        reduced = Image.open(self.image.path)
+        mini = helper.create_mini_image(mini)
+        reduced = helper.create_medium_image(reduced)
+
+        quality_val = 85
+        mini.save(self.mini_path, quality=quality_val, optimize=True, progressive=True)
+        reduced.save(self.reduced_path, quality=quality_val, optimize=True, progressive=True)
 
     # Делаем свою delete с учетом миниатюры
+
     def delete(self, using=None):
         try:
             obj = Event_avatar.objects.get(id=self.id)
-            helper._del_mini(obj.image.path)
+            helper._del_mini(obj.image.path, postfix='mini')
+            helper._del_mini(obj.image.path, postfix='reduced')
             obj.image.delete()
         except (Event_avatar.DoesNotExist, ValueError):
             pass
         super(Event_avatar, self).delete()
 
-    def get_absolute_url(self):
-        return ('photo_detail', None, {'object_id': self.id})
+
 
 
 class EventParty(models.Model):

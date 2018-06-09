@@ -1,7 +1,13 @@
 $(document).ready(function() {
-    $('[is_datepicker]').datetimepicker({
-        format:'Y-m-d H:i'
-    });
+    function SetTimeToUser(DateStr){
+        debugger;
+        var d = new Date();
+        var timezone = d.getTimezoneOffset();
+        var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
+        var date_with_timezone = new Date(+date - timezone * 6e4);
+        document.write(date_with_timezone)
+    }
+
     // Проброс токена CSRF во все запросы ajax
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
