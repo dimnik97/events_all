@@ -12,7 +12,6 @@
                         Last name: {{ user.last_name }} <br>
                         City: {{ locate.city }} <br>
                         <a href="/accounts/logout/">logout</a>
-
                     {% else %}
                         {% if request.path != '/profile/signin/' %}
                             <a href="/accounts/login/">Войдите</a><br>
