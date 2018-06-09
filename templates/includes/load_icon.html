@@ -1,0 +1,58 @@
+<style>
+    .spinner_div {
+        width: 100%;
+        height: 100%;
+    }
+    .spinner {
+        display: block;
+        width: 35px;
+        height: 35px;
+        margin: 80px 150px;
+        position: relative;
+
+        border: 2px solid rgba(0,0,0,0.5);
+        border-top-color: transparent;
+        border-radius: 100%;
+
+        -webkit-animation: spin 1s infinite linear;
+        -moz-animation: spin 1s infinite linear;
+        animation: spin 1s infinite linear;
+    }
+
+    .spinner:after {
+        content: '';
+        display: block;
+        width: 0;
+        height: 0;
+        position: absolute;
+        top: -6px;
+        left: 3px;
+
+        border: 6px solid transparent;
+        border-bottom-color: rgba(0,0,0,0.5);
+
+        -webkit-transform: rotate(45deg);
+        -moz-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        -o-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+
+    @-webkit-keyframes spin {
+        to { -webkit-transform: rotate(360deg); }
+    }
+
+    @-moz-keyframes spin {
+        to { -moz-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    .upload-progress {
+        display: none;
+    }
+</style>
+<div class="upload-progress">
+    <span class="spinner"></span>
+</div>
