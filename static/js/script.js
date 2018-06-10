@@ -1,12 +1,15 @@
-$(document).ready(function() {
-    function SetTimeToUser(DateStr){
+ function SetTimeToUser(DateStr, div_id){
         debugger;
         var d = new Date();
         var timezone = d.getTimezoneOffset();
         var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
         var date_with_timezone = new Date(+date - timezone * 6e4);
-        document.write(date_with_timezone)
+        $('.event_time','#'+div_id).text(date_with_timezone);
+        // document.write(date_with_timezone)
     }
+
+$(document).ready(function() {
+
 
     // Проброс токена CSRF во все запросы ajax
     $.ajaxSetup({
@@ -213,7 +216,7 @@ $(document).ready(function() {
         });
     });
 
-    $('#main_info').on('submit', function(e){
+    $('#edit_profile_form').on('submit', function(e){
         ajax_validate_form($('#main_info'), e)
     });
 

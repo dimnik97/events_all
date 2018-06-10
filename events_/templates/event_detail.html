@@ -4,15 +4,14 @@
 {% endblock %}
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
-    <div data-event="{{ event.id }}">
+    <div data-event="{{ event.id }}" id="event_{{ event.id }}">
         <h1>Событие:</h1>
         <p><img src="{{ avatar.image.url }}" width="200px" height="200px"></p>
         Название: {{ event.name }}
         Создатель: {{ event.creator_id.first_name }}
         <div class="event_time">
             <script>
-
-                SetTimeToUser("{{ event.start_time }}");
+                SetTimeToUser("{{ event.start_time }}", "event_{{ event.id }}");
             </script>
         </div>
 
@@ -22,7 +21,7 @@
             <button class="subscribe_event" data-action="subscribe">Пойти</button>
         {% endif %}
         {% if is_creator == 1 %}
-            <button data-action="editevent"><a href="events/edit/{{ event.id }}">Настройки</a></button>
+            <button data-action="editevent"><a href="/events/edit/{{ event.id }}">Настройки</a></button>
         {% endif %}
 
     </div>

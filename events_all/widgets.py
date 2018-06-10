@@ -34,7 +34,7 @@ class CustomDateTimePicker(forms.PasswordInput):
 
         html = '''
             <input %(attrs)s is_datetimepicker type="text" value=""/>
-            <input class="custom_hidden_field d-none %(id)s"  name="%(name)s" type="text" value=""/>
+            <input class="custom_hidden_field  %(id)s"  name="%(name)s" type="text" value=""/>
             
             
             <script type="text/javascript">
@@ -46,12 +46,12 @@ class CustomDateTimePicker(forms.PasswordInput):
                 var timezone = d.getTimezoneOffset();
                 var text = "%(value)s";
                 var date = new Date(text.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
-                var date_with_timezone = new Date(+date - timezone * 6e4);
-                
+                // var date_with_timezone = new Date(+date - timezone * 6e4);
+                // debugger;
                 // по изменению видимого поля просталвляем дату в гмт+0 в скрытое поле для отправки на сервер
                 
                 $('#%(id)s').on('change', function(){
-                    var date_val = new Date($('#%(id)s').val().replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
+                    var date_val = $('#%(id)s').val().replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1');
                     var date_with_timezone_for_hidden = new Date(+date_val + timezone * 6e4);
                     var str_date = date_with_timezone_for_hidden.getFullYear()+'-'+
                                    date_with_timezone_for_hidden.getMonth() +'-'+
@@ -64,7 +64,7 @@ class CustomDateTimePicker(forms.PasswordInput):
                 
                 
                 $('#%(id)s').datetimepicker({
-                    value:date_with_timezone,
+                    value:date,
                     format:'Y-m-d H:i',
                     minDate:0,
                     minTime:0,

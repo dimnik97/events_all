@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
     <div class="content">
-        <form method="post" id="main_info" novalidate>
+        <form method="post" id="main_info edit_profile_form" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <input name="type" class="d_none" value="main_info">
