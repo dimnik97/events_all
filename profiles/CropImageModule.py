@@ -8,8 +8,8 @@ from django.core.files.storage import default_storage
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 
-from custom_profile.forms import ImageUploadForm
-from custom_profile.models import ProfileAvatar
+from profiles.forms import ImageUploadForm
+from profiles.models import ProfileAvatar
 from events_all import helper, settings
 
 

@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from . import views
-from custom_profile.models import Users
+from profiles.models import Users
 from events_.models import EventParty
 from events_ import views as event_view
 

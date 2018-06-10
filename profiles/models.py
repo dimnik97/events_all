@@ -9,11 +9,11 @@ from django_ipgeobase.models import IPGeoBase
 from PIL import Image
 
 from events_all import helper
-from custom_profile import forms
-from custom_profile.validator import SignupValidator
+from profiles import forms
+from profiles.validator import SignupValidator
 
 
-# Получение общей информации для пользователей
+# Получение общей информации для юзера
 class Users:
     # Возвращает абсолютный URL
     @models.permalink
@@ -52,7 +52,7 @@ class Users:
             return ipgeobases[0]
 
 
-# Модель с дополнительными полями для user
+# Доп данные для юзера
 class Profile(models.Model):
     CHOICES_M = (('1', 'Мужчина'),
                  ('2', 'Женщина'),)
@@ -60,7 +60,7 @@ class Profile(models.Model):
     description = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phone = models.TextField(null=True, blank=True)
-    sex = models.IntegerField( # CharField
+    gender = models.CharField(
         max_length=2,
         choices=CHOICES_M,
         default=1,
@@ -81,13 +81,13 @@ class Profile(models.Model):
         if not name and not email and not message:
             raise forms.ValidationError('You have to write something!')
 
-    # Создание юзера с дополнительной информацией
+    # Создание юзера
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:
             Profile.objects.create(user=instance)
 
-    # Сохранение юзера с дополнительной информацией
+    # Сохранение юзера
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
@@ -102,7 +102,7 @@ class Profile(models.Model):
         return "/profile/%i/" % self.id
 
 
-# Модель "Дрзуей"
+# Модель "Подписчиков"
 class Subscribers(models.Model):
     users = models.ManyToManyField(User)
     current_user = models.ForeignKey(User, related_name="owner", null=True, on_delete=models.CASCADE)
@@ -135,7 +135,9 @@ class Subscribers(models.Model):
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
+    # image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
+    #                           default='avatar/default/img.jpg')
+    image = models.ImageField(upload_to=helper.upload_to,
                               default='avatar/default/img.jpg')
 
     class Meta:
@@ -220,7 +222,6 @@ class ProfileAvatar(models.Model):
                 # mini = helper.create_mini_image(mini)
                 mini.save(self.mini_path, optimize=True, progressive=True)
 
-
     # Делаем свою delete с учетом миниатюры
     def delete(self, using=None):
         try:
@@ -238,7 +239,7 @@ class ProfileAvatar(models.Model):
         return ('photo_detail', None, {'object_id': self.id})
 
 
-# Аватарки и миниатюры пользователей
+# Настройки юзера
 class UserSettings(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     CHOICES_M = (('1', 'Открыть сообщения для всех'),

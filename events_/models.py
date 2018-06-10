@@ -5,7 +5,7 @@ from django.utils.functional import curry
 
 import datetime
 from events_all import helper
-from custom_profile.models import Profile
+from profiles.models import Profile
 from django.db.models.signals import post_save
 
 

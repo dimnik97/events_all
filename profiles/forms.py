@@ -35,9 +35,9 @@ class SignupForm(forms.Form):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.profile.phone = self.cleaned_data['phone']
-        user.profile.sex = self.cleaned_data['gender']
+        user.profile.gender = self.cleaned_data['gender']
 
-        from custom_profile.models import ProfileAvatar, UserSettings
+        from profiles.models import ProfileAvatar, UserSettings
         ProfileAvatar.objects.create(user=user)
         UserSettings.objects.create(user=user)
         user.save()
@@ -61,7 +61,7 @@ class EditProfile(forms.Form):
 
     CHOICES_M = (('1', 'Мужской',),
                  ('2', 'Женский',))
-    sex = forms.ChoiceField(widget=forms.Select, choices=CHOICES_M, label='Пол', required=False)
+    gender = forms.ChoiceField(widget=forms.Select, choices=CHOICES_M, label='Пол', required=False)
 
     def save(self, request):
         user = request.user
@@ -71,7 +71,7 @@ class EditProfile(forms.Form):
         user.profile.description = self.cleaned_data['description']
         user.profile.phone = self.cleaned_data['phone']
         user.profile.birth_date = self.cleaned_data['birth_date']
-        user.profile.sex = self.cleaned_data['sex']
+        user.profile.gender = self.cleaned_data['gender']
         user.save()
         return HttpResponse(str(200))
 

@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from company_profile import views
+from groups import views
 
 urlpatterns = [
     url(r'^(?P<id>[0-9]+)$', views.detail, name='index'),

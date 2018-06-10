@@ -8,9 +8,9 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('custom_profile', '0002_subscribers'),
-    ]
+    # dependencies = [
+    #     ('profiles', '0002_subscribers'),
+    # ]
 
     operations = [
         migrations.CreateModel(
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('start_time', models.DateTimeField(blank=True, null=True)),
                 ('end_time', models.DateTimeField(blank=True, null=True)),
                 ('participants', models.IntegerField(blank=True, null=True)),
-                ('creator_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='custom_profile.Profile')),
+                ('creator_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='profiles.Profile')),
             ],
         ),
         migrations.CreateModel(
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('event_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events_.Event')),
-                ('user_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='custom_profile.Profile')),
+                ('user_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='profiles.Profile')),
             ],
         ),
         migrations.AlterUniqueTogether(

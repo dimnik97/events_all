@@ -11,9 +11,9 @@ from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.views.generic import FormView
 
-from custom_profile.CropImageModule import CropImageModule
-from custom_profile.forms import EditProfile, EditUserSettings, ImageUploadForm
-from custom_profile.models import Profile, Subscribers, ProfileAvatar
+from profiles.CropImageModule import CropImageModule
+from profiles.forms import EditProfile, EditUserSettings, ImageUploadForm
+from profiles.models import Profile, Subscribers, ProfileAvatar
 from django.shortcuts import get_object_or_404, render_to_response, render
 
 from events_all import settings, helper
@@ -46,7 +46,7 @@ def detail(request, id):
         'friend_flag': friend_flag,
         'avatar': avatar
     }
-    return render_to_response('user_profile.html', context)
+    return render_to_response('detail.html', context)
 
 
 # Добавление или удаление подписки
@@ -92,7 +92,7 @@ class Edit(FormView):
                             'birth_date': user.profile.birth_date,
                             'phone': user.profile.phone,
                             'description': user.profile.description,
-                            'sex': user.profile.sex
+                            'gender': user.profile.gender
                             })
         form_private = EditUserSettings({'messages': user.usersettings.messages,
                                          'birth_date': user.usersettings.birth_date,
@@ -107,7 +107,7 @@ class Edit(FormView):
             'avatar': ProfileAvatar.objects.get(user=request.user.id)
         }
 
-        return render_to_response('edit_user_profile.html', context)
+        return render_to_response('edit.html', context)
 
     def change_avatar(request):
         if request.method == 'POST' and request.is_ajax():

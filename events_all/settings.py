@@ -49,8 +49,8 @@ INSTALLED_APPS = [
     'django_ipgeobase',
     'widget_tweaks',
     # Наши приложения
-    'company_profile',
-    'custom_profile',
+    'groups',
+    'profiles',
     'cities',
     'main_app',
     'events_',
@@ -74,7 +74,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates'),
                  os.path.join(BASE_DIR, 'templates', 'allauth'),
-                 '/custom_profile/templates',
+                 '/profiles/templates',
                  ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -96,7 +96,7 @@ WSGI_APPLICATION = 'events_all.wsgi.application'
 
 import socket
 import getpass
-host = '10.229.8.37'
+host = '10.54.65.134'
 if (getpass.getuser() == 'dmitrij'):
     host = socket.gethostbyname(socket.getfqdn())
     print(host)
@@ -176,7 +176,7 @@ LOGIN_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/main_app"
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_SIGNUP_FORM_CLASS = 'custom_profile.forms.SignupForm'
+ACCOUNT_SIGNUP_FORM_CLASS = 'profiles.forms.SignupForm'
 
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'

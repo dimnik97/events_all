@@ -28,4 +28,4 @@ def detail(request, id):
     #     'avatar': avatar
     # }
     context = {}
-    return render_to_response('user_profile.html', context)
+    return render_to_response('detail.html', context)

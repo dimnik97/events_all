@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from custom_profile import views, forms
+from profiles import views, forms
 
 urlpatterns = [
     url(r'^(?P<id>[0-9]+)$', views.detail, name='detail'),

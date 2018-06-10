@@ -34,7 +34,7 @@ class CustomDateTimePicker(forms.PasswordInput):
 
         html = '''
             <input %(attrs)s is_datetimepicker type="text" value=""/>
-            <input class="custom_hidden_field d-none"  name="%(name)s" type="text" value=""/>
+            <input class="custom_hidden_field d-none %(id)s"  name="%(name)s" type="text" value=""/>
             
             
             <script type="text/javascript">
@@ -58,7 +58,7 @@ class CustomDateTimePicker(forms.PasswordInput):
                                    date_with_timezone_for_hidden.getDay() +' '+
                                    date_with_timezone_for_hidden.getHours() +':'+
                                    date_with_timezone_for_hidden.getMinutes();
-                    $('.custom_hidden_field').val(str_date);
+                    $('.custom_hidden_field.%(id)s').val(str_date);
                 });
                 
                 

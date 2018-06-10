@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from events_.models import Event, EventParty
-from custom_profile.models import Users
+from profiles.models import Users
 
 
 def index(request):
