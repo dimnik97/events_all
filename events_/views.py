@@ -105,7 +105,7 @@ def create(request):
                 response = form.save(request, 1)  # 1 - флаг для определения создания, а не редактирвания, обрабатывается в форме
                 return redirect('/events/' + str(int(response.content)))
         else:
-            form = EditEvent({})
+            form = EditEvent()
 
         context = {
             'title': 'Создание события',

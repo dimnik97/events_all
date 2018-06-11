@@ -33,44 +33,19 @@ class CustomDateTimePicker(forms.PasswordInput):
                 pass
 
         html = '''
-            <input %(attrs)s is_datetimepicker type="text" value=""/>
-            <input class="custom_hidden_field  %(id)s"  name="%(name)s" type="text" value=""/>
+            <input %(attrs)s is_datetimepicker name="%(name)s" type="text" value=""/>
             
             
             <script type="text/javascript">
             $(document).ready(function() {
-                // одно из полей скрыто, оно отправляется на сервер
-                // берем дату, которая пришла и учитываем часовой пояс пользователя
-                
-                var d = new Date();
-                var timezone = d.getTimezoneOffset();
-                var text = "%(value)s";
-                var date = new Date(text.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
-                // var date_with_timezone = new Date(+date - timezone * 6e4);
-                // debugger;
-                // по изменению видимого поля просталвляем дату в гмт+0 в скрытое поле для отправки на сервер
-                
-                $('#%(id)s').on('change', function(){
-                    var date_val = $('#%(id)s').val().replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1');
-                    var date_with_timezone_for_hidden = new Date(+date_val + timezone * 6e4);
-                    var str_date = date_with_timezone_for_hidden.getFullYear()+'-'+
-                                   date_with_timezone_for_hidden.getMonth() +'-'+
-                                   date_with_timezone_for_hidden.getDay() +' '+
-                                   date_with_timezone_for_hidden.getHours() +':'+
-                                   date_with_timezone_for_hidden.getMinutes();
-                    $('.custom_hidden_field.%(id)s').val(str_date);
-                });
                 
                 
                 
                 $('#%(id)s').datetimepicker({
-                    value:date,
+                    value:"%(value)s",
                     format:'Y-m-d H:i',
-                    minDate:0,
-                    minTime:0,
                 });
                 
-                $('#%(id)s').change(); // триггерим событие на элементе вручну, чтобы сразу заполнить скрытое поле
             });
             </script>
         ''' % {

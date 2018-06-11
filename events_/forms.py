@@ -22,7 +22,7 @@ class EditEvent(forms.Form):
                                label='Дата окончания')
 
     # метод для сохранения данных из формы
-    def save(self, request, is_creation = None):
+    def save(self, request, is_creation=None):
 
         if is_creation == 1:
             event = Event()
@@ -48,12 +48,4 @@ class EditEvent(forms.Form):
                 event_photo[0].save()
 
         return HttpResponse(event.id)
-
-    # def form_valid(self, form):
-    #     form.save()
-    #     return HttpResponse('OK')
-    #
-    # def form_invalid(self, form):
-    #     errors_dict = json.dumps(dict([(k, [e for e in v]) for k, v in form.errors.items()]))
-    #     return HttpResponseBadRequest(json.dumps(errors_dict))
 

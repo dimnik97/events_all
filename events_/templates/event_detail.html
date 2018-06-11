@@ -9,6 +9,8 @@
         <p><img src="{{ avatar.image.url }}" width="200px" height="200px"></p>
         Название: {{ event.name }}
         Создатель: {{ event.creator_id.first_name }}
+        ВРЕМЯ С СЕРВЕРА ---- {{  event.start_time }} ------
+
         <div class="event_time">
             <script>
                 SetTimeToUser("{{ event.start_time }}", "event_{{ event.id }}");
