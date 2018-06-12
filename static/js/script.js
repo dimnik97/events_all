@@ -1,12 +1,37 @@
- function SetTimeToUser(DateStr, div_id){
-        debugger;
-        var d = new Date();
-        var timezone = d.getTimezoneOffset();
-        var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
-        var date_with_timezone = new Date(+date - timezone * 6e4);
-        $('.event_time','#'+div_id).text(date_with_timezone);
-        // document.write(date_with_timezone)
+function SetTimeToUser(DateStr, div_id){
+    debugger;
+    var d = new Date();
+    var timezone = d.getTimezoneOffset();
+    var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
+    var date_with_timezone = new Date(+date - timezone * 6e4);
+    $('.event_time','#'+div_id).text(date_with_timezone);
+// document.write(date_with_timezone)
+}
+
+function SetTimeToServer(DateStr){
+
+    var d = new Date();
+    var timezone = d.getTimezoneOffset();
+    var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
+    var date_with_timezone = new Date(+date + timezone * 6e4);
+    var minutes;
+    if(date_with_timezone.getMinutes() < 10){
+        minutes = '0'+ date_with_timezone.getMinutes();
+    }else{
+        minutes = date_with_timezone.getMinutes();
     }
+
+
+    var str_date = date_with_timezone.getFullYear()+'-'+
+               date_with_timezone.getMonth() + 1 +'-'+
+               date_with_timezone.getDate() +' '+
+               date_with_timezone.getHours() +':' + minutes;
+
+
+
+    debugger;
+    return str_date;
+}
 
 $(document).ready(function() {
 

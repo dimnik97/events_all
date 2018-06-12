@@ -191,6 +191,7 @@ function reset_all() {
         $help_image_div = $('.help_image_div', $uploader),
         $div_output_image = $('#div_output_image', $uploader);
 
+    $div_output_image.rotate(0);
     $help_image_div.imgAreaSelect({
         remove: true
     });

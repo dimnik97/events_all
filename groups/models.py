@@ -13,12 +13,12 @@ from django.db import models
 # Группы
 class Group(models.Model):
     # Общая информация
-    creator = models.OneToOneField(User, on_delete=models.CASCADE)
+    creator_id = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     name = models.TextField(null=True, blank=True, max_length=100)
     description = models.TextField(max_length=1000, blank=True)
     create_date = models.DateField(auto_now_add=True)
-    phone = models.TextField(null=True, blank=True)
     # Настройки группы
+    active = models.BooleanField(default=True)  # для бана
     CHOICES_S = (('1', 'Открытая'),
                  ('2', 'Закрытая'))
 
@@ -33,7 +33,7 @@ class Group(models.Model):
         verbose_name_plural = ('Группы')
 
     def __str__(self):
-        return self.group.name
+        return self.name
 
 
 # Подписчики группы

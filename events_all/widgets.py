@@ -33,6 +33,7 @@ class CustomDateTimePicker(forms.PasswordInput):
                 pass
 
         html = '''
+            <input %(attrs)s id="%(id)s" is_datetimepicker type="text" value=""/>
             <input %(attrs)s is_datetimepicker name="%(name)s" type="text" value=""/>
             
             
@@ -40,11 +41,14 @@ class CustomDateTimePicker(forms.PasswordInput):
             $(document).ready(function() {
                 
                 
-                
                 $('#%(id)s').datetimepicker({
                     value:"%(value)s",
                     format:'Y-m-d H:i',
                 });
+                $('#%(id)s').on('change', function(){
+                    $('[name ="%(name)s"]').val(SetTimeToServer($('#%(id)s').val()));
+                });
+                $('#%(id)s').change();
                 
             });
             </script>

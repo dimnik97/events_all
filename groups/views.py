@@ -1,31 +1,33 @@
 from django.contrib.auth.decorators import login_required
+from django.middleware.csrf import get_token
 from django.shortcuts import render, get_object_or_404, render_to_response
+
+from groups.forms import GroupsForm
+from groups.models import Group
 
 
 @login_required(login_url='/accounts/login/')
 def detail(request, id):
-    # user = get_object_or_404(Group, id=id)
-    #
-    # avatar, created = ProfileAvatar.objects.get_or_create(user=user)
-    #
-    # friend_flag = 'add'
-    # try:
-    #     if Subscribers.objects.filter(users=user.profile, current_user=request.user.profile):
-    #         friend_flag = 'remove'
-    # except:
-    #     friend_flag = 'add'
-    #
-    # friend_object, created = Subscribers.objects.get_or_create(current_user=user)
-    # friends = [friend for friend in friend_object.users.all() if friend != user]
-
-    # context = {
-    #     'title': 'Профиль',
-    #     'user': user,
-    #     'users': Profile.get_users(),
-    #     'friends': friends,
-    #     'account': account,
-    #     'friend_flag': friend_flag,
-    #     'avatar': avatar
-    # }
     context = {}
     return render_to_response('detail.html', context)
+
+
+@login_required(login_url='/accounts/login/')
+def edit_or_create(request, id=None):
+    if request.method == 'POST':
+        form = GroupsForm(request.POST)
+        if form.is_valid():
+            form.save(request)
+            print('save')
+    else:
+        if id:
+            group = Group.objects.get_object_or_404(id=id)
+            form = GroupsForm(group)
+        else:
+            form = GroupsForm()
+
+    context = {
+        'form': form,
+        "csrf_token": get_token(request),
+    }
+    return render_to_response('edit_or_create.html', context)
