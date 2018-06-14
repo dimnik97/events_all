@@ -18,7 +18,6 @@ class GroupsForm(forms.Form):
                 group = Group.objects.get(
                     id=self.cleaned_data['id']
                 )
-
             except Group.DoesNotExist:
                 return 'Запрашиваемая группа не найдена'
         else:

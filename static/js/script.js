@@ -1,10 +1,27 @@
 function SetTimeToUser(DateStr, div_id){
-    debugger;
     var d = new Date();
     var timezone = d.getTimezoneOffset();
     var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
     var date_with_timezone = new Date(+date - timezone * 6e4);
     $('.event_time','#'+div_id).text(date_with_timezone);
+// document.write(date_with_timezone)
+}
+
+
+function SetTimeToUser_js_str(DateStr){
+    var d = new Date();
+    var timezone = d.getTimezoneOffset();
+    var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
+    var date_with_timezone = new Date(+date - timezone * 6e4);
+
+
+    var strdate = date_with_timezone.getFullYear()+'-'+
+                GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
+                GetCorrectNumber(date_with_timezone.getDate()) +' '+
+                GetCorrectNumber(date_with_timezone.getHours()) +':' +
+                GetCorrectNumber(date_with_timezone.getMinutes());
+
+    return strdate;
 // document.write(date_with_timezone)
 }
 
@@ -23,15 +40,34 @@ function SetTimeToServer(DateStr){
 
 
     var str_date = date_with_timezone.getFullYear()+'-'+
-               date_with_timezone.getMonth() + 1 +'-'+
-               date_with_timezone.getDate() +' '+
-               date_with_timezone.getHours() +':' + minutes;
+                GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
+                GetCorrectNumber(date_with_timezone.getDate()) +' '+
+                GetCorrectNumber(date_with_timezone.getHours()) +':' +
+                GetCorrectNumber(date_with_timezone.getMinutes());
 
-
-
-    debugger;
     return str_date;
 }
+
+// метод для корректного преобразования даты в строку
+// Number - число, котороре нужно преобразовать, добавть 0, если оно меньше 10
+// is_month - флаг месяца, js по умолчанию возвращает месяц от 0 до 11
+function GetCorrectNumber(Number, is_month=0){
+    var correct_date;
+
+    if(is_month == 1){
+        Number += 1;
+    }
+
+    if(Number < 10){
+        correct_date = '0'+ Number;
+    }else{
+        correct_date = Number;
+    }
+
+    return correct_date;
+}
+
+
 
 $(document).ready(function() {
 
