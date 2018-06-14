@@ -46,7 +46,7 @@ def detail(request, id):
         'friend_flag': friend_flag,
         'avatar': avatar
     }
-    return render_to_response('detail.html', context)
+    return render_to_response('profile_detail.html', context)
 
 
 # Добавление или удаление подписки
@@ -107,7 +107,7 @@ class Edit(FormView):
             'avatar': ProfileAvatar.objects.get(user=request.user.id)
         }
 
-        return render_to_response('edit.html', context)
+        return render_to_response('profile_edit.html', context)
 
     def change_avatar(request):
         if request.method == 'POST' and request.is_ajax():

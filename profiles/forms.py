@@ -106,6 +106,6 @@ class EditUserSettings(forms.Form):
 
 
 class ImageUploadForm(forms.Form):
-    image = forms.ImageField(label='')
+    load_image = forms.ImageField(label='')
 
 

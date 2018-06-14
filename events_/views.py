@@ -47,11 +47,9 @@ def subsc_unsubsc(request):
     if request.user.is_authenticated:
         if request.is_ajax():
             try:
-                # user_id = request.POST['user_id']
                 event = Event.objects.get(id=request.POST['event_id'])
                 action = request.POST['action']
-                user = get_object_or_404(User, id=request.user.id)
-                # owner = request.user.profile
+                user = request.user
 
                 if action == "subscribe":
                     EventParty.subscr_to_event(event,user)

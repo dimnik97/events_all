@@ -67,6 +67,8 @@ function GetCorrectNumber(Number, is_month=0){
     return correct_date;
 }
 
+
+
 $(document).ready(function() {
 
 
@@ -227,27 +229,9 @@ $(document).ready(function() {
             }
         });
     });
-    // $('.subscribe_event').on('click', function(){
-    //     $this = $(this);
-    //
-    //     $.ajax({
-    //         type: "POST",
-    //         url: "/events/edit/",
-    //         data:{
-    //
-    //         },
-    //         dataType: 'json',
-    //         success: function(data){
-    //             if (data) {
-    //
-    //             }
-    //
-    //         }
-    //     });
-    // });
 
-// Подписка на пользователей
-// Мод. Subscribers
+    // Подписка на пользователей
+    // Мод. Subscribers
     $('.add_to_friend').on('click', function(){
         var user_id = $(this).data('user_id'),
             action = $(this).data('action'),
@@ -271,6 +255,34 @@ $(document).ready(function() {
                         $this.data('action', 'add');
                     }
                 }
+            }
+        });
+    });
+
+    // функция для подписки/отписки на группу
+    $('.subscribe_event').on('click', function(){
+        var group_id = $(this).closest("div.event_item").data('event_id'),
+            atcion_type = $(this).data('action');
+        $.ajax({
+            type: "POST",
+            url: "/main_app/subscribe_group/",
+            data:{
+                'group_id': group_id,
+                'action': atcion_type
+            },
+            dataType: 'json',
+            success: function(data){
+                if (data) {
+                    if (atcion_type == 'add') {
+                        $this.text('Отписаться');
+                        $this.data('action', 'unsubscribe');
+                    }
+                    if (atcion_type == 'remove') {
+                        $this.text('Пойти');
+                        $this.data('action', 'subscribe');
+                    }
+                }
+
             }
         });
     });

@@ -40,9 +40,13 @@ class CustomDateTimePicker(forms.PasswordInput):
         hours = str(value[11:13])
         min = str(value[14:16])
         html = '''
+<<<<<<< HEAD
             <input %(attrs)s detect_id="%(id)s" is_date is_datetimepicker type="text" value=""/>
             <input %(attrs)s detect_id="%(id)s" is_hours is_datetimepicker type="text" value=""/>
             <input %(attrs)s detect_id="%(id)s" is_min is_datetimepicker type="text" value=""/>
+=======
+            <input %(attrs)s id="%(id)s" is_datetimepicker type="text" value=""/>
+>>>>>>> 379b4e859ea8d112d86595008c487620600bdbc7
             <input %(attrs)s is_datetimepicker name="%(name)s" type="text" value=""/>
             
             
@@ -72,6 +76,7 @@ class CustomDateTimePicker(forms.PasswordInput):
                 hours.val(hours_in);
                 mins.val(mins_in);
                 
+<<<<<<< HEAD
                 
                 $input_elements.on('change', function(){
                     
@@ -79,7 +84,16 @@ class CustomDateTimePicker(forms.PasswordInput):
                 
                 
                     $('[name ="%(name)s"]').val(SetTimeToServer(str_val));
+=======
+                $('#%(id)s').datetimepicker({
+                    value:"%(value)s",
+                    format:'Y-m-d H:i',
+>>>>>>> 379b4e859ea8d112d86595008c487620600bdbc7
                 });
+                $('#%(id)s').on('change', function(){
+                    $('[name ="%(name)s"]').val(SetTimeToServer($('#%(id)s').val()));
+                });
+                $('#%(id)s').change();
                 
                 $input_elements.change();
                 
