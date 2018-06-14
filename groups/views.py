@@ -55,6 +55,7 @@ def edit_or_create(request, id=None):
         roles = GroupSubscribers.objects.get(user_id=request.user, group_id=id).role
     except GroupSubscribers.DoesNotExist:
         roles = AllRoles.objects.get(id=3)
+
     context = {
         'roles': roles,
         'form': form,
