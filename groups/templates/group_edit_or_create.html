@@ -4,6 +4,10 @@
 {% endblock %}
 {% block content %}
     <div class="content">
+        {% if account and account == user.id %}
+            <button class="change_avatar" data-url="/profile/change_avatar">Смена аватара</button>
+            <button class="change_mini" data-url="/profile/change_mini">Смена миниатюры</button>
+        {% endif %}
         <form method="post" id="groups_form" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}

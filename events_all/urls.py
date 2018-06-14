@@ -26,7 +26,7 @@ urlpatterns = [
     path('main_app/', include('main_app.urls')),
     path('accounts/', include('allauth.urls')),
     path('profile/', include('profiles.urls')),
-    path('group/', include('groups.urls')),
+    path('groups/', include('groups.urls')),
     path('cities/', include('cities.urls')),
     path('events/', include('events_.urls')),
 ]

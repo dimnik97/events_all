@@ -117,8 +117,6 @@ class Event_avatar(models.Model):
         super(Event_avatar, self).delete()
 
 
-
-
 class EventParty(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ManyToManyField(User)

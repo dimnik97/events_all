@@ -13,7 +13,7 @@ from django.db import models
 # Группы
 class Group(models.Model):
     # Общая информация
-    creator_id = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     name = models.TextField(null=True, blank=True, max_length=100)
     description = models.TextField(max_length=1000, blank=True)
     create_date = models.DateField(auto_now_add=True)
@@ -36,31 +36,48 @@ class Group(models.Model):
         return self.name
 
 
+# Admin могут редактировать саму группу(название, фото, описание), добавлять и удалять редакторов, создавать посты
+# Editor могут добавлять посты
+class AllRoles(models.Model):
+    id = models.AutoField(primary_key=True)
+    role = models.TextField(User)
+    able_edit = models.BooleanField()
+    able_delete = models.BooleanField()
+
+    able_create_event = models.BooleanField()
+    able_edit_event = models.BooleanField()
+    able_delete_event = models.BooleanField()
+
+
 # Подписчики группы
 class GroupSubscribers(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ManyToManyField(User)
     group_id = models.ForeignKey(Group, related_name="owner", null=True, on_delete=models.CASCADE)
+    role = models.ForeignKey(AllRoles, related_name="roles", on_delete=models.CASCADE, default=1)
 
     class Meta:
         verbose_name = ('Подписчики группы')
         verbose_name_plural = ('Подписчики группы')
 
     @classmethod
-    def make_friend(cls, current_user, new_friend):
+    def subscribe(cls, group_id, user_id):
         subscribers, created = cls.objects.get_or_create(
-            current_user=current_user
+            group_id=group_id
         )
-        subscribers.users.add(new_friend)
+        subscribers.user_id.add(user_id)
 
     @classmethod
-    def remove_friend(cls, current_user, new_friend):
+    def unsubscribe(cls, group_id, user_id):
         subscribers, created = cls.objects.get_or_create(
-            current_user=current_user
+            group_id=group_id
         )
-        subscribers.users.remove(new_friend)
+        subscribers.user_id.remove(user_id)
 
     # Возвращает абсолютный URL
     @models.permalink
     def get_absolute_url(user_id):
         return "/group/%i/" % user_id
+
+
+
