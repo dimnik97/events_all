@@ -136,9 +136,7 @@ class Subscribers(models.Model):
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    # image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
-    #                           default='avatar/default/img.jpg')
-    image = models.ImageField(upload_to=helper.upload_to,
+    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
                               default='avatar/default/img.jpg')
 
     class Meta:
@@ -172,16 +170,29 @@ class ProfileAvatar(models.Model):
     # - удаление миниатюры и основного изображения
     #   при попытке записи поверх существующей записи
     def save(self, admin_panel=True, image_type='avatar', force_insert=False, force_update=False, using=None, request=None):
-        PhotoEditor.save(self,
-                         cls=ProfileAvatar,
-                         admin_panel=True,
-                         image_type='avatar',
-                         force_insert=False,
-                         force_update=False,
-                         using=None,
-                         request=None)
+        try:
+            obj = ProfileAvatar.objects.get(id=self.user.profileavatar.id)
+            if obj.image.path != self.image.path:
+                helper._del_mini(obj.image.path, postfix='mini')
+                helper._del_mini(obj.image.path, postfix='reduced')
+                if str(obj.image).find('default') == -1:
+                    obj.image.delete()
+        except:
+            pass
+        super(ProfileAvatar, self).save()
+
+        PhotoEditor.save_photo(
+            self_cls=self,
+            cls=ProfileAvatar,
+            admin_panel=admin_panel,
+            image_type=image_type,
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            request=request)
+
     # Делаем свою delete с учетом миниатюры
-    def delete(self, using=None):
+    def delete_photo(self, using=None):
         try:
             obj = ProfileAvatar.objects.get(id=self.id)
             path = obj.image.path

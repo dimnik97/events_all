@@ -1,5 +1,5 @@
-$('body').on('change', '#id_image', function (e) {
-    var file = document.getElementById("id_image").files[0];
+$('body').on('change', '#id_load_image', function (e) {
+    var file = document.getElementById("id_load_image").files[0];
     $('.to_second_step').on('click', function () {
         to_second_step();
     });
@@ -179,7 +179,6 @@ $('#uploader').on('drop', function () {
     var dt = e.dataTransfer;
     var files = dt.files;
 
-    //this code line fires your 'handleImage' function (imageLoader change event)
     imageLoader.files = files;
 });
 

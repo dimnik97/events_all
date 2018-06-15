@@ -1,22 +1,14 @@
 import json
-import os
-
-from PIL import Image
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.views.generic import FormView
-
-from profiles.CropImageModule import CropImageModule
+from images_custom.models import PhotoEditor
 from profiles.forms import EditProfile, EditUserSettings, ImageUploadForm
 from profiles.models import Profile, Subscribers, ProfileAvatar
 from django.shortcuts import get_object_or_404, render_to_response, render
-
-from events_all import settings, helper
 from events_all.helper import parse_from_error_to_json
 
 
@@ -111,7 +103,7 @@ class Edit(FormView):
 
     def change_avatar(request):
         if request.method == 'POST' and request.is_ajax():
-            return CropImageModule.load_image(request)
+            return PhotoEditor.load_image(request)
         context = {
             'image_file': ImageUploadForm(),
             'avatar': ProfileAvatar.objects.get(user=request.user.id),
@@ -122,12 +114,12 @@ class Edit(FormView):
 
     def change_mini(request):
         if request.method == 'POST' and request.is_ajax():
-            return CropImageModule.load_image(request)
+            return PhotoEditor.load_image(request)
 
         url = request.user.profileavatar.reduced_url
         path = request.user.profileavatar.reduced_path
 
-        image_attr = CropImageModule.get_image_size(path)
+        image_attr = PhotoEditor.get_image_size(path)
 
         context = {
             'image_file': ImageUploadForm(),
@@ -141,7 +133,7 @@ class Edit(FormView):
     def save_image(request):
         if request.method == 'POST' and request.is_ajax():
             model = request.user.profileavatar
-            return CropImageModule.save_image(request, model)
+            return PhotoEditor.save_image(request, model)
 
 
 def get_subscribers(request):

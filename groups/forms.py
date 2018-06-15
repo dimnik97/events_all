@@ -12,7 +12,7 @@ class GroupsForm(forms.Form):
     type = forms.ChoiceField(widget=forms.Select, choices=CHOICES_С, label='Тип группы', required=False)
 
     def save(self, request):
-        # Редактирование
+        # Редактирование группы
         if self.cleaned_data['id']:
             try:
                 group = Group.objects.get(
@@ -20,20 +20,32 @@ class GroupsForm(forms.Form):
                 )
             except Group.DoesNotExist:
                 return 'Запрашиваемая группа не найдена'
+        # Создание группы
         else:
             group = Group.objects.create(
                 creator=request.user
             )
+            group.name = self.cleaned_data['name']
+            group.description = self.cleaned_data['description']
+            group.type = self.cleaned_data['type']
+            group.save()
 
-        subscribers = GroupSubscribers.objects.get_or_create(
-            group_id=group.id,
-            user_id=request.user,
-            role=AllRoles.objects.get(role='admin')
+        subscribers, created = GroupSubscribers.objects.get_or_create(
+            group_id=group,
         )
-        if subscribers.role != 'admin':
+
+        if created:
+            subscribers.user_id.add(request.user)
+            subscribers.role = AllRoles.objects.get(role='admin')
+            subscribers.save()
+
+        # Проверка на права доступа (редактировать может только админ)
+        if subscribers.role == AllRoles.objects.get(role='admin') and not created:
+            group.name = self.cleaned_data['name']
+            group.description = self.cleaned_data['description']
+            group.type = self.cleaned_data['type']
+            group.save()
+        else:
             return 'Нет прав'
 
-        group.name = self.cleaned_data['name']
-        group.description = self.cleaned_data['description']
-        group.type = self.cleaned_data['type']
         return group.id
