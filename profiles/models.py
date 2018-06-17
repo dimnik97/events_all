@@ -66,7 +66,7 @@ class Profile(models.Model):
         choices=CHOICES_M,
         default=1,
     )
-    subscribers = models.ManyToManyField(User)
+    subscribers = models.ManyToManyField(User, related_name="owner")
 
     class Meta:
         verbose_name = ('Профили')
