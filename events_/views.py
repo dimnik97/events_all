@@ -80,11 +80,13 @@ def edit(request, id):
                                   'start_time': event.start_time,
                                   'end_time': event.end_time,
                                   })
+
+            avatar, created = Event_avatar.objects.get_or_create(event=event)
             context = {
                 'title': 'Редактирование события',
                 'form': form,
                 "csrf_token": get_token(request),
-                'avatar': Event_avatar.objects.get(event=event)
+                'avatar': avatar
             }
 
             return render_to_response('edit.html', context)

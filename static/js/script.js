@@ -20,6 +20,7 @@ function SetTimeToUser_js_str(DateStr){
                 GetCorrectNumber(date_with_timezone.getDate()) +' '+
                 GetCorrectNumber(date_with_timezone.getHours()) +':' +
                 GetCorrectNumber(date_with_timezone.getMinutes());
+    strdate = strdate.substring(0, strdate.length-1) + "0";
 
     return strdate;
 // document.write(date_with_timezone)
@@ -45,13 +46,16 @@ function SetTimeToServer(DateStr){
                 GetCorrectNumber(date_with_timezone.getHours()) +':' +
                 GetCorrectNumber(date_with_timezone.getMinutes());
 
+
+
     return str_date;
 }
 
 // метод для корректного преобразования даты в строку
 // Number - число, котороре нужно преобразовать, добавть 0, если оно меньше 10
 // is_month - флаг месяца, js по умолчанию возвращает месяц от 0 до 11
-function GetCorrectNumber(Number, is_month=0){
+// is_min - флаг минут, округление до 00/10/20/30/40/50 минут в меньшую сторону
+function GetCorrectNumber(Number, is_month=0, is_min = 0){
     var correct_date;
 
     if(is_month == 1){
@@ -63,6 +67,7 @@ function GetCorrectNumber(Number, is_month=0){
     }else{
         correct_date = Number;
     }
+
 
     return correct_date;
 }
