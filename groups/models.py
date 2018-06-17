@@ -14,6 +14,7 @@ from django.db import models
 class Group(models.Model):
     # Общая информация
     creator = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+    # status = models.TextField(null=True, blank=True, max_length=100)
     name = models.TextField(null=True, blank=True, max_length=100)
     description = models.TextField(max_length=1000, blank=True)
     create_date = models.DateField(auto_now_add=True)

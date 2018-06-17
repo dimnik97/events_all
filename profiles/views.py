@@ -5,9 +5,11 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.views.generic import FormView
+
+from groups.models import Group, GroupSubscribers
 from images_custom.models import PhotoEditor
 from profiles.forms import EditProfile, EditUserSettings, ImageUploadForm
-from profiles.models import Profile, Subscribers, ProfileAvatar
+from profiles.models import Profile, ProfileAvatar
 from django.shortcuts import get_object_or_404, render_to_response, render
 from events_all.helper import parse_from_error_to_json
 
@@ -19,23 +21,27 @@ def detail(request, id):
 
     avatar, created = ProfileAvatar.objects.get_or_create(user=user)
 
-    friend_flag = 'add'
-    try:
-        if Subscribers.objects.filter(users=user.profile, current_user=request.user.profile):
-            friend_flag = 'remove'
-    except:
-        friend_flag = 'add'
+    # friend_flag = 'add'
+    # try:
+    #     if Subscribers.objects.filter(users=user.profile, current_user=request.user.profile):
+    #         friend_flag = 'remove'
+    # except:
+    #     friend_flag = 'add'
 
-    friend_object, created = Subscribers.objects.get_or_create(current_user=user)
+    friend_object, created = Profile.objects.get(user=user)
     friends = [friend for friend in friend_object.users.all() if friend != user]
+
+    groups_object, created = GroupSubscribers.objects.filter(user_id=user)
+    groups = [group for group in groups_object.users.all() if group != user]
 
     context = {
         'title': 'Профиль',
         'user': user,
         'users': Profile.get_users(),
+        'groups': groups,
         'friends': friends,
         'account': account,
-        'friend_flag': friend_flag,
+        # 'friend_flag': friend_flag,
         'avatar': avatar
     }
     return render_to_response('profile_detail.html', context)
@@ -52,9 +58,9 @@ def add_or_remove_friends(request):
             new_friend = User.objects.get(id=user_id)
 
             if action == "add":
-                Subscribers.make_friend(owner, new_friend)
+                Profile.make_friend(request, new_friend)
             else:
-                Subscribers.remove_friend(owner, new_friend)
+                Profile.remove_friend(request, new_friend)
         except KeyError:
             return HttpResponse('Error')
         return HttpResponse(str(200))
@@ -137,12 +143,16 @@ class Edit(FormView):
 
 
 def get_subscribers(request):
+    # TODO ПРОВЕРИТЬ!!!!!!!!!!!!!!!!!!!!!!!!!!
     user_id = request.GET.get('user', 1)
     is_my_account = False
     if str(request.user.id) == user_id:
         is_my_account = True
-    friend_object, created = Subscribers.objects.get_or_create(current_user=user_id)
+
+    friend_object, created = Profile.objects.get(user=user_id)
     friends = [friend for friend in friend_object.users.all() if friend != user_id]
+    # friend_object, created = Subscribers.objects.get_or_create(current_user=user_id)
+    # friends = [friend for friend in friend_object.users.all() if friend != user_id]
 
     page = request.GET.get('page', 1)
     paginator = Paginator(friends, 20)

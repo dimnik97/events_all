@@ -103,10 +103,24 @@ class PhotoEditor:
 
         return HttpResponse(_('Invalid request type!'))
 
-    # Кроп и переворот
+    # Добавляем:
+    # - создание миниатюры
+    # - удаление миниатюры и основного изображения (дефолтная не удаляется)
+    #   при попытке записи поверх существующей записи
+    #   Кроп + перевороты
     def save_photo(self_cls, cls, admin_panel=True, image_type='avatar', force_insert=False, force_update=False,
-                   using=None,
-                   request=None, ):
+                   using=None, request=None):
+        try:
+            obj = cls.objects.get(id=self_cls.user.profileavatar.id)
+            if obj.image.path != self_cls.image.path:
+                helper._del_mini(obj.image.path, postfix='mini')
+                helper._del_mini(obj.image.path, postfix='reduced')
+                if str(obj.image).find('default') == -1:
+                    obj.image.delete()
+        except:
+            pass
+        super(cls, self_cls).save()
+
         if admin_panel:
             mini = Image.open(self_cls.image.path)
             reduced = Image.open(self_cls.image.path)
@@ -179,3 +193,16 @@ class PhotoEditor:
             'orig_width': reduced.width
         }
         return image_attr
+
+    # Делаем свою delete с учетом миниатюры
+    def delete_photo(self, cls, using=None):
+        try:
+            obj = cls.objects.get(id=self.id)
+            path = obj.image.path
+            helper._del_mini(path, postfix='mini')
+            helper._del_mini(path, postfix='reduced')
+            if 'default' not in path:
+                obj.image.delete()
+        except (cls.DoesNotExist, ValueError):
+            pass
+        super(cls, self).delete()
