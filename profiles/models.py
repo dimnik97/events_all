@@ -66,6 +66,7 @@ class Profile(models.Model):
         choices=CHOICES_M,
         default=1,
     )
+    subscribers = models.ManyToManyField(User)
 
     class Meta:
         verbose_name = ('Профили')
@@ -74,6 +75,7 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.first_name + self.user.last_name + ' (' + self.user.username + ')'
 
+    # TODO в будущем грохнуть метод
     def clean(self):
         cleaned_data = super(Profile, self).clean()
         name = cleaned_data.get('name')
@@ -99,46 +101,54 @@ class Profile(models.Model):
         events = User.objects.all()
         return events
 
+    # Подписка на пользователя
+    @classmethod
+    def make_friend(self, request, new_friend):
+        request.user.add(new_friend)
+
+    # Отписка от пользователя
+    @classmethod
+    def remove_friend(self, request, new_friend):
+        request.users.remove(new_friend)
+
+    # Возвращает абсолютный URL
     def get_absolute_url(self):
         return "/profile/%i/" % self.id
 
-
 # Модель "Подписчиков"
-class Subscribers(models.Model):
-    users = models.ManyToManyField(User)
-    current_user = models.ForeignKey(User, related_name="owner", null=True, on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = ('Подписчики')
-        verbose_name_plural = ('Подписчики')
-
-    @classmethod
-    def make_friend(cls, current_user, new_friend):
-        subscribers, created = cls.objects.get_or_create(
-            current_user=current_user
-        )
-        subscribers.users.add(new_friend)
-
-    @classmethod
-    def remove_friend(cls, current_user, new_friend):
-        subscribers, created = cls.objects.get_or_create(
-            current_user=current_user
-        )
-        subscribers.users.remove(new_friend)
-
-    # Возвращает абсолютный URL
-    @models.permalink
-    def get_absolute_url(user_id):
-        return "/profile/%i/" % user_id
+# class Subscribers(models.Model):
+#     users = models.ManyToManyField(User)
+#     current_user = models.ForeignKey(User, related_name="owner", null=True, on_delete=models.CASCADE)
+#
+#     class Meta:
+#         verbose_name = ('Подписчики')
+#         verbose_name_plural = ('Подписчики')
+#
+#     @classmethod
+#     def make_friend(self, current_user, new_friend):
+#         subscribers, created = self.objects.get_or_create(
+#             current_user=current_user
+#         )
+#         subscribers.users.add(new_friend)
+#
+#     @classmethod
+#     def remove_friend(self, current_user, new_friend):
+#         subscribers, created = self.objects.get_or_create(
+#             current_user=current_user
+#         )
+#         subscribers.users.remove(new_friend)
+#
+#     # Возвращает абсолютный URL
+#     @models.permalink
+#     def get_absolute_url(user_id):
+#         return "/profile/%i/" % user_id
 
 
 # Аватарки и миниатюры пользователей
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    # image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
-    #                           default='avatar/default/img.jpg')
-    image = models.ImageField(upload_to=helper.upload_to,
+    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
                               default='avatar/default/img.jpg')
 
     class Meta:
@@ -166,32 +176,23 @@ class ProfileAvatar(models.Model):
     reduced_path = property(_get_reduced_path)
     reduced_url = property(_get_reduced_url)
 
-    # Создаем свою save
-    # Добавляем:
-    # - создание миниатюры
-    # - удаление миниатюры и основного изображения
-    #   при попытке записи поверх существующей записи
     def save(self, admin_panel=True, image_type='avatar', force_insert=False, force_update=False, using=None, request=None):
-        PhotoEditor.save(self,
-                         cls=ProfileAvatar,
-                         admin_panel=True,
-                         image_type='avatar',
-                         force_insert=False,
-                         force_update=False,
-                         using=None,
-                         request=None)
-    # Делаем свою delete с учетом миниатюры
-    def delete(self, using=None):
-        try:
-            obj = ProfileAvatar.objects.get(id=self.id)
-            path = obj.image.path
-            helper._del_mini(path, postfix='mini')
-            helper._del_mini(path, postfix='reduced')
-            if 'default' not in path:
-                obj.image.delete()
-        except (ProfileAvatar.DoesNotExist, ValueError):
-            pass
-        super(ProfileAvatar, self).delete()
+        PhotoEditor.save_photo(
+            self_cls=self,
+            cls=ProfileAvatar,
+            admin_panel=admin_panel,
+            image_type=image_type,
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            request=request)
+
+    def delete_photo(self, using=None):
+        PhotoEditor.delete_photo(
+            self = self,
+            using=using,
+            cls=ProfileAvatar
+        )
 
     def get_absolute_url(self):
         return ('photo_detail', None, {'object_id': self.id})
@@ -240,4 +241,4 @@ class UserSettings(models.Model):
         verbose_name_plural = ('Пользовательские настройки')
 
     def __str__(self):
-        return 'Настройки пользователя ' + str(self.user.first_name)
+        return 'Пользовательские настройки ' + str(self.user.first_name)

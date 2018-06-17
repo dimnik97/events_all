@@ -243,7 +243,7 @@ $(document).ready(function() {
             $this = $(this);
         $.ajax({
             type: "POST",
-            url: "/profile/add_or_remove_friends/",
+            url: "/profile/subscribe",
             data:{
                 'user_id': user_id,
                 'action': action

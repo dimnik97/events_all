@@ -9,9 +9,9 @@
                 {# TODO Посмотреть, написать как-нибудь по другому #}
                 <button class="add_to_friend" data-user_id="{{ user.id }}" data-action="{{ is_friend }}">
                     {% if friend_flag == 'add'%}
-                        Отписаться
-                    {% else %}
                         Подписаться
+                    {% else %}
+                        Отписаться
                     {% endif %}
                 </button>
             {% endif %}
@@ -44,6 +44,21 @@
                             {% if not item.profile  %}
                                 !!!!
                             {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div>
+                <span>Список всех групп</span>
+                <ul>
+                    {% for item in groups %}
+                        <li>
+                            <a href="/profile/{{ item.id }}">
+                                <img src="{{ item.groupavatar.mini_url }}" class="avatar_round">
+                            </a>
+                            <a href="/groups/{{ item.id }}"> {{ item.name }}</a>
+                            <button class="add_to_friend"  data-group_id="{{ item.id }}" data-action="add">Подписаться</button>
                         </li>
                     {% endfor %}
                 </ul>
