@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^change_mini', views.Edit.change_mini, name='change_mini'),
     url(r'^save_image', views.Edit.save_image, name='save_image'),
     url(r'^get_subscribers$', views.get_subscribers, name='get_subscribers'),
+    url(r'^get_followers$', views.get_followers, name='get_followers$'),
     url(r'^subscribe$', views.add_or_remove_friends, name='add_or_remove_friends'),
 ]

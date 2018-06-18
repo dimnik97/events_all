@@ -11,6 +11,9 @@ from django.db import models
 # Настройки группы
 
 # Группы
+from profiles.models import Profile
+
+
 class Group(models.Model):
     # Общая информация
     creator = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
@@ -22,6 +25,11 @@ class Group(models.Model):
     active = models.BooleanField(default=True)  # для бана
     CHOICES_S = (('1', 'Открытая'),
                  ('2', 'Закрытая'))
+    members = models.ManyToManyField(
+        Profile,
+        through='Membership',
+        through_fields=('group', 'person'),
+    )
 
     type = models.CharField(
         max_length=2,
@@ -35,6 +43,17 @@ class Group(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Membership(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    person = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    inviter = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name="membership_invites",
+    )
+    invite_reason = models.CharField(max_length=64)
 
 
 # Admin могут редактировать саму группу(название, фото, описание), добавлять и удалять редакторов, создавать посты

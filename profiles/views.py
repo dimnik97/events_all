@@ -21,27 +21,31 @@ def detail(request, id):
 
     avatar, created = ProfileAvatar.objects.get_or_create(user=user)
 
-    # friend_flag = 'add'
-    # try:
-    #     if Subscribers.objects.filter(users=user.profile, current_user=request.user.profile):
-    #         friend_flag = 'remove'
-    # except:
-    #     friend_flag = 'add'
+    subscribers_object = user.profile.subscribers
+    profile = user.profile
+    # TODO выборка из 5 показываемых
+    subscribers = [User.objects.get(id=subscriber.user_id) for subscriber in subscribers_object.all() if subscriber != profile]
 
-    friend_object, created = Profile.objects.get(user=user)
-    friends = [friend for friend in friend_object.users.all() if friend != user]
+    friend_flag = 'add'
+    try:
+        # TODO Долго, переписать
+        for item in request.user.profile.subscribers.all():
+            if item == profile:
+                friend_flag = 'remove'
+    except:
+        friend_flag = 'add'
 
-    groups_object, created = GroupSubscribers.objects.filter(user_id=user)
-    groups = [group for group in groups_object.users.all() if group != user]
+    followers = Profile.objects.filter(subscribers=profile.id)
 
     context = {
         'title': 'Профиль',
         'user': user,
         'users': Profile.get_users(),
-        'groups': groups,
-        'friends': friends,
+        'followers': followers,
+        # 'groups': groups,
+        'subscribers': subscribers,
         'account': account,
-        # 'friend_flag': friend_flag,
+        'friend_flag': friend_flag,
         'avatar': avatar
     }
     return render_to_response('profile_detail.html', context)
@@ -149,23 +153,48 @@ def get_subscribers(request):
     if str(request.user.id) == user_id:
         is_my_account = True
 
-    friend_object, created = Profile.objects.get(user=user_id)
-    friends = [friend for friend in friend_object.users.all() if friend != user_id]
-    # friend_object, created = Subscribers.objects.get_or_create(current_user=user_id)
-    # friends = [friend for friend in friend_object.users.all() if friend != user_id]
+    user = User.objects.get(id=user_id)
+    subscribers_object = user.profile.subscribers
+    profile = user.profile
+
+    subscribers = [subscriber for subscriber in subscribers_object.all() if
+                   subscriber != profile]
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(friends, 20)
+    paginator = Paginator(subscribers, 20)
     try:
-        friends = paginator.page(page)
+        subscribers = paginator.page(page)
     except PageNotAnInteger:
-        friends = paginator.page(1)
+        subscribers = paginator.page(1)
     except EmptyPage:
-        friends = paginator.page(paginator.num_pages)
+        subscribers = paginator.page(paginator.num_pages)
 
     context = {
-        'friends': friends,
+        'items': subscribers,
         'user_id': user_id,
-        'is_my_account': is_my_account
+        'action': is_my_account
     }
     return render(request, 'subscribers.html', context)
+
+
+def get_followers(request):
+    user_id = request.GET.get('user', 1)
+
+    followers = Profile.objects.filter(subscribers=User.objects.get(id=user_id).profile.id)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(followers, 20)
+    try:
+        followers = paginator.page(page)
+    except PageNotAnInteger:
+        followers = paginator.page(1)
+    except EmptyPage:
+        followers = paginator.page(paginator.num_pages)
+
+    context = {
+        'items': followers,
+        'user_id': user_id,
+        'action': False
+    }
+    return render(request, 'subscribers.html', context)
+

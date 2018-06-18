@@ -1,12 +1,12 @@
 <div class="infinite-container">
-    {% for item in friends %}
+    {% for item in items %}
         <div>
-            <a href="/profile/{{ item.id }}">
-                <img src="{{ item.profileavatar.mini_url }}" class="avatar_round">
+            <a href="/profile/{{ item.user.id }}">
+                <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
             </a>
-            <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
-            {% if is_my_account %}
-                <button class="add_to_friend" data-user_id="{{ item.id }}" data-action="remove">Отписаться</button>
+            <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+            {% if action %}
+                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
             {% endif %}
         </div>
     {% endfor %}
