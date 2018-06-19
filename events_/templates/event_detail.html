@@ -2,13 +2,13 @@
 
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
-    <div data-event="{{ event.id }}" id="event_{{ event.id }}">
+    <div class="event_item" data-event_id="{{ event.id }}" id="event_{{ event.id }}">
         <h1>Событие:</h1>
         <p><img src="{{ avatar.image.url }}" width="200px" height="200px"></p>
         Название: {{ event.name }}
         Создатель: {{ event.creator_id.first_name }}
         ВРЕМЯ С СЕРВЕРА ---- {{  event.start_time }} ------
-
+        <p>Статус: {{ event.status }}</p>
         <div class="event_time">
             <script>
                 SetTimeToUser("{{ event.start_time }}", "event_{{ event.id }}");

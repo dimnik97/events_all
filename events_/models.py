@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import models
 from PIL import Image
 from django.utils.functional import curry
@@ -16,6 +16,13 @@ class EventCategory(models.Model):
     def __str__(self):
         return str(self.id) + " " + str(self.name)
 
+class EventStatus(models.Model):
+    name = models.CharField(max_length=20)
+    description = models.TextField(null=True,blank=True)
+
+    def __str__(self):
+        return str(self.id) + " " + str(self.name)
+
 
 class Event(models.Model):
     id = models.AutoField(primary_key=True)
@@ -27,6 +34,8 @@ class Event(models.Model):
     start_time = models.DateTimeField(null=True,blank=True)
     end_time = models.DateTimeField(null=True,blank=True)
     participants = models.IntegerField(null=True,blank=True)
+    status = models.ForeignKey(EventStatus, on_delete = models.CASCADE, default=1)
+    created_by_group = models.ForeignKey(Group, on_delete = models.CASCADE, null=True)
 
     def get_events():
         events = Event.objects.all()
@@ -48,7 +57,9 @@ post_save.connect(event_creating_post_save, sender=Event)
 class Event_avatar(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar_event'),
+    image = models.ImageField(
+        upload_to=curry(helper.upload_to, prefix='avatar_event'),
+        # upload_to=helper.upload_to,
                               default='avatar_event/default/img.jpg')
 
     class Meta:

@@ -208,6 +208,7 @@ $(document).ready(function() {
 
     // функция для подписки/отписки на событие
     $('.subscribe_event').on('click', function(){
+        debugger;
         var event_id = $(this).closest("div.event_item").data('event_id'),
             atcion_type = $(this).data('action'),
             $this = $(this);
@@ -265,7 +266,7 @@ $(document).ready(function() {
     });
 
     // функция для подписки/отписки на группу
-    $('.subscribe_event').on('click', function(){
+    $('.subscribe_group').on('click', function(){
         var group_id = $(this).closest("div.event_item").data('event_id'),
             atcion_type = $(this).data('action');
         $.ajax({

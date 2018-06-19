@@ -77,7 +77,7 @@ class CustomDateTimePicker(forms.PasswordInput):
                 <option value="40">40</option>
                 <option value="50">50</option>
            </select>
-            <input %(attrs)s is_datetimepicker name="%(name)s" type="text" value=""/>
+            <input class="d_none" is_datetimepicker name="%(name)s" type="text" value=""/>
 
 
             <script type="text/javascript">
