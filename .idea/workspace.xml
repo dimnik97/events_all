@@ -138,8 +138,6 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-<<<<<<< HEAD
-=======
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -154,7 +152,6 @@
       </list>
     </option>
   </component>
->>>>>>> 33e55a8d19b3569e6062043aeed1d3ca07e53e13
   <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsGulpfileManager">
@@ -177,10 +174,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-<<<<<<< HEAD
-      <pane id="ProjectPane" />
-      <pane id="Scope" />
-=======
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -221,7 +214,6 @@
           <select />
         </subPane>
       </pane>
->>>>>>> 33e55a8d19b3569e6062043aeed1d3ca07e53e13
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -285,10 +277,6 @@
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
-<<<<<<< HEAD
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50143063" side_tool="true" weight="0.3988764" />
-=======
-<<<<<<< HEAD
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
       <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3286517" />
@@ -299,9 +287,7 @@
       <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
       <window_info anchor="right" id="Database" />
       <window_info anchor="right" id="SciView" />
-=======
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
->>>>>>> c293045ecd1b500684eabeb68bc9a48d622cb4db
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49928468" weight="0.3286517" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.3286517" />
@@ -312,7 +298,6 @@
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="right" id="SciView" order="3" />
->>>>>>> 33e55a8d19b3569e6062043aeed1d3ca07e53e13
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.4985694" visible="true" weight="0.3988764" />
       <window_info id="Favorites" order="2" side_tool="true" />

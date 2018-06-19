@@ -1,4 +1,5 @@
 import datetime
+from profile import Profile
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -66,7 +67,7 @@ class Profile(models.Model):
         choices=CHOICES_M,
         default=1,
     )
-    subscribers = models.ManyToManyField(User, related_name="owner")
+    subscribers = models.ManyToManyField('self', blank=True, symmetrical=False)
 
     class Meta:
         verbose_name = ('Профили')
@@ -74,15 +75,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.first_name + self.user.last_name + ' (' + self.user.username + ')'
-
-    # TODO в будущем грохнуть метод
-    def clean(self):
-        cleaned_data = super(Profile, self).clean()
-        name = cleaned_data.get('name')
-        email = cleaned_data.get('email')
-        message = cleaned_data.get('message')
-        if not name and not email and not message:
-            raise forms.ValidationError('You have to write something!')
 
     # Создание юзера
     @receiver(post_save, sender=User)
@@ -104,12 +96,12 @@ class Profile(models.Model):
     # Подписка на пользователя
     @classmethod
     def make_friend(self, request, new_friend):
-        request.user.add(new_friend)
+        request.user.profile.subscribers.add(new_friend.profile)
 
     # Отписка от пользователя
     @classmethod
     def remove_friend(self, request, new_friend):
-        request.users.remove(new_friend)
+        request.user.profile.subscribers.remove(new_friend.profile)
 
     # Возвращает абсолютный URL
     def get_absolute_url(self):
@@ -148,7 +140,7 @@ class Profile(models.Model):
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
+    image = models.ImageField(upload_to=helper.upload_to,
                               default='avatar/default/img.jpg')
 
     class Meta:

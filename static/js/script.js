@@ -331,7 +331,7 @@ $(document).ready(function() {
         }
     }
 
-    $('.all_subscribers').on('click', function () {
+    $('.all_subscribers, .all_followers').on('click', function () {
         $( "#dialog" ).dialog({
             title: 'Подписчики',
             height: '700',

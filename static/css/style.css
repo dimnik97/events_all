@@ -26,7 +26,7 @@ button {
     border: 1px solid black; /* Параметры рамки */
     box-shadow: 0 0 7px #666; /* Параметры тени */
 }
-.all_subscribers {
+.all_subscribers, .all_followers {
     cursor: pointer;
 }
 .ui-widget-overlay.ui-front {

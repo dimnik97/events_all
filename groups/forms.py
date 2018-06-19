@@ -1,12 +1,13 @@
 from django import forms
 
-from groups.models import Group, GroupSubscribers, AllRoles
+from groups.models import Group, Membership, AllRoles
 
 
 class GroupsForm(forms.Form):
     id = forms.IntegerField(required=False, widget=forms.HiddenInput(), label='Название группы')
-    name = forms.CharField(required=True, max_length=30, label='Название группы')
-    description = forms.CharField(required=True, max_length=30, label='Описание')
+    name = forms.CharField(required=True, max_length=100, label='Название группы')
+    status = forms.CharField(required=True, max_length=100, label='Краткое описание')
+    description = forms.CharField(required=True, max_length=1000, label='Описание')
     CHOICES_С = (('1', 'Открытая'),
                  ('2', 'Закрытая'))
     type = forms.ChoiceField(widget=forms.Select, choices=CHOICES_С, label='Тип группы', required=False)
@@ -27,22 +28,30 @@ class GroupsForm(forms.Form):
             )
             group.name = self.cleaned_data['name']
             group.description = self.cleaned_data['description']
+            group.status = self.cleaned_data['status']
             group.type = self.cleaned_data['type']
             group.save()
 
-        subscribers, created = GroupSubscribers.objects.get_or_create(
-            group_id=group,
-        )
+            Membership.objects.create(
+                group=group,
+                person=request.user.profile,
+                role=AllRoles.objects.get(role='admin'),
+            )
+            return group.id
 
-        if created:
-            subscribers.user_id.add(request.user)
-            subscribers.role = AllRoles.objects.get(role='admin')
-            subscribers.save()
-
+        # Редактирование группы
+        try:
+            membership = Membership.objects.get(
+                group=group,
+                person=request.user.profile
+            )
+        except Membership.DoesNotExist:
+            return 'Пользователь не найден'
         # Проверка на права доступа (редактировать может только админ)
-        if subscribers.role == AllRoles.objects.get(role='admin') and not created:
+        if membership.role == AllRoles.objects.get(role='admin'):
             group.name = self.cleaned_data['name']
             group.description = self.cleaned_data['description']
+            group.status = self.cleaned_data['status']
             group.type = self.cleaned_data['type']
             group.save()
         else:

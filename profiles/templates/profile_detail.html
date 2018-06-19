@@ -33,7 +33,7 @@
             Описание {{ user.profile.description }} НЕОБЯЗАТЕЛЬНОЕ<br>
             Телефон {{ user.profile.phone }}  МБ ЕГО НЕОБЯЗАТЕЛЬНЫМ?<br>
             Гендерная принадлежность {{ user.profile.gender }} <br>
-
+            <hr>
             <div>
                 <span>Список всех пользователей</span>
                 <ul>
@@ -63,12 +63,12 @@
                     {% endfor %}
                 </ul>
             </div>
-
+            <hr>
             <div>
                 <span data-url="/profile/get_subscribers?user={{ user.id }}"
-                      class="all_subscribers">Подписки {{ friends|length }}</span>
+                      class="all_subscribers">Подписки {{ subscribers|length }}</span>
                 <ul>
-                    {% for item in friends %}
+                    {% for item in subscribers %}
                         <div>
                             <a href="/profile/{{ item.id }}">
                                 <img src="{{ item.profileavatar.mini_url }}" class="avatar_round">
@@ -76,6 +76,23 @@
                             <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
                             {% if account and account == user.id %}
                                 <button class="add_to_friend" data-user_id="{{ item.id }}" data-action="remove">Отписаться</button>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <span data-url="/profile/get_followers?user={{ user.id }}"
+                      class="all_followers">Подписчики {{ followers|length }}</span>
+                <ul>
+                    {% for item in followers %}
+                        <div>
+                            <a href="/profile/{{ item.user.id }}">
+                                <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
+                            </a>
+                            <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+                            {% if account and account == user.user.id %}
+                                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
                             {% endif %}
                         </div>
                     {% endfor %}
