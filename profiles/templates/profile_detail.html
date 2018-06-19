@@ -33,7 +33,7 @@
             Описание {{ user.profile.description }} НЕОБЯЗАТЕЛЬНОЕ<br>
             Телефон {{ user.profile.phone }}  МБ ЕГО НЕОБЯЗАТЕЛЬНЫМ?<br>
             Гендерная принадлежность {{ user.profile.gender }} <br>
-
+            <hr>
             <div>
                 <span>Список всех пользователей</span>
                 <ul>
@@ -63,7 +63,7 @@
                     {% endfor %}
                 </ul>
             </div>
-
+            <hr>
             <div>
                 <span data-url="/profile/get_subscribers?user={{ user.id }}"
                       class="all_subscribers">Подписки {{ subscribers|length }}</span>

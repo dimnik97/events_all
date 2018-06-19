@@ -6,7 +6,7 @@ from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.views.generic import FormView
 
-from groups.models import Group, GroupSubscribers
+from groups.models import Group
 from images_custom.models import PhotoEditor
 from profiles.forms import EditProfile, EditUserSettings, ImageUploadForm
 from profiles.models import Profile, ProfileAvatar
@@ -26,6 +26,8 @@ def detail(request, id):
     # TODO выборка из 5 показываемых
     subscribers = [User.objects.get(id=subscriber.user_id) for subscriber in subscribers_object.all() if subscriber != profile]
 
+    groups = Group.objects.all()
+
     friend_flag = 'add'
     try:
         # TODO Долго, переписать
@@ -42,7 +44,7 @@ def detail(request, id):
         'user': user,
         'users': Profile.get_users(),
         'followers': followers,
-        # 'groups': groups,
+        'groups': groups,
         'subscribers': subscribers,
         'account': account,
         'friend_flag': friend_flag,

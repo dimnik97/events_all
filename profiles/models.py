@@ -76,17 +76,6 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.first_name + self.user.last_name + ' (' + self.user.username + ')'
 
-
-    # # TODO в будущем грохнуть мето
-
-    # def clean(self):
-    #     cleaned_data = super(Profile, self).clean()
-    #     name = cleaned_data.get('name')
-    #     email = cleaned_data.get('email')
-    #     message = cleaned_data.get('message')
-    #     if not name and not email and not message:
-    #         raise forms.ValidationError('You have to write something!')
-
     # Создание юзера
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
