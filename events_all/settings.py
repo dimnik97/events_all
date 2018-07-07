@@ -97,7 +97,7 @@ WSGI_APPLICATION = 'events_all.wsgi.application'
 
 import socket
 import getpass
-host = '10.54.65.85'
+host = '10.54.65.7'
 
 if (getpass.getuser() == 'dmitrij'):
     host = socket.gethostbyname(socket.getfqdn())

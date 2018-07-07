@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 
 
-from events_.models import Event, Event_avatar
+from events_.models import Event, Event_avatar, EventCategory
 from events_all.widgets import CustomDateTimePicker
 
 
@@ -14,6 +14,13 @@ class EditEvent(forms.Form):
 
     name = forms.CharField(required=True, max_length=30, label='Имя')
     description = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Описание')
+    category_types = EventCategory.objects.all()
+    CATEGORY_CH = []
+    for item in category_types:
+        CATEGORY_CH.append((item.id, item.name))
+
+    category = forms.ChoiceField(required=False,
+                               label='Категория', widget=forms.Select, choices=CATEGORY_CH)
     start_time = forms.CharField(required=False,
                                  widget=CustomDateTimePicker(prams={'default_time': '1'}),
                                  label='Дата начала')
