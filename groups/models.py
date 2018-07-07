@@ -3,18 +3,10 @@ import datetime
 from django.contrib.auth.models import User
 from django.db import models
 
-
-# Что должно быть у группы
-# Название
-# Описание
-# Подписчики
-# Аватарка
-# Возможность подписаться
-# Настройки группы
-
-
 # Admin могут редактировать саму группу(название, фото, описание), добавлять и удалять редакторов, создавать посты
 # Editor могут добавлять посты
+from events_all import helper
+from images_custom.models import PhotoEditor
 from profiles.models import Profile
 
 
@@ -78,37 +70,70 @@ class Membership(models.Model):
         verbose_name_plural = ('Подписчики группы')
 
     def __str__(self):
-        return str(self.group) + ' подписчик ' + str(self.person)
+        return str(self.group.name) + ' подписчик ' + str(self.person)
 
-# Подписчики группы
-# class GroupSubscribers(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     user_id = models.ManyToManyField(User)
-#     group_id = models.ForeignKey(Group, related_name="owner", null=True, on_delete=models.CASCADE)
-#
-#
-#     class Meta:
-#         verbose_name = ('Подписчики группы')
-#         verbose_name_plural = ('Подписчики группы')
-#
-#     @classmethod
-#     def subscribe(cls, group_id, user_id):
-#         subscribers, created = cls.objects.get_or_create(
-#             group_id=group_id
-#         )
-#         subscribers.user_id.add(user_id)
-#
-#     @classmethod
-#     def unsubscribe(cls, group_id, user_id):
-#         subscribers, created = cls.objects.get_or_create(
-#             group_id=group_id
-#         )
-#         subscribers.user_id.remove(user_id)
-#
-#     # Возвращает абсолютный URL
-#     @models.permalink
-#     def get_absolute_url(user_id):
-#         return "/group/%i/" % user_id
+    # Подписка на пользователя
+    @classmethod
+    def subscribe(cls, user, group):
+        Membership.objects.create(group=group, person=user.profile, role=AllRoles.objects.get(role='subscribers'))
 
+    # Отписка от пользователя
+    @classmethod
+    def unsubscribe(cls, user, group):
+        Membership.objects.get(group=group, person=user.profile).delete()
+
+
+# Аватарки и миниатюры пользователей
+class GroupAvatar(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
+    last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
+    image = models.ImageField(upload_to=helper.upload_to,
+                              default='avatar/default/img.jpg')
+
+    class Meta:
+        verbose_name = ('Аватары')
+        verbose_name_plural = ('Аватары')
+
+    # Добавляем к свойствам объектов модели путь к миниатюре
+    def _get_mini_path(self):
+        return helper._add_mini(self.image.path, postfix='mini')
+
+    # Добавляем к свойствам объектов модели урл миниатюры
+    def _get_mini_url(self):
+        return helper._add_mini(self.image.url, postfix='mini')
+
+    # Добавляем к свойствам объектов модели путь к миниатюре
+    def _get_reduced_path(self):
+        return helper._add_mini(self.image.path, postfix='reduced')
+
+    # Добавляем к свойствам объектов модели урл миниатюры
+    def _get_reduced_url(self):
+        return helper._add_mini(self.image.url, postfix='reduced')
+
+    mini_path = property(_get_mini_path)
+    mini_url = property(_get_mini_url)
+    reduced_path = property(_get_reduced_path)
+    reduced_url = property(_get_reduced_url)
+
+    def save(self, admin_panel=True, image_type='avatar', force_insert=False, force_update=False, using=None, request=None):
+        PhotoEditor.save_photo(
+            self_cls=self,
+            cls=GroupAvatar,
+            admin_panel=admin_panel,
+            image_type=image_type,
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            request=request)
+
+    def delete_photo(self, using=None):
+        PhotoEditor.delete_photo(
+            self = self,
+            using=using,
+            cls=GroupAvatar
+        )
+
+    def get_absolute_url(self):
+        return ('photo_detail', None, {'object_id': self.id})
 
 

@@ -1,4 +1,4 @@
-#!/Users/dmitrii/events_all/bin/python
+#!/Users/dmitrij/join_me/bin/python
 from django.core import management
 
 if __name__ == "__main__":

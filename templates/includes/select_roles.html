@@ -1,0 +1,27 @@
+{% extends "main_template.html" %}
+
+{% block signin %}
+{% endblock %}
+{% block content %}
+    <div class="content">
+        Редакторы
+        <div class="select_roles" data-group_id="{{ group.id }}">
+            <ul class="left_side_select_roles">
+                {% for item in left_side %}
+                    <li data-id="{{ item.person.id }}">{{ item.person.user.first_name }} {{ item.person.user.last_name }}
+                        <button class="add_to_subscriber">Разжаловать</button>
+                    </li>
+                {% endfor %}
+            </ul>
+            Список подписчиков
+            <input type="text" class="find_subscribers">
+            <ul class="right_side_select_roles">
+                {% for item in right_side %}
+                    <li data-id="{{ item.person.id }}">{{ item.person.user.first_name }} {{ item.person.user.last_name }}
+                        <button class="add_to_editor">Добавить редактора</button></li>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

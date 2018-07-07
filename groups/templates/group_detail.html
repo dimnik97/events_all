@@ -2,27 +2,33 @@
 
 {% block content %}
     <div class="content">
-        # Блок прав доступа и прочего
-        {% if roles.role == 'admin' or roles.role == 'editor' %}
-            <a href="/groups/edit/{{ group.id }}">Редактировать</a>
-        {% else %}
-            {% if roles.role == 'subscribers' %}
-                <button class="subscribe_group" data-action="add">Отписаться</button>
-            {% else %}
-                <button class="subscribe_group" data-action="remove">Пойти</button>
-            {% endif %}
+        {% if account and account == user.id %}
+            <button class="change_avatar" data-url="/group/change_avatar">Смена аватара</button>
+            <button class="change_mini" data-url="/profile/change_mini">Смена миниатюры</button>
+            <a href="edit" class="btn btn-default">Настройки</a> <br>
         {% endif %}
+        <div class="group_item" data-group_item="{{group.id}}" >
+            # Блок прав доступа и прочего
+            {% if roles.role == 'admin' or roles.role == 'editor' %}
+                <a href="/groups/edit/{{ group.id }}">Редактировать</a>
+                <a href="/events/create?group_id={{ group.id }}">Создать событие</a>
+            {% else %}
+                {% if roles.role == 'subscribers' %}
+                    <button class="subscribe_group" data-action="remove">Выйти из группы</button>
+                {% else %}
+                    <button class="subscribe_group" data-action="add">Вступить в группу</button>
+                {% endif %}
+            {% endif %}
+        </div>
 
-        <a href="/events/create?group_id={{ group.id }}">Создать событие</a>
-
-        <div class="event_item" data-event_id="{{event.event.id}}" >
+        <div>
             Название: {{ group.name }} <br>
             Описание: {{ group.description }}
         </div>
 
         <div>
             <span data-url="/profile/get_followers?user={{ user.id }}"
-                      class="all_followers">Подписчики {{ members|length }}</span>
+                  class="all_followers">Подписчики {{ members|length }}</span>
             <ul>
                 {% for item in members %}
                     <div>
@@ -32,9 +38,6 @@
                         <a href="/profile/{{ item.user.id }}">
                             {{ item.user.first_name }}  {{ item.user.last_name }} {{ item.role }}
                         </a>
-                        {% if account and account == user.user.id %}
-                            <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
-                        {% endif %}
                     </div>
                 {% endfor %}
             </ul>

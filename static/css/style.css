@@ -112,5 +112,8 @@ body {
     z-index:2;
     border:none;
 }
+.selected {
+    background: aquamarine;
+}
 
 
