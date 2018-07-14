@@ -17,11 +17,6 @@ from profiles.validator import SignupValidator
 
 # Получение общей информации для юзера
 class Users:
-    # Возвращает абсолютный URL
-    @models.permalink
-    def get_absolute_url(user_id):
-        return "/profile/%i/" % user_id
-
     # Определение IP юзера
     def get_client_ip(request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -95,45 +90,17 @@ class Profile(models.Model):
 
     # Подписка на пользователя
     @classmethod
-    def make_friend(self, request, new_friend):
+    def make_friend(cls, request, new_friend):
         request.user.profile.subscribers.add(new_friend.profile)
 
     # Отписка от пользователя
     @classmethod
-    def remove_friend(self, request, new_friend):
+    def remove_friend(cls, request, new_friend):
         request.user.profile.subscribers.remove(new_friend.profile)
 
     # Возвращает абсолютный URL
     def get_absolute_url(self):
         return "/profile/%i/" % self.id
-
-# Модель "Подписчиков"
-# class Subscribers(models.Model):
-#     users = models.ManyToManyField(User)
-#     current_user = models.ForeignKey(User, related_name="owner", null=True, on_delete=models.CASCADE)
-#
-#     class Meta:
-#         verbose_name = ('Подписчики')
-#         verbose_name_plural = ('Подписчики')
-#
-#     @classmethod
-#     def make_friend(self, current_user, new_friend):
-#         subscribers, created = self.objects.get_or_create(
-#             current_user=current_user
-#         )
-#         subscribers.users.add(new_friend)
-#
-#     @classmethod
-#     def remove_friend(self, current_user, new_friend):
-#         subscribers, created = self.objects.get_or_create(
-#             current_user=current_user
-#         )
-#         subscribers.users.remove(new_friend)
-#
-#     # Возвращает абсолютный URL
-#     @models.permalink
-#     def get_absolute_url(user_id):
-#         return "/profile/%i/" % user_id
 
 
 # Аватарки и миниатюры пользователей

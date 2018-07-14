@@ -1,0 +1,10 @@
+{% if users %}
+    {% for item in users %}
+        <li data-id="{{ item.person.id }}">{{ item.person.user.first_name }} {{ item.person.user.last_name }}
+            <button class="add_to_editor">Добавить редактора</button>
+            <button class="delete">Удалить из группы</button>
+        </li>
+    {% endfor %}
+{% else %}
+    Пользователей с таким именем нет
+{% endif %}

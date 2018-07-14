@@ -4,14 +4,46 @@
 {% endblock %}
 {% block content %}
     <div class="content">
-        {% if account and account == user.id %}
-            <button class="change_avatar" data-url="/groups/change_avatar">Смена аватара</button>
-            <button class="change_mini" data-url="/groups/change_mini">Смена миниатюры</button>
-        {% endif %}
-        <form method="post" id="groups_form" novalidate>
-            {% csrf_token %}
-            {% include 'includes/bootstrap4_form.html' with form=form %}
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#panel1">Настройки группы</a></li>
+            <li><a data-toggle="tab" href="#panel2">Управление подписчиками</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="panel1" class="tab-pane fade in active">
+                {% if account and account == user.id %}
+                    <button class="change_avatar" data-url="/groups/change_avatar">Смена аватара</button>
+                    <button class="change_mini" data-url="/groups/change_mini">Смена миниатюры</button>
+                {% endif %}
+                <form method="post" id="groups_form" novalidate>
+                    {% csrf_token %}
+                    {% include 'includes/bootstrap4_form.html' with form=form %}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            <div id="panel2" class="tab-pane fade">
+                Редакторы
+                <div class="select_roles" data-group_id="{{ group.id }}">
+                    <ul class="left_side_select_roles">
+                        {% for item in left_side %}
+                            <li data-id="{{ item.person.id }}">{{ item.person.user.first_name }} {{ item.person.user.last_name }}
+                                <button class="add_to_subscriber">Разжаловать</button>
+                                <button class="delete">Удалить из группы</button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    Список подписчиков
+                    <input type="text" class="find_subscribers">
+                    <ul class="right_side_select_roles">
+                        {% for item in right_side %}
+                            <li data-id="{{ item.person.id }}">{{ item.person.user.first_name }} {{ item.person.user.last_name }}
+                                <button class="add_to_editor">Добавить редактора</button>
+                                <button class="delete">Удалить из группы</button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

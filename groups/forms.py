@@ -6,8 +6,8 @@ from groups.models import Group, Membership, AllRoles
 class GroupsForm(forms.Form):
     id = forms.IntegerField(required=False, widget=forms.HiddenInput(), label='Название группы')
     name = forms.CharField(required=True, max_length=100, label='Название группы')
-    status = forms.CharField(required=True, max_length=100, label='Краткое описание')
-    description = forms.CharField(required=True, max_length=1000, label='Описание')
+    status = forms.CharField(required=False, max_length=100, label='Краткое описание')
+    description = forms.CharField(required=False, max_length=1000, label='Описание')
     CHOICES_С = (('1', 'Открытая'),
                  ('2', 'Закрытая'))
     type = forms.ChoiceField(widget=forms.Select, choices=CHOICES_С, label='Тип группы', required=False)
@@ -26,11 +26,7 @@ class GroupsForm(forms.Form):
             group = Group.objects.create(
                 creator=request.user
             )
-            group.name = self.cleaned_data['name']
-            group.description = self.cleaned_data['description']
-            group.status = self.cleaned_data['status']
-            group.type = self.cleaned_data['type']
-            group.save()
+            save_group(self, group)
 
             Membership.objects.create(
                 group=group,
@@ -49,12 +45,16 @@ class GroupsForm(forms.Form):
             return 'Пользователь не найден'
         # Проверка на права доступа (редактировать может только админ)
         if membership.role == AllRoles.objects.get(role='admin'):
-            group.name = self.cleaned_data['name']
-            group.description = self.cleaned_data['description']
-            group.status = self.cleaned_data['status']
-            group.type = self.cleaned_data['type']
-            group.save()
+            save_group(self, group)
         else:
             return 'Нет прав'
 
         return group.id
+
+
+def save_group(self, group):
+    group.name = self.cleaned_data['name']
+    group.description = self.cleaned_data['description']
+    group.status = self.cleaned_data['status']
+    group.type = self.cleaned_data['type']
+    group.save()

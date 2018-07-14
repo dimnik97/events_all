@@ -16,10 +16,10 @@ function SetTimeToUser_js_str(DateStr){
 
 
     var strdate = date_with_timezone.getFullYear()+'-'+
-                GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
-                GetCorrectNumber(date_with_timezone.getDate()) +' '+
-                GetCorrectNumber(date_with_timezone.getHours()) +':' +
-                GetCorrectNumber(date_with_timezone.getMinutes());
+        GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
+        GetCorrectNumber(date_with_timezone.getDate()) +' '+
+        GetCorrectNumber(date_with_timezone.getHours()) +':' +
+        GetCorrectNumber(date_with_timezone.getMinutes());
     strdate = strdate.substring(0, strdate.length-1) + "0";
 
     return strdate;
@@ -41,10 +41,10 @@ function SetTimeToServer(DateStr){
 
 
     var str_date = date_with_timezone.getFullYear()+'-'+
-                GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
-                GetCorrectNumber(date_with_timezone.getDate()) +' '+
-                GetCorrectNumber(date_with_timezone.getHours()) +':' +
-                GetCorrectNumber(date_with_timezone.getMinutes());
+        GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
+        GetCorrectNumber(date_with_timezone.getDate()) +' '+
+        GetCorrectNumber(date_with_timezone.getHours()) +':' +
+        GetCorrectNumber(date_with_timezone.getMinutes());
 
 
 
@@ -184,8 +184,8 @@ $(document).ready(function() {
             },
             error : function(xhr,errmsg,err) {
                 $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
-                    " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                    " <a href='#' class='close'>&times;</a></div>");
+                console.log(xhr.status + ": " + xhr.responseText);
             }
         });
     };
@@ -271,7 +271,7 @@ $(document).ready(function() {
             atcion_type = $(this).data('action');
         $.ajax({
             type: "POST",
-            url: "/main_app/subscribe_group/",
+            url: "/groups/subscribe_group/",
             data:{
                 'group_id': group_id,
                 'action': atcion_type
@@ -280,12 +280,12 @@ $(document).ready(function() {
             success: function(data){
                 if (data) {
                     if (atcion_type == 'add') {
-                        $this.text('Отписаться');
-                        $this.data('action', 'unsubscribe');
+                        $this.text('Вступить в группу');
+                        $this.data('action', 'remove');
                     }
                     if (atcion_type == 'remove') {
-                        $this.text('Пойти');
-                        $this.data('action', 'subscribe');
+                        $this.text('Выйти из группы');
+                        $this.data('action', 'add');
                     }
                 }
 
@@ -331,6 +331,7 @@ $(document).ready(function() {
         }
     }
 
+    // Подписки и подписчики
     $('.all_subscribers, .all_followers').on('click', function () {
         $( "#dialog" ).dialog({
             title: 'Подписчики',
@@ -406,4 +407,93 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('.find_subscribers').on('input', function () {
+        $.ajax({
+            url: '/groups/find_subscribers',
+            type: 'POST',
+            data: {
+                'value': $(this).val(),
+                'group_id': $('.select_roles').data('group_id'),
+            },
+            success: function (data) {
+                if (data) {
+                    var r_side = $('.right_side_select_roles', '.select_roles').empty();
+                    r_side.append(data);
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    });
+
+    function add_to_editor() {
+        $('.add_to_editor').off('click').on('click', function () {
+            var $this = $(this);
+            $.ajax({
+                url: '/groups/add_to_editor',
+                type: 'POST',
+                data: {
+                    'user': $(this).parent('li').data('id'),
+                    'group_id': $('.select_roles').data('group_id'),
+                },
+                success: function (data) {
+                    if (data == 200) {
+                        $this.text('Разжаловать');
+                        $this.addClass('add_to_subscriber').removeClass('add_to_editor');
+                        $('.left_side_select_roles').append($this.closest('li'));
+                        add_to_subscriber();
+                    } else {
+                        // TODO заполнить error
+                    }
+                }
+            });
+        });
+    }
+
+    function add_to_subscriber() {
+        $('.add_to_subscriber').off('click').on('click', function () {
+            var $this = $(this);
+            $.ajax({
+                url: '/groups/add_to_subscribers',
+                type: 'POST',
+                data: {
+                    'user': $(this).parent('li').data('id'),
+                    'group_id': $('.select_roles').data('group_id'),
+                },
+                success: function (data) {
+                    if (data == 200) {
+                        $this.text('Добавить редактора');
+                        $this.addClass('add_to_editor').removeClass('add_to_subscriber');
+                        $('.right_side_select_roles').append($this.closest('li'));
+                        add_to_editor();
+                    } else {
+                        // TODO заполнить error
+                    }
+                }
+            });
+        });
+    }
+
+    $('.delete', '.select_roles').on('click', function () {
+        var $this = $(this);
+        $.ajax({
+            url: '/groups/delete_subscribers',
+            type: 'POST',
+            data: {
+                'user': $(this).parent('li').data('id'),
+                'group_id': $('.select_roles').data('group_id'),
+            },
+            success: function (data) {
+                if (data == 200) {
+                    $this.closest('li').remove();
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    });
+
+    add_to_editor();
+    add_to_subscriber();
 });
