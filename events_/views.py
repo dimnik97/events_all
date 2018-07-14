@@ -100,7 +100,7 @@ def create(request):
     user = request.user
     if user.is_authenticated:
         if request.method == 'POST':
-            form = EditEvent(request.POST, request.FILES)
+            form = EditEvent(request.POST, request.FILES, request.GET)
             if form.is_valid():
                 response = form.save(request, 1)  # 1 - флаг для определения создания, а не редактирвания, обрабатывается в форме
                 return redirect('/events/' + str(int(response.content)))
