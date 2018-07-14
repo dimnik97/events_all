@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'bootstrap3',
+    'channels',
     'dal',
     'dal_select2',
     'django.contrib.admin',
