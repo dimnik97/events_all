@@ -47,16 +47,16 @@ class EditProfile(forms.Form):
     first_name = forms.CharField(required=True, max_length=30, label='Имя')
     last_name = forms.CharField(required=True, max_length=30, label='Фамилия')
 
-    CHOICES_С = (('1', 'Не работает',),)
+    CHOICES_С = (('1', 'Не работает',))
     country = forms.ChoiceField(widget=forms.Select, choices=CHOICES_С, label='Страна', required=False)
 
-    CHOICES_СITY = (('1', 'Не работает',),)
+    CHOICES_СITY = (('1', 'Не работает',))
     city = forms.ChoiceField(widget=forms.Select, choices=CHOICES_СITY, label='Город', required=False)
 
     description = forms.CharField(required=False, max_length=2000, widget=forms.Textarea(), label='Пара слов обо мне')
-    birth_date = forms.CharField(required=False,
-                                 widget=CustomDatePicker(),
-                                 label='Дата рождения')
+    # birth_date = forms.CharField(required=False,
+    #                              widget=CustomDatePicker(),
+    #                              label='Дата рождения')
     phone = forms.CharField(required=False, max_length=30, label='Телефонный номер')
 
     CHOICES_M = (('1', 'Мужской',),

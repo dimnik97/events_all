@@ -195,9 +195,9 @@ class PhotoEditor:
         return image_attr
 
     # Делаем свою delete с учетом миниатюры
-    def delete_photo(self, cls, using=None):
+    def delete_photo(self_cls, cls, using=None):
         try:
-            obj = cls.objects.get(id=self.id)
+            obj = cls.objects.get(id=self_cls.id)
             path = obj.image.path
             helper._del_mini(path, postfix='mini')
             helper._del_mini(path, postfix='reduced')
@@ -205,4 +205,4 @@ class PhotoEditor:
                 obj.image.delete()
         except (cls.DoesNotExist, ValueError):
             pass
-        super(cls, self).delete()
+        super(cls, self_cls).delete()

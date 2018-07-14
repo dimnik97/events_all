@@ -2,22 +2,25 @@
 
 {% block content %}
     <div class="content">
-        {% if account and account == user.id %}
-            <button class="change_avatar" data-url="/group/change_avatar">Смена аватара</button>
-            <button class="change_mini" data-url="/profile/change_mini">Смена миниатюры</button>
-            <a href="edit" class="btn btn-default">Настройки</a> <br>
-        {% endif %}
         <div class="group_item" data-group_item="{{group.id}}" >
-            # Блок прав доступа и прочего
-            {% if roles.role == 'admin' or roles.role == 'editor' %}
-                <a href="/groups/edit/{{ group.id }}">Редактировать</a>
-                <a href="/events/create?group_id={{ group.id }}">Создать событие</a>
+            <div class="avatar_image">
+                <p>
+                    <img src="{{ avatar.reduced_url }}" width="300px" height="200px">
+                </p>
+            </div>
+            {% if roles.role == 'admin'%}
+                <button class="change_avatar" data-url="/groups/change_avatar">Смена аватара</button><br>
+                <button class="change_mini" data-url="/groups/change_mini">Смена миниатюры</button><br>
+                <a href="/groups/edit/{{ group.id }}">Редактировать</a><br>
             {% else %}
-                {% if roles.role == 'subscribers' %}
-                    <button class="subscribe_group" data-action="remove">Выйти из группы</button>
+                {% if roles.role == 'subscribers' or roles.role == 'editor' %}
+                    <button class="subscribe_group" data-action="remove">Выйти из группы</button><br>
                 {% else %}
-                    <button class="subscribe_group" data-action="add">Вступить в группу</button>
+                    <button class="subscribe_group" data-action="add">Вступить в группу</button><br>
                 {% endif %}
+            {% endif %}
+            {% if roles.role == 'admin' or roles.role == 'editor' %}
+                <a href="/events/create?group_id={{ group.id }}">Создать событие</a><br>
             {% endif %}
         </div>
 

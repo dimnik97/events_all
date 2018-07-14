@@ -1,0 +1,15 @@
+{% extends "main_template.html" %}
+
+{% block content %}
+    <div class="content">
+    {% if is_not_admin %}
+        Вы не являетесь администратором данного сообщества
+    {% else %}
+        Group name: {{ group.name }} <br>
+        {{ text }} <br>
+        {% if invite %}
+            <button type="button" class="invite_group" data-group_id="{{ group.id }}">Отправить заявку</button>
+        {% endif %}
+    {% endif %}
+    </div>
+{% endblock %}

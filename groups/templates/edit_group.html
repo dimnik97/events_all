@@ -9,8 +9,8 @@
             <li><a data-toggle="tab" href="#panel2">Управление подписчиками</a></li>
         </ul>
 
-        <div class="tab-content">
-            <div id="panel1" class="tab-pane fade in active">
+        <div class="tab-content" data-group_id="{{ group.id }}">
+            <div id="panel1" class="tab-pane fade in active" >
                 {% if account and account == user.id %}
                     <button class="change_avatar" data-url="/groups/change_avatar">Смена аватара</button>
                     <button class="change_mini" data-url="/groups/change_mini">Смена миниатюры</button>
@@ -20,6 +20,7 @@
                     {% include 'includes/bootstrap4_form.html' with form=form %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
+                <button class="delete_group">Удалить группу</button>
             </div>
             <div id="panel2" class="tab-pane fade">
                 Редакторы
@@ -45,5 +46,8 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="dialog_confirm" class="d_none">
     </div>
 {% endblock %}
