@@ -1,10 +1,11 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.db import models
 from PIL import Image
 from django.utils.functional import curry
 
 import datetime
 from events_all import helper
+from groups.models import Group
 from profiles.models import Profile
 from django.db.models.signals import post_save
 
@@ -52,6 +53,13 @@ def event_creating_post_save(sender, instance, created, **kwargs):
 
 
 post_save.connect(event_creating_post_save, sender=Event)
+
+
+class EventNews(models.Model):
+    text = models.TextField(null=True,blank=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+    news_crearor = models.ForeignKey(User, on_delete = models.CASCADE)
+    news_event = models.ForeignKey(Event, on_delete = models.CASCADE)
 
 
 class Event_avatar(models.Model):

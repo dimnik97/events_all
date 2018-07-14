@@ -3,9 +3,15 @@
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
     <div class="event_item" data-event_id="{{ event.id }}" id="event_{{ event.id }}">
+
         <h1>Событие:</h1>
         <p><img src="{{ avatar.image.url }}" width="200px" height="200px"></p>
         Название: {{ event.name }}
+
+        {% if event.created_by_group %}
+            <p>Создано от группы: {{ event.created_by_group.name }}</p>
+        {% endif %}
+
         Создатель: {{ event.creator_id.first_name }}
         ВРЕМЯ С СЕРВЕРА ---- {{  event.start_time }} ------
         <p>Статус: {{ event.status }}</p>

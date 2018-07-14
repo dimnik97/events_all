@@ -4,14 +4,25 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 
 
-from events_.models import Event, Event_avatar, EventCategory
+from events_.models import Event, Event_avatar, EventCategory, EventNews
 from events_all.widgets import CustomDateTimePicker
+from groups.models import Group
+
+
+class CreateEventNews(forms.Form):
+    text = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Новость')
+
+    def save(self, request):
+        news = EventNews()
+        news.news_crearor = request.User
+        news.text = request.POST['text']
+        news.save()
+
 
 
 class EditEvent(forms.Form):
     id = forms.CharField(required=False, widget=forms.HiddenInput(), max_length=30, label='id')
     image = forms.ImageField(required=False, label='Фото')
-
     name = forms.CharField(required=True, max_length=30, label='Имя')
     description = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Описание')
     category_types = EventCategory.objects.all()
@@ -40,6 +51,14 @@ class EditEvent(forms.Form):
 
         event.name = request.POST['name']
         event.description = request.POST['description']
+
+        group = Group.objects.get(pk=int(request.GET['group_id']))
+
+        if request.GET['group_id'] is not None:
+
+            event.created_by_group = group
+
+
         if request.POST['start_time'] is not None:
             event.start_time = request.POST['start_time']
         if request.POST['end_time'] is not None:
