@@ -100,7 +100,7 @@ class Profile(models.Model):
 
     # Возвращает абсолютный URL
     def get_absolute_url(self):
-        return "/profile/%i/" % self.id
+        return "/profile/%i" % self.user.id
 
 
 # Аватарки и миниатюры пользователей

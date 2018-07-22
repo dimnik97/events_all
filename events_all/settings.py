@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'bootstrap3',
-    'channels',
     'dal',
     'dal_select2',
     'django.contrib.admin',
@@ -49,13 +48,26 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.vk',
     'django_ipgeobase',
     'widget_tweaks',
+    'channels',
     # Наши приложения
     'groups',
+    'chats',
     'profiles',
     'cities',
     'main_app',
     'events_',
 ]
+
+ASGI_APPLICATION = "events_all.routing.application"
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -67,7 +79,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 ROOT_URLCONF = 'events_all.urls'
 
 TEMPLATES = [
@@ -77,6 +88,7 @@ TEMPLATES = [
                  os.path.join(BASE_DIR, 'templates', 'allauth'),
                  '/profiles/templates',
                  '/groups/templates',
+                 '/chats/templates',
                  ],
         'APP_DIRS': True,
         'OPTIONS': {

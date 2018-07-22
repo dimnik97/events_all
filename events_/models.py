@@ -6,7 +6,6 @@ from django.utils.functional import curry
 import datetime
 from events_all import helper
 from groups.models import Group
-from profiles.models import Profile
 from django.db.models.signals import post_save
 
 
