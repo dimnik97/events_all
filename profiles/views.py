@@ -110,8 +110,7 @@ class Edit(FormView):
             "csrf_token": get_token(request),
             'avatar': ProfileAvatar.objects.get(user=request.user.id)
         }
-
-        return render_to_response('profile_edit.html', context)
+        return render(request, 'profile_edit.html', context)
 
     def change_avatar(request):
         if request.method == 'POST' and request.is_ajax():

@@ -3,56 +3,60 @@ from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.shortcuts import render, get_object_or_404, render_to_response, redirect
 from groups.forms import GroupsForm
-from groups.models import Group, AllRoles, Membership
+from groups.models import Group, AllRoles, Membership, GroupAvatar
 from images_custom.models import PhotoEditor
 from profiles.forms import ImageUploadForm
 
 
 @login_required(login_url='/accounts/login/')
 def detail(request, id):
-    try:
-        group = Group.objects.get(id=id)
-    except Group.DoesNotExist:
-        # Написать сюда 404
-        pass
+    context = Group.verification_of_rights(request, id)
+    if context['status']:
+        group = get_object_or_404(Group, id=id)
 
-    members_object = group.members.select_related()
-    members = [member for member in members_object.all()]
+        members_object = group.members.select_related()
+        members = [member for member in members_object.all()]
 
-    try:
-        roles = Membership.objects.get(person=request.user.profile, group=id).role
-    except Membership.DoesNotExist:
-        roles = ''
+        try:
+            roles = Membership.objects.get(person=request.user.profile, group=id).role
+        except Membership.DoesNotExist:
+            roles = ''
 
-    context = {
-        'roles': roles,
-        'group': group,
-        'members': members,
-    }
-    return render_to_response('group_detail.html', context)
+        context = {
+            'roles': roles,
+            'group': group,
+            'members': members,
+            'avatar': GroupAvatar.objects.get(group=group.id)
+        }
+    else:
+        return render_to_response('error_page.html', context)
+    return render_to_response('detail_group.html', context)
 
 
 @login_required(login_url='/accounts/login/')
-def edit_or_create(request, id=None):
+def edit(request, id=None):
     if request.method == 'POST':
         form = GroupsForm(request.POST)
         if form.is_valid():
             id = form.save(request)
-            print('save')
             return redirect('/groups/' + str(id))
     else:
-        if id:
-            group = get_object_or_404(Group, id=id)
-            form = GroupsForm({
-                'id': id,
-                'name': group.name,
-                'status': group.status,
-                'description': group.description,
-                'type': group.type
-            })
+        group = get_object_or_404(Group, id=id)
+        if Group.is_group_admin(request, id):
+            context = Group.verification_of_rights(request, id)
+            if context['status']:
+                form = GroupsForm({
+                    'id': id,
+                    'name': group.name,
+                    'status': group.status,
+                    'description': group.description,
+                    'type': group.type
+                })
+            else:
+                return render_to_response('error_page.html', context)
         else:
-            form = GroupsForm()
-
+            context = {'is_not_admin': True}
+            return render_to_response('error_page.html', context)
     try:
         roles = Membership.objects.get(person=request.user.profile, group=id).role
     except Membership.DoesNotExist:
@@ -76,8 +80,33 @@ def edit_or_create(request, id=None):
         'right_side': right_side,
         'group': group
     }
+    return render_to_response('edit_group.html', context)
 
-    return render_to_response('group_edit_or_create.html', context)
+
+@login_required(login_url='/accounts/login/')
+def create(request, id=None):
+    if request.method == 'POST':
+        form = GroupsForm(request.POST)
+        if form.is_valid():
+            id = form.save(request)
+            GroupAvatar.objects.create(group_id=id)
+            return redirect('/groups/' + str(id))
+    else:
+        form = GroupsForm()
+
+    try:
+        roles = Membership.objects.get(person=request.user.profile, group=id).role
+    except Membership.DoesNotExist:
+        roles = ''
+
+    context = {
+        'id': id,
+        'roles': roles,
+        'form': form,
+        "csrf_token": get_token(request),
+    }
+
+    return render_to_response('create_group.html', context)
 
 
 def subscribe_group(request):
@@ -102,33 +131,7 @@ def subscribe_group(request):
         return redirect('/accounts/login')
 
 
-def select_roles(request):
-    # TODO Сменить жесткую привязку
-    id = 5
-
-    try:
-        group = Group.objects.get(id=id)
-    except Group.DoesNotExist:
-        # TODO заполнить
-        pass
-    # TODO Сменить жесткую привязку
-
-    editors_object = Membership.objects.filter(group=group, role=AllRoles.objects.get(role='editor'))
-    editors = [editor for editor in editors_object.all()]
-
-    members_object = Membership.objects.filter(group=group, role=AllRoles.objects.get(role='subscribers'))
-    members = [member for member in members_object.all()]
-
-    left_side = editors
-    right_side = members
-    context = {
-        'left_side': left_side,
-        'right_side': right_side,
-        'group': group
-    }
-    return render_to_response('includes/select_roles.html', context)
-
-
+# Поиск подписчика по имени или фамилии
 def find_subscribers(request):
     from django.db.models import Q
     users_object = Membership.objects.filter(Q(person__user__first_name__istartswith=request.POST['value'])
@@ -143,38 +146,66 @@ def find_subscribers(request):
     return render(request, 'includes/select_roles_users.html', context)
 
 
+# Смена с подписчика на едитора
 def add_to_editor(request):
-    try:
-        users_object = Membership.objects.get(group_id=request.POST['group_id'],
-                                              person=request.POST['user'],
-                                              role=AllRoles.objects.get(role='subscribers'))
-        users_object.role = AllRoles.objects.get(role='editor')
-        users_object.save()
-    except:
-        return HttpResponse('Error')
-    return HttpResponse(str(200))
+    group_id = request.POST['group_id']
+    if Group.is_group_admin(request, group_id):
+        try:
+            users_object = Membership.objects.get(group_id=group_id,
+                                                  person=request.POST['user'],
+                                                  role=AllRoles.objects.get(role='subscribers'))
+            users_object.role = AllRoles.objects.get(role='editor')
+            users_object.save()
+        except:
+            return HttpResponse('Error')
+        return HttpResponse(str(200))
+    return HttpResponse('Недостаточно прав для редактирования')
 
 
+# Смена с едитора на подписчика
 def add_to_subscribers(request):
-    try:
-        users_object = Membership.objects.get(group_id=request.POST['group_id'],
-                                              person=request.POST['user'],
-                                              role=AllRoles.objects.get(role='editor'))
-        users_object.role = AllRoles.objects.get(role='subscribers')
-        users_object.save()
-    except:
-        return HttpResponse('Error')
-    return HttpResponse(str(200))
+    group_id = request.POST['group_id']
+    if Group.is_group_admin(request, group_id):
+        try:
+            users_object = Membership.objects.get(group_id=group_id,
+                                                  person=request.POST['user'],
+                                                  role=AllRoles.objects.get(role='editor'))
+            users_object.role = AllRoles.objects.get(role='subscribers')
+            users_object.save()
+        except:
+            return HttpResponse('Error')
+        return HttpResponse(str(200))
+    return HttpResponse('Недостаточно прав для редактирования')
 
 
+def invite_group(request):
+    group_id = request.POST['group_id']
+
+
+# Удаление подписчика
 def delete_subscribers(request):
-    try:
-        users_object = Membership.objects.get(group_id=request.POST['group_id'],
-                                              person=request.POST['user'])
-        users_object.delete()
-    except:
-        return HttpResponse('Error')
-    return HttpResponse(str(200))
+    group_id = request.POST['group_id']
+    if Group.is_group_admin(request, group_id):
+        try:
+            users_object = Membership.objects.get(group_id=group_id,
+                                                  person=request.POST['user'])
+            users_object.delete()
+        except:
+            return HttpResponse('Error')
+        return HttpResponse(str(200))
+    return HttpResponse('Недостаточно прав для редактирования')
+
+
+# Удаление группы
+def delete_group(request):
+    group_id = request.POST['group_id']
+    if Group.is_group_admin(request, group_id):
+        try:
+            group_object = Group.objects.get(id=group_id)
+        except:
+            return HttpResponse('Error')
+        return HttpResponse(str(200))
+    return HttpResponse('Недостаточно прав для редактирования')
 
 
 def change_avatar(request):
@@ -183,7 +214,7 @@ def change_avatar(request):
     context = {
         'image_file': ImageUploadForm(),
         'url': request.META['PATH_INFO'],
-        'save_url': '/profile/save_image'
+        'save_url': '/groups/save_image'
     }
     return render(request, 'change_avatar.html', context)
 
@@ -202,12 +233,12 @@ def change_mini(request):
         'reduced': url,
         'image_attr': image_attr,
         'url': request.META['PATH_INFO'],
-        'save_url': '/profile/save_image'
+        'save_url': '/groups/save_image'
     }
     return render(request, 'change_mini.html', context)
 
 
 def save_image(request):
     if request.method == 'POST' and request.is_ajax():
-        model = request.user.profileavatar
+        model = GroupAvatar.objects.get_or_create(group_id=request.POST['model'])[0]
         return PhotoEditor.save_image(request, model)

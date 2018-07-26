@@ -5,6 +5,14 @@ from os import path as op
 from PIL import Image
 
 
+# Возвращает массив в 2СС из 10СС
+# TODO дозаполнить массив нулями, а то на группах может ебануться
+def convert_base(num):
+    if num == 0:
+        return [0]
+    return [int(x) for x in list('{0:2b}'.format(num))]
+
+
 def _add_mini(s, postfix=''):
     parts = s.split(".")
     parts.insert(-1, postfix)

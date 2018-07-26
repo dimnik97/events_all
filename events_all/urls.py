@@ -29,6 +29,7 @@ urlpatterns = [
     path('groups/', include('groups.urls')),
     path('cities/', include('cities.urls')),
     path('events/', include('events_.urls')),
+    path('chats/', include('chats.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

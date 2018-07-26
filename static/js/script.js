@@ -511,4 +511,77 @@ $(document).ready(function() {
 
     add_to_editor();
     add_to_subscriber();
+
+    $('.delete_group', '.tab-content').on('click', function () {
+        $( "#dialog_confirm" ).dialog({
+            title: 'Подтвердите действие',
+            height: '100',
+            width: '200',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            buttons: [
+                {
+                    text: "Да",
+                    icon: "ui-icon-heart",
+                    click: function() {
+                        delete_group();
+                    }
+                },
+                {
+                    text: "Нет",
+                    icon: "ui-icon-heart",
+                    click: function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            ],
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+
+        }).dialog('open');
+    });
+
+    function delete_group() {
+        $.ajax({
+            url: '/groups/delete_group',
+            type: 'POST',
+            data: {
+                'group_id': $('.tab-content').data('group_id'),
+            },
+            success: function (data) {
+                if (data == 200) {
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    };
+
+    $('.invite_group').on('click', function() {
+        $.ajax({
+            url: '/groups/invite_group',
+            type: 'POST',
+            data: {
+                'group_id': $(this).data('group_id'),
+            },
+            success: function (data) {
+                if (data == 200) {
+
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    });
 });

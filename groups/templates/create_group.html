@@ -1,0 +1,14 @@
+{% extends "main_template.html" %}
+
+{% block signin %}
+{% endblock %}
+{% block content %}
+    <div class="content">
+        <form method="post" id="groups_form" novalidate>
+            {% csrf_token %}
+            {% include 'includes/bootstrap4_form.html' with form=form %}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+{% endblock %}

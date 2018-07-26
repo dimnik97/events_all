@@ -5,6 +5,11 @@ from django.db import models
 
 # Admin могут редактировать саму группу(название, фото, описание), добавлять и удалять редакторов, создавать посты
 # Editor могут добавлять посты
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, render_to_response
+from django.urls import reverse
+from django.utils.functional import curry
+
 from events_all import helper
 from images_custom.models import PhotoEditor
 from profiles.models import Profile
@@ -37,7 +42,14 @@ class Group(models.Model):
     description = models.TextField(max_length=1000, blank=True)
     create_date = models.DateField(auto_now_add=True)
     # Настройки группы
-    active = models.BooleanField(default=True)  # для бана
+    CHOICES_ACTIVE = (('1', 'Активная'),
+                     ('2', 'Удаленная'),
+                     ('3', 'Заблокированная'),)
+    active = models.CharField(  # для бана
+        max_length=2,
+        choices=CHOICES_ACTIVE,
+        default=1,
+    )
     CHOICES_S = (('1', 'Открытая'),
                  ('2', 'Закрытая'))
     members = models.ManyToManyField(
@@ -57,6 +69,68 @@ class Group(models.Model):
 
     def __str__(self):
         return self.name
+
+    # Проверка, является ли пользователь админом переданной группы
+    @classmethod
+    def is_group_admin(cls, request, group_id):
+        admin = Group.objects.filter(id=group_id, creator=request.user)
+        if admin.exists():
+            return True
+        return False
+
+    # Проверка на возможность создавать посты
+    @classmethod
+    def is_editor(cls, request, group_id):
+        user = Membership.objects.get(group_id=group_id,
+                                      person=request.user)
+        if user.role == 'admin' or user.role == 'editor':
+            return True
+        return False
+
+    # Проверка группы на
+    @classmethod
+    def verification_of_rights(cls, request, group_id):
+        group = Group.objects.get(id=group_id)
+        is_admin = cls.is_group_admin(request, group_id)
+
+        if group.active == '1':
+            context = {'status': True}
+        elif str(group.active) == '2':
+            context = {
+                'group': group,
+                'text': 'Группа была удалена',
+                'status': False,
+                'is_admin': is_admin
+            }
+        elif str(group.active) == '3':
+            context = {
+                'group': group,
+                'text': 'Группа была заблокирована',
+                'status': False,
+                'is_admin': is_admin
+            }
+        else:
+            context = {
+                'group': group,
+                'text': 'Что-то пошло не так',
+                'status': False,
+                'is_admin': is_admin
+            }
+        if str(group.type) == '2':
+            user = Membership.objects.filter(group=group.id, person=request.user.profile)
+            if user.exists():
+                context = {
+                    'status': True
+                }
+            else:
+                context = {
+                    'group': group,
+                    'text': 'Отправить заявку',
+                    'invite': True,
+                    'status': False,
+                    'is_admin': is_admin
+                }
+        return context
 
 
 class Membership(models.Model):
@@ -85,14 +159,14 @@ class Membership(models.Model):
 
 # Аватарки и миниатюры пользователей
 class GroupAvatar(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
+    group = models.OneToOneField(Group, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=helper.upload_to,
+    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='groups'),
                               default='avatar/default/img.jpg')
 
     class Meta:
-        verbose_name = ('Аватары')
-        verbose_name_plural = ('Аватары')
+        verbose_name = ('Аватары группы')
+        verbose_name_plural = ('Аватары группы')
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_mini_path(self):
@@ -128,7 +202,7 @@ class GroupAvatar(models.Model):
 
     def delete_photo(self, using=None):
         PhotoEditor.delete_photo(
-            self = self,
+            self_cls = self,
             using=using,
             cls=GroupAvatar
         )

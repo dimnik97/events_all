@@ -6,7 +6,6 @@ from django.utils.functional import curry
 import datetime
 from events_all import helper
 from groups.models import Group
-from profiles.models import Profile
 from django.db.models.signals import post_save
 
 
@@ -28,15 +27,15 @@ class EventStatus(models.Model):
 class Event(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
-    description = models.TextField(null=True,blank=True)
-    creator_id = models.ForeignKey(User, on_delete = models.CASCADE)
-    category = models.ForeignKey(EventCategory, on_delete = models.CASCADE, default=1)
+    description = models.TextField(null=True, blank=True)
+    creator_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(EventCategory, on_delete=models.CASCADE, default=1)
     create_time = models.DateTimeField(auto_now_add=True)
-    start_time = models.DateTimeField(null=True,blank=True)
-    end_time = models.DateTimeField(null=True,blank=True)
-    participants = models.IntegerField(null=True,blank=True)
-    status = models.ForeignKey(EventStatus, on_delete = models.CASCADE, default=1)
-    created_by_group = models.ForeignKey(Group, on_delete = models.CASCADE, null=True)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    participants = models.IntegerField(null=True, blank=True)
+    status = models.ForeignKey(EventStatus, on_delete=models.CASCADE, default=1)
+    created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
 
     def get_events():
         events = Event.objects.all()

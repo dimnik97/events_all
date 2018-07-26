@@ -1,0 +1,50 @@
+{% extends "main_template.html" %}
+
+{% block content %}
+    <div class="content">
+        <div class="group_item" data-group_item="{{group.id}}" >
+            <div class="avatar_image">
+                <p>
+                    <img src="{{ avatar.reduced_url }}" width="300px" height="200px">
+                </p>
+            </div>
+            {% if roles.role == 'admin'%}
+                <button class="change_avatar" data-url="/groups/change_avatar">Смена аватара</button><br>
+                <button class="change_mini" data-url="/groups/change_mini">Смена миниатюры</button><br>
+                <a href="/groups/edit/{{ group.id }}">Редактировать</a><br>
+            {% else %}
+                {% if roles.role == 'subscribers' or roles.role == 'editor' %}
+                    <button class="subscribe_group" data-action="remove">Выйти из группы</button><br>
+                {% else %}
+                    <button class="subscribe_group" data-action="add">Вступить в группу</button><br>
+                {% endif %}
+            {% endif %}
+            {% if roles.role == 'admin' or roles.role == 'editor' %}
+                <a href="/events/create?group_id={{ group.id }}">Создать событие</a><br>
+            {% endif %}
+        </div>
+
+        <div>
+            Название: {{ group.name }} <br>
+            Описание: {{ group.description }}
+        </div>
+
+        <div>
+            <span data-url="/profile/get_followers?user={{ user.id }}"
+                  class="all_followers">Подписчики {{ members|length }}</span>
+            <ul>
+                {% for item in members %}
+                    <div>
+                        <a href="/profile/{{ item.user.id }}">
+                            <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
+                        </a>
+                        <a href="/profile/{{ item.user.id }}">
+                            {{ item.user.first_name }}  {{ item.user.last_name }} {{ item.role }}
+                        </a>
+                    </div>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div id="dialog_img" class="d_none"></div>
+{% endblock %}

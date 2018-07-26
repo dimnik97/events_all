@@ -7,6 +7,7 @@ from events_.forms import EditEvent, CreateEventNews
 from .models import Event, EventParty, Event_avatar, EventNews
 
 
+
 def index(request, id):
     event_detail = get_object_or_404(Event, id=id)
     user_id = request.user.pk
