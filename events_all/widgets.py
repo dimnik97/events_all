@@ -13,7 +13,7 @@ class CustomDateTimePicker(forms.PasswordInput):
             prams = prams.copy()
         super().__init__(prams)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer= None):
         super().render(name, value, attrs)
         flat_attrs = flatatt(attrs)
 
@@ -141,7 +141,7 @@ class CustomDateTimePicker(forms.PasswordInput):
 
 
 class CustomDatePicker(forms.PasswordInput):
-    def render(self, name, value, attrs=None, params=None):
+    def render(self, name, value, attrs=None, params=None, renderer = None):
         super().render(name, value, attrs)
         flat_attrs = flatatt(attrs)
         html = '''

@@ -12,10 +12,11 @@ from groups.models import Group
 class CreateEventNews(forms.Form):
     text = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Новость')
 
-    def save(self, request):
+    def save(self, request, event):
         news = EventNews()
-        news.news_crearor = request.User
+        news.news_creator = request.user
         news.text = request.POST['text']
+        news.news_event = event
         news.save()
 
 
@@ -52,11 +53,11 @@ class EditEvent(forms.Form):
         event.name = request.POST['name']
         event.description = request.POST['description']
 
-        group = Group.objects.get(pk=int(request.GET['group_id']))
 
-        if request.GET['group_id'] is not None:
-
-            event.created_by_group = group
+        if is_creation ==1:
+            if 'group_id' in request.GET:
+                group = Group.objects.get(pk=int(request.GET['group_id']))
+                event.created_by_group = group
 
 
         if request.POST['start_time'] is not None:

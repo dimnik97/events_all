@@ -58,8 +58,11 @@ post_save.connect(event_creating_post_save, sender=Event)
 class EventNews(models.Model):
     text = models.TextField(null=True,blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
-    news_crearor = models.ForeignKey(User, on_delete = models.CASCADE)
+    news_creator = models.ForeignKey(User, on_delete = models.CASCADE)
     news_event = models.ForeignKey(Event, on_delete = models.CASCADE)
+
+    # def save(self, request):
+
 
 
 class Event_avatar(models.Model):

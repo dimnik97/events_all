@@ -48,5 +48,25 @@
             {% endfor %}
         </ul>
     </div>
+{#    ФОРМА ДЛЯ СОЗДАНИЯ НОВОСТИ#}
+    <form method="post" novalidate id="news_create_form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% include 'includes/bootstrap4_form.html' with form=news_form %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+
+
+    <ul class="event_news">
+        {% for item in event_news %}
+            <li>
+
+                <a href="/profile/{{ item.news_creator.id }}"> {{ item.news_creator.name }}  {{ item.news_creator.last_name }} </a>
+                <p>{{ item.text }}</p>
+                <p>{{ item.create_time }}</p>
+
+            </li>
+        {% endfor %}
+    </ul>
 
 {% endblock %}

@@ -208,7 +208,6 @@ $(document).ready(function() {
 
     // функция для подписки/отписки на событие
     $('.subscribe_event').on('click', function(){
-        debugger;
         var event_id = $(this).closest("div.event_item").data('event_id'),
             atcion_type = $(this).data('action'),
             $this = $(this);
@@ -236,6 +235,22 @@ $(document).ready(function() {
         });
     });
 
+    $('#news_create_form').on('submit', function(event){
+        event.preventDefault();
+        frm = $('#news_create_form');
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('action'),
+            data: frm.serialize(),
+            success: function (data) {
+                updated_news = $('ul.event_news', data);
+                $('ul.event_news').replaceWith($(data).filter(".event_news"));
+            },
+            error: function(data) {
+                // как то обработать ошибку
+            }
+        });
+    });
     // Подписка на пользователей
     // Мод. Subscribers
     $('.add_to_friend').on('click', function(){
