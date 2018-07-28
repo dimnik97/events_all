@@ -1,42 +1,102 @@
-{% extends "main_template.html" %}
+{% load chats_filters %}
 
 {% block content %}
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br/>
-    <input id="chat-message-input" type="text" size="100"/><br/>
-    <input id="chat-message-submit" type="button" value="Send"/>
+    <div class="messages">
+        <div class="form_to_messages">
+            {% for room_member in room_members %}
+                <div class="message_block" data-user_id="{{ room_member.id  }}">
+                    <div class="l_dialog_block">
+                        <a href="/profile/{{ room_member.id  }}">
+                            <img src="{{ room_member.profileavatar.mini_url }}" class="avatar_round">
+                        </a>
+                    </div>
+                    <div class="r_dialog_block">
+                        {{ room_member|fullname }}
+                        <div class="message"></div>
+                    </div>
+                    <div class="additional_block">
+                        <input type="button" class="edit_message" value="Редактировать">
+                        <input type="button" class="remove_message" value="Удалить">
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div id="dialog_detail">
+            {% for message in messages %}
+                <hr>
+                <div class="message_block">
+                    <div class="l_dialog_block">
+                        <a href="/profile/{{ message|income_or_outgoing_id  }}">
+                            <img src="{{ message|income_or_outgoing_image }}" class="avatar_round">
+                        </a>
+                    </div>
+                    <div class="r_dialog_block">
+                        {{ message|income_or_outgoing }}
+                        <div class="message">
+                            {{ message.text}}
+                            {{ message.created }}
+                        </div>
+                        <div class="additional_block">
+                            <input type="button" class="edit_message" value="Редактировать">
+                            <input type="button" class="remove_message" value="Удалить">
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            {% endfor %}
+        </div>
+        <input id="chat-message-input" type="text" size="100"/><br/>
+        <input id="chat-message-submit" type="button" value="Send"/>
 
-    <script>
-        var roomName = {{ room_name_json }};
+        <script>
+            {#TODO Сделать с этим что-нибудь #}
+            var peer_id = {{ room_name_json }};
 
-        var chatSocket = new WebSocket(
-            'ws://' + window.location.host +
-            '/ws/chats/' + roomName + '/');
+            var chatSocket = new WebSocket(
+                'ws://' + window.location.host +
+                '/ws/chats/' + peer_id + '/');
 
-        chatSocket.onmessage = function(e) {
-            var data = JSON.parse(e.data);
-            var message = data['message'];
-            document.querySelector('#chat-log').value += (message + '\n');
-        };
+            chatSocket.onmessage = function(e) {
+                var data = JSON.parse(e.data),
+                    status = data['message']['message'].status,
+                    message = data['message']['message'].text,
+                    {#time = data['message'].time,#}
+                    user_id = data['message']['message'].user_id;
 
-        chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
-        };
+                if (status == 200) {
+                    var message_block = $('[data-user_id='+user_id+']').clone().removeAttr('data-user_id').appendTo('#dialog_detail');
+                    message_block.find('.message').text(message);
+                } else {
+                    $('#dialog_detail').append('<p class="error_message">' + message + '</p>')
+                }
 
-        document.querySelector('#chat-message-input').focus();
-        document.querySelector('#chat-message-input').onkeyup = function(e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#chat-message-submit').click();
-            }
-        };
+            };
 
-        document.querySelector('#chat-message-submit').onclick = function(e) {
-            var messageInputDom = document.querySelector('#chat-message-input');
-            var message = messageInputDom.value;
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
+            chatSocket.onclose = function(e) {
+                console.error('Chat socket closed unexpectedly');
+            };
 
-            messageInputDom.value = '';
-        };
-    </script>
+            document.querySelector('#chat-message-input').focus();
+            document.querySelector('#chat-message-input').onkeyup = function(e) {
+                if (e.keyCode === 13) {  // enter, return
+                    document.querySelector('#chat-message-submit').click();
+                }
+            };
+
+            $('#chat-message-submit').on('click', function(e) {
+                var input = $('#chat-message-input'),
+                    message = {
+                        'peer_id': peer_id,
+                        'text': input.val(),
+                        'is_edit': false   // TODO заглушка
+                    };
+
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+
+                input.val('');
+            });
+        </script>
+    </div>
 {% endblock %}

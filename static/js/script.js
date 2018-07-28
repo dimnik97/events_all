@@ -569,4 +569,51 @@ $(document).ready(function() {
             }
         });
     });
+
+
+    // TODO Редактирование сообщений? пока хз будет ли
+    // $('body').on('click', '.message_block', function () {
+    //     debugger;
+    //     $('#dialog_detail').removeClass('selected_message');
+    //     if ($(this).hasClass('selected_message')) {
+    //         $(this).removeClass('selected_message');
+    //         // $(this).find('.additional_block').hide();
+    //     } else {
+    //         $(this).addClass('selected_message');
+    //         // $(this).find('.additional_block').show();
+    //     }
+    // });
+
+    // $('body').on('click', '.edit_message', function () {
+    //
+    // });
+    //
+    // $('body').on('click', '.remove_message', function () {
+    //
+    // });
+    // TODO Редактирование сообщений? пока хз будет ли
+
+    //
+    // var st=$("#chat").scrollTop();
+    // $("#chat").prepend(me);
+    // $("#chat").scrollTop(st+me.outerHeight());
+    //
+    // $("#dialog_detail").scroll(function() {
+    //     if($(this).scrollTop() < 500) {
+    //         debugger
+    //     }
+    //
+    // });
+
+    $('.dialog_last_info').on('click', function () {
+        var url = 'dlg?d=' + $(this).data('chat_id');
+        $('.dialogs').hide();
+        $('.back_to_dialogs').on('click', function () {
+            $('.messages').remove();
+            $('.dialogs').show();
+        });
+        $.get(url, function(data) {
+            $('.messages_wrapper').append(data);
+        });
+    });
 });
