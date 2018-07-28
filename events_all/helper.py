@@ -10,7 +10,8 @@ from PIL import Image
 def convert_base(num):
     if num == 0:
         return [0]
-    return [int(x) for x in list('{0:2b}'.format(num))]
+    res = [int(x) for x in list('{0:b}'.format(num))]
+    return res
 
 
 def _add_mini(s, postfix=''):

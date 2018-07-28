@@ -112,8 +112,22 @@ body {
     z-index:2;
     border:none;
 }
-.selected {
-    background: aquamarine;
+li.dialog_row {
+    cursor: pointer;
 }
-
-
+#dialog_detail {
+    background-color: dimgrey;
+    color: aliceblue;
+    height:200px;
+    width:100%;
+    overflow-y:scroll;
+}
+.form_to_messages {
+    display: none;
+}
+.selected_message {
+    background-color: brown;
+}
+.additional_block {
+    display: none;
+}
