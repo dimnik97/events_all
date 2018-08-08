@@ -282,8 +282,9 @@ $(document).ready(function() {
 
     // функция для подписки/отписки на группу
     $('.subscribe_group').on('click', function(){
-        var group_id = $(this).closest("div.event_item").data('event_id'),
-            atcion_type = $(this).data('action');
+        var group_id = $(this).closest("div.group_item").data('group_id'),
+            atcion_type = $(this).data('action'),
+            $this = $(this);
         $.ajax({
             type: "POST",
             url: "/groups/subscribe_group/",
@@ -295,11 +296,11 @@ $(document).ready(function() {
             success: function(data){
                 if (data) {
                     if (atcion_type == 'add') {
-                        $this.text('Вступить в группу');
+                        $this.text('Выйти из группы');
                         $this.data('action', 'remove');
                     }
                     if (atcion_type == 'remove') {
-                        $this.text('Выйти из группы');
+                        $this.text('Вступить в группу');
                         $this.data('action', 'add');
                     }
                 }
@@ -621,14 +622,20 @@ $(document).ready(function() {
     // });
 
     $('.dialog_last_info').on('click', function () {
-        var url = 'dlg?d=' + $(this).data('chat_id');
+        if ($(this).data('chat_id'))
+            var url = 'dlg?d=' + $(this).data('chat_id');
+        else
+            var url = 'dlg?r=' + $(this).data('room_id');
         $('.dialogs').hide();
         $('.back_to_dialogs').on('click', function () {
             $('.messages').remove();
             $('.dialogs').show();
+            $('.back_to_dialogs').hide();
         });
         $.get(url, function(data) {
+            $('.back_to_dialogs').show();
             $('.messages_wrapper').append(data);
         });
     });
+
 });

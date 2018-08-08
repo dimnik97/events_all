@@ -131,3 +131,6 @@ li.dialog_row {
 .additional_block {
     display: none;
 }
+.back_to_dialogs {
+    display: none;
+}

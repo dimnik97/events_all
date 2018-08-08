@@ -3,6 +3,7 @@
 
 {% block content %}
     Последние сообщения
+
     <div class="messages_wrapper">
         <span class="back_to_dialogs">Ко всем диалогам</span>
 
@@ -12,13 +13,25 @@
             <hr>
             <li class="dialog_row">
                 <div class="dialog_photo">
-                    <a href="{{ chat.peer.profile.get_absolute_url }}">
-                        <img class="avatar_round" src="{{ chat.peer.profileavatar.mini_url }}">
-                    </a>
+                    {% if chat.peer %}
+                        <a href="{{ chat.peer.profile.get_absolute_url }}">
+                            <img class="avatar_round" src="{{ chat.peer.profileavatar.mini_url }}">
+                        </a>
+                    {% else %}
+                        <a href="{{ chat.room.get_absolute_url }}">
+                            <img class="avatar_round" src="{{ chat.room.group.groupavatar.mini_url }}">
+                        </a>
+                    {% endif %}
+
                 </div>
-                <div class="dialog_last_info" data-chat_id="{{ chat.peer.id }}">
+                <div class="dialog_last_info" data-chat_id="{{ chat.peer.id }}" data-room_id="{{ chat.room.id }}">
                     <div>
-                        C кем чат: {{ chat.peer|fullname }}
+                        C кем чат:
+                        {% if chat.peer %}
+                            {{ chat.peer|fullname }}
+                        {% else %}
+                            {{ chat.room.name }}
+                        {% endif %}
                     </div>
                     <div>
                         Последнее сообщение от: {{ chat|income_or_outgoing }} <br>
@@ -29,4 +42,30 @@
             <hr>
         {% endfor %}
     </ul>
+
+    {% if is_request %}
+        <script>
+            function request_dialog(url, is_room){
+                var url_ = '';
+                if (is_room === 1) {
+                     url_ = 'dlg?r=' + url;
+                } else {
+                     url_ = 'dlg?d=' + url;
+                }
+
+                $('.dialogs').hide();
+                $('.back_to_dialogs').on('click', function () {
+                    $('.messages').remove();
+                    $('.dialogs').show();
+                    $('.back_to_dialogs').hide();
+                });
+                $.get(url_, function(data) {
+                    $('.back_to_dialogs').show();
+                    $('.messages_wrapper').append(data);
+                });
+            }
+
+            request_dialog({{ is_request }}, {{ is_room }});
+        </script>
+    {% endif %}
 {% endblock %}

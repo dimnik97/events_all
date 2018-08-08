@@ -1,21 +1,26 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 
-from chats.models import ChatMessage
+from chats.models import ChatMessage, Room
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        peer_id = int(self.scope['url_route']['kwargs']['room_name'])
-        user_id = self.scope['user'].id
-        if peer_id > user_id:
-            room_name = str(user_id) + '_' + str(peer_id)
-        elif user_id > peer_id:
-            room_name = str(peer_id) + '_' + str(user_id)
-        else:
-            room_name = str(user_id) + '_' + str(user_id)
+        id = self.scope['url_route']['kwargs']['room_name']
+        if id.find('_room') == -1:
+            peer_id = int(id)
+            user_id = self.scope['user'].id
 
-        self.room_group_name = 'chat_%s' % hash(room_name)
+            if peer_id > user_id:
+                room_name = str(user_id) + '_' + str(peer_id)
+            elif user_id > peer_id:
+                room_name = str(peer_id) + '_' + str(user_id)
+            else:
+                room_name = str(user_id) + '_' + str(user_id)
+            self.room_group_name = 'chat_%s' % hash(room_name)
+        else:
+            self.room_group_name = 'chat_%s' % id
+
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -32,10 +37,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Receive message from WebSocket
     async def receive(self, text_data):
+        # TODO Остановился здесь
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
 
-        peer_id = message['peer_id']
+        id = message['peer_id']
         text = message['text']
         status = 200
         end_message = {
@@ -47,7 +53,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Простановка флагов, идет первой, для проверки прав доступа
         dict = ChatMessage.message_flags(self, message)
 
-        if not dict['status'] == '200':
+        if not dict['status'] == '200' or dict['result'] == '-1':
             end_message['status'] = dict['status']
             end_message['text'] = dict['error']
             await self.channel_layer.group_send(
@@ -62,7 +68,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message_db.flags = dict['result']
         message_db.user = self.scope['user']
         message_db.text = text
-        message_db.peer_id = peer_id
+        if message['is_room']:
+            message_db.room_id = id
+        else:
+            message_db.peer_id = id
         message_db.save()
 
         # message['time'] = message_db.created  # TODO Разобраться с выводимым временем

@@ -2,6 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.shortcuts import render, get_object_or_404, render_to_response, redirect
+
+from chats.models import Room, ChatMessage, RoomMembers
 from groups.forms import GroupsForm
 from groups.models import Group, AllRoles, Membership, GroupAvatar
 from images_custom.models import PhotoEditor
@@ -90,6 +92,9 @@ def create(request, id=None):
         if form.is_valid():
             id = form.save(request)
             GroupAvatar.objects.create(group_id=id)
+            name = request.POST['name'] + ' - группа'
+            Room.objects.create(name=name, creator=request.user, group_id=id)
+
             return redirect('/groups/' + str(id))
     else:
         form = GroupsForm()
@@ -117,9 +122,18 @@ def subscribe_group(request):
                 action = request.POST['action']
                 user = request.user
                 if action == "add":
+                    room = Room.objects.get(group=group)
+                    RoomMembers.objects.create(user_rel=request.user, room_rel=room)
                     Membership.subscribe(user, group)
+                    RoomMembers.invite_message(request.user, room, True)
                 elif action == 'remove':
                     Membership.unsubscribe(user, group)
+                    room = Room.objects.get(group=group)
+                    member = RoomMembers.objects.get(user_rel=request.user,
+                                                     room_rel=room)  # TODO Придумать как ограничить доступ к чатам
+
+                    member.delete()
+                    RoomMembers.invite_message(request.user, room, False)
                 else:
                     return HttpResponse(str(400))  # Todo Посмотреть что по статусам
             except KeyError:

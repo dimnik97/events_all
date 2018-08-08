@@ -63,6 +63,14 @@ class Profile(models.Model):
         default=1,
     )
     subscribers = models.ManyToManyField('self', blank=True, symmetrical=False)
+    CHOICES_ACTIVE = (('1', 'Активный'),
+                      ('2', 'Удаленный'),
+                      ('3', 'Заблокированный'),)
+    # active = models.CharField(  # для бана
+    #     max_length=2,
+    #     choices=CHOICES_ACTIVE,
+    #     default=1,
+    # )
 
     class Meta:
         verbose_name = ('Профили')
