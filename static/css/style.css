@@ -125,12 +125,12 @@ li.dialog_row {
 .form_to_messages {
     display: none;
 }
-.selected_message {
-    background-color: brown;
-}
 .additional_block {
     display: none;
 }
 .back_to_dialogs {
+    display: none;
+}
+.create_chat_wrapper {
     display: none;
 }

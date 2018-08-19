@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import signals
@@ -16,13 +18,106 @@ class Room(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
+    # Создание комнаты
+    @staticmethod
+    def create_room(request):
+        result = {
+            'status': 200,
+            'text': '',
+            'invalide_name': '',
+            'room_url': ''
+        }
+        room = Room()
+        request_dump = json.dumps(request.POST, ensure_ascii=False)
+        if 'dialog_name' in request.POST:
+            room.name = request.POST['dialog_name']
+        else:
+            result['status'] = '400'
+            result['text'] = 'Не заполнено название группы'
+            result['invalide_name'] = 'dialog_name'
+
+        added_users = list()
+        if 'added_users' in request.POST:
+            added_users = request.POST['added_users']
+            added_users = added_users.split(' ')
+            added_users.pop()
+        else:
+            result['status'] = '400'
+            result['text'] = 'Не добавлено ни одного пользователя'
+            result['invalide_name'] = 'added_users'
+        room.creator = request.user
+        room_id = room.save()
+        objs = []
+        for user_id in added_users:
+            objs.append(RoomMembers(user_rel_id=user_id, room_rel_id=room_id, joined=False))
+        RoomMembers.objects.bulk_create(objs)
+        result['room_url'] = '/chats/?room=' + str(room_id)
+        return result
+
+    # Присоединение к комнате
+    @staticmethod
+    def join_room(request):
+        result = {
+            'status': 200,
+            'text': '',
+            'room_url': ''
+        }
+        try:
+            if 'room_id' in request.POST:
+                room_id = request.POST['room_id']
+                member = RoomMembers.objects.get(user_rel=request.user, room_rel_id=room_id)
+                member.joined = True
+                member.save()
+                last_message = ChatMessage.objects.order_by('room', '-created').filter(user=request.user,
+                                                                                       room_id=room_id).distinct('room')[0]
+                last_message.flags = last_message.flags - 64
+                last_message.save()
+                RoomMembers.invite_message(request.user, self, True)
+                result['room_url'] = '/chats/?room=' + str(room_id)
+            else:
+                result['status'] = '400'
+        except:
+            result['status'] = '400'
+        return result
+
+    # Отклонить приглашение
+    @staticmethod
+    def decline_room(request):
+        result = {
+            'status': 200,
+            'text': '',
+            'room_url': '/chats/'
+        }
+        try:
+            if 'room_id' in request.POST:
+                room_id = request.POST['room_id']
+                ChatMessage.objects.order_by('room', '-created').filter(user=request.user,
+                                                                        room_id=room_id).distinct('room').delete()
+                member = RoomMembers.objects.get(user_rel=request.user, room_rel_id=room_id)
+
+                member.delete()
+                member.save()
+            else:
+                result['status'] = '400'
+        except:
+            result['status'] = '400'
+        return result
+
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         super(Room, self).save(force_insert=force_insert, force_update=force_update, *args, **kwargs)
         RoomMembers.objects.create(user_rel=self.creator, room_rel=self, additional_info=1)
         RoomMembers.invite_message(self.creator, self, True)
+        return self.id
 
     def get_absolute_url(self):
-        return "/groups/%i" % self.group.id
+        result_url = ''
+        if self.group is not None:
+            result_url = "/group/%i" % self.group.id
+        elif self.event is not None:
+            result_url = "/events/%i" % self.group.id
+        else:
+            result_url = "javascript:vodi(0)"
+        return result_url
 
     def __str__(self):
         """
@@ -39,6 +134,7 @@ class RoomMembers(models.Model):
     user_rel = models.ForeignKey(User, on_delete=models.CASCADE)
     room_rel = models.ForeignKey(Room, on_delete=models.CASCADE)
     additional_info = models.IntegerField(null=True, default=None)  # права доступа
+    joined = models.BooleanField(default=True, blank=False)
 
     def __str__(self):
         return self.user_rel.first_name + ' ' + self.user_rel.last_name + ' - группа ' + self.room_rel.name
@@ -47,8 +143,8 @@ class RoomMembers(models.Model):
         verbose_name = ('Участники чатов')
         verbose_name_plural = ('Участники чатов')
 
-    @classmethod
-    def invite_message(self, user, room, is_invite):
+    @staticmethod
+    def invite_message(user, room, is_invite):
         message_db = ChatMessage()
         message_db.user = user
         if is_invite:
@@ -87,8 +183,10 @@ class ChatMessage(models.Model):
     # 8 - отредактированное
     # 16 - удаленное
     # 32 - отправлено в комнату
-    @classmethod
-    def message_flags(self, request, message):
+    # 64 - отправлено юзеру, который не принял запрос на чат
+    # 128 - пересланное сообщение
+    @staticmethod
+    def message_flags(request, message):
         result = 1  # Сообщение считается непрочитанным сразу
         result = result + 2  # Сообщение всегда исходящее для написавшего
 
@@ -150,6 +248,8 @@ class ChatMessage(models.Model):
                         self.user = member.user_rel
                         self.flags = self.flags - 2  # теперь сообщение считается входящим
                         self.peer_msg_id = id
+                        if member.joined == False:
+                            self.flags = self.flags + 64
                         super(ChatMessage, self).save(force_insert, force_update)
             else:
                 id = self.id
@@ -161,4 +261,3 @@ class ChatMessage(models.Model):
                 return
         else:
             return
-

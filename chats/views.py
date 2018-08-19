@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.shortcuts import render
-from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.safestring import mark_safe
 import json
 
@@ -8,37 +8,26 @@ from chats.models import ChatMessage, Room, RoomMembers
 
 
 def home(request):
-
     # TODO паджинация
     chats = ChatMessage.objects.filter(user=request.user).order_by('-peer__id', '-room', '-created').distinct('peer__id', 'room')
-    is_room = 0
-    # TODO ну тут как-то совсем не очень написано
-    try:
-        request_peer = request.GET['peer_id']
-    except MultiValueDictKeyError:
-        request_peer = False
-    try:
-        request_peer = request.GET['room_id']
-        is_room = 1
-    except MultiValueDictKeyError:
-        pass
+    chat_type = 'error'
+    request_peer = False
+    if 'room' in request.GET:
+        request_peer = request.GET['room']
+        chat_type = 'room'
+    elif 'peer' in request.GET:
+        request_peer = request.GET['peer']
+        chat_type = 'peer'
+
     context = {
         'chats': chats,
         'is_request': request_peer,
-        'is_room': is_room
+        'url_type': chat_type
     }
     return render(request, 'chats/index.html', context)
 
 
 def room(request):
-    try:
-        peer = request.GET['d']
-        messages = ChatMessage.objects.filter(user=request.user, peer=peer).order_by('created')
-        is_room = False
-    except KeyError:
-        messages = ChatMessage.objects.filter(user=request.user, room=request.GET['r']).order_by('created')
-        is_room = True
-
     user = request.user
     room_members = list()
     peer = {
@@ -49,21 +38,32 @@ def room(request):
     }
     room_id = ''
     peer_id = ''
-    if is_room:
-        room_id = request.GET['r']
+    chat_type = ''
+    if 'room' in request.GET:
+        chat_type = 'room'
+        messages = ChatMessage.objects.filter(user=request.user, room=request.GET[chat_type]).order_by('created')
+    elif 'peer' in request.GET:
+        chat_type = 'peer'
+        messages = ChatMessage.objects.filter(user=request.user, peer=request.GET[chat_type]).order_by('created')
+
+    if chat_type == 'room':
+        room_id = request.GET[chat_type]
         flag = False
-        members = RoomMembers.objects.filter(room_rel_id=request.GET['r'])
+        members = RoomMembers.objects.filter(room_rel_id=request.GET['room'])
         for member in members:
             if member.user_rel == request.user:
                 flag = True
+                if member.joined == False:
+                    peer['status'] = '404'
+                    peer['text'] = 'Сначала присоединитесь к чату'
+                    break
             room_members.append(member.user_rel)
         if not flag:
             peer['status'] = '404'
             peer['text'] = 'У вас нет доступа в этот чат'
-            # return # Придумать с этим что-нибудь
     else:
         try:
-            peer_id = request.GET['d']
+            peer_id = request.GET[chat_type]
             peer['peer'] = User.objects.get(id=peer_id)
             # if peer['peer'].active == 2:
             #     peer['status'] = '403'
@@ -86,3 +86,18 @@ def room(request):
         'peer': peer
     }
     return render(request, 'chats/room.html', context)
+
+
+def create_room(request):
+    result = Room.create_room(request)
+    return HttpResponse(json.dumps(result))
+
+
+def join_room(request):
+    result = Room.join_room(request)
+    return HttpResponse(json.dumps(result))
+
+
+def decline_room(request):
+    result = Room.decline_room(request)
+    return HttpResponse(json.dumps(result))

@@ -21,6 +21,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from . import settings
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('main_app/', include('main_app.urls')),
@@ -31,6 +32,7 @@ urlpatterns = [
     path('events/', include('events_.urls')),
     path('chats/', include('chats.urls')),
 ]
+
 
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

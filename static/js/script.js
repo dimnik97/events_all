@@ -622,10 +622,14 @@ $(document).ready(function() {
     // });
 
     $('.dialog_last_info').on('click', function () {
+        if ($(this).find('.chat_status').hasClass('blocked')) {
+            return;
+        }
+        var url = '';
         if ($(this).data('chat_id'))
-            var url = 'dlg?d=' + $(this).data('chat_id');
+            url = 'dlg?peer=' + $(this).data('chat_id');
         else
-            var url = 'dlg?r=' + $(this).data('room_id');
+            url = 'dlg?room=' + $(this).data('room_id');
         $('.dialogs').hide();
         $('.back_to_dialogs').on('click', function () {
             $('.messages').remove();
@@ -637,5 +641,105 @@ $(document).ready(function() {
             $('.messages_wrapper').append(data);
         });
     });
+
+    $('.create_chat').on('click', function () {
+        $('.create_chat_wrapper').show();
+        $.ajax({
+            url: '/profile/get_subscribers?action=checkbox',
+            type: 'GET',
+            success: function (data) {
+                $('.create_chat_form_subscribers', '.create_chat_wrapper').html(data);
+                $('.added_users').empty();
+                $(':checkbox', '.create_chat_wrapper').on('click', function () {
+                    if ($(this).is(':checked')) {
+                        var username = $(this).parent().find('.username').html(),
+                            user_id = '"' + $(this).val() + '"',
+                            user_item = '<span class="inside_mark" data-id='+user_id+'>'+ username +'</span>',
+                            user = '<div class="user">'+ user_item +'<span data-id=' + user_id + ' class="delete_user">x</span></div>';
+                        $('.added_users').append(user);
+                        $('.user span.delete_user', '.added_users').off('click').on('click', function () {
+                            id = $(this).data('id');
+                            $('[name=checkbox_' + id + ']', '.create_chat_wrapper').attr('checked', false);
+                            $(this).closest('.user').remove();
+
+                        });
+                    } else {
+                        var id = $(this).val();
+                        $('*[data-id='+ id +']', '.added_users').closest('.user').remove();
+                    }
+                });
+            }
+        });
+        $('.create_chat').hide();
+        $('.dialogs').hide();
+        $('.cancel', '.create_chat_wrapper').on('click', function () {
+            $('.create_chat_wrapper').hide();
+            $('.create_chat').show();
+            $('.dialogs').show();
+        });
+
+        $('.submite', '.create_chat_wrapper').on('click', function () {
+            var dialog_name = $('[name=dialog_name]').val(),
+                obj = $('.user', '.added_users'),
+                added_users = '';
+            obj.each(function (key, value) {
+                added_users += ($(this).find('span').data('id')).toString() + ' ';
+            });
+            $.ajax({
+                url: '/chats/create_room',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'dialog_name': dialog_name,
+                    'added_users': added_users
+                },
+                success: function (data) {
+                    if (data.status === 200) {
+                        window.location.replace(data.room_url);
+                    } else {
+                        // TODO заполнить error
+                    }
+                }
+            });
+        });
+    });
+
+    $('.accept', '.dialog_row').on('click', function () {
+        var room_id = $(this).closest('.dialog_last_info').data('room_id');
+        $.ajax({
+            url: '/chats/join_chat',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'room_id': room_id
+            },
+            success: function (data) {
+                if (data.status === 200) {
+                    window.location.replace(data.room_url);
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    })
+
+    $('.decline', '.dialog_row').on('click', function () {
+        var room_id = $(this).closest('.dialog_last_info').data('room_id');
+        $.ajax({
+            url: '/chats/decline_room',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'room_id': room_id
+            },
+            success: function (data) {
+                if (data.status === 200) {
+                    window.location.replace(data.room_url);
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    })
 
 });

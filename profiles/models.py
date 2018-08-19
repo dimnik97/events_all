@@ -1,6 +1,7 @@
 import datetime
 from profile import Profile
 
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
@@ -105,6 +106,43 @@ class Profile(models.Model):
     @classmethod
     def remove_friend(cls, request, new_friend):
         request.user.profile.subscribers.remove(new_friend.profile)
+
+    @staticmethod
+    def get_subscribers(request):
+        if 'user' in request.GET:
+            user_id = request.GET.get('user', 1)
+        else:
+            user_id = request.user.id
+
+        is_my_account = False
+        action = ''  # Просмотр
+        if 'action' in request.GET:
+            action = request.GET.get('action')  # Тип - выбор подписчиков (с чекбоксами)
+        else:
+            if str(request.user.id) == user_id:
+                action = 'context_menu'  # Тип - контекстное меню
+
+        user = User.objects.get(id=user_id)
+        subscribers_object = user.profile.subscribers
+
+        subscribers = [
+            subscriber for subscriber in subscribers_object.all()
+        ]
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(subscribers, 20)
+        try:
+            subscribers = paginator.page(page)
+        except PageNotAnInteger:
+            subscribers = paginator.page(1)
+        except EmptyPage:
+            subscribers = paginator.page(paginator.num_pages)
+
+        return {
+            'items': subscribers,
+            'user_id': user_id,
+            'action': action
+        }
 
     # Возвращает абсолютный URL
     def get_absolute_url(self):

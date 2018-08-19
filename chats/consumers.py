@@ -21,19 +21,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         else:
             self.room_group_name = 'chat_%s' % id
 
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
+        await self.channel_layer.group_add(self.room_group_name,
+                                           self.channel_name)
 
         await self.accept()
 
     async def disconnect(self, close_code):
         # Leave room group
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        await self.channel_layer.group_discard(self.room_group_name,
+                                               self.channel_name)
 
     # Receive message from WebSocket
     async def receive(self, text_data):
@@ -56,13 +52,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not dict['status'] == '200' or dict['result'] == '-1':
             end_message['status'] = dict['status']
             end_message['text'] = dict['error']
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'chat_message',
-                    'message': end_message
-                }
-            )
+            await self.channel_layer.group_send(self.room_group_name, {
+                'type': 'chat_message',
+                'message': end_message
+            })
             return
 
         message_db.flags = dict['result']
@@ -78,16 +71,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Send message to WebSocket
 
         # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': end_message
-            }
-        )
+        await self.channel_layer.group_send(self.room_group_name, {
+            'type': 'chat_message',
+            'message': end_message
+        })
 
     # Receive message from room group
     async def chat_message(self, message):
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
+        await self.send(text_data=json.dumps({'message': message}))

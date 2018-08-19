@@ -46,5 +46,16 @@ def status(peer):
 
 
 @register.filter
+def message_flag(chat):
+    flags = convert_base(chat.flags)
+    result = ''
+    if len(flags) == 7 and flags[-7] == 1:
+        result = 'blocked'  # Заблокировано до того момента, пока пользователь не вступит в чат
+    elif len(flags) == 8 and flags[-7] == 1:
+        result = 'repost'  # Репост
+    return result
+
+
+@register.filter
 def except_text(peer):
     return peer['text']
