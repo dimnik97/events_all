@@ -27,6 +27,7 @@
                 <button class="change_mini" data-url="/profile/change_mini">Смена миниатюры</button>
                 <a href="edit" class="btn btn-default">Настройки</a> <br>
             {% endif %}
+            <a href="/groups/create">Создать группу</a> <br>
 
             Полное имя {{ user.first_name }} {{ user.last_name }} <br>
             Email {{ user.email }} <br>
@@ -55,11 +56,10 @@
                 <ul>
                     {% for item in groups %}
                         <li>
-                            <a href="/profile/{{ item.id }}">
+                            <a href="/groups/{{ item.id }}">
                                 <img src="{{ item.groupavatar.mini_url }}" class="avatar_round">
                             </a>
                             <a href="/groups/{{ item.id }}"> {{ item.name }}</a>
-                            <button class="add_to_friend"  data-group_id="{{ item.id }}" data-action="add">Подписаться</button>
                         </li>
                     {% endfor %}
                 </ul>

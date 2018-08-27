@@ -4,50 +4,30 @@
     <div class="messages">
         <div class="form_to_messages">
             {% for room_member in room_members %}
-                <div class="message_block" data-user_id="{{ room_member.id  }}">
+                <div class="message_block" data-user_id="{{ room_member.id  }}" >
                     <div class="l_dialog_block">
                         <a href="/profile/{{ room_member.id  }}">
                             <img src="{{ room_member.profileavatar.mini_url }}" class="avatar_round">
                         </a>
+                        <div class="user_name">{{ room_member|fullname }}</div>
                     </div>
                     <div class="r_dialog_block">
-                        {{ room_member|fullname }}
                         <div class="message"></div>
-                    </div>
-                    <div class="additional_block">
-                        <input type="button" class="edit_message" value="Редактировать">
-                        <input type="button" class="remove_message" value="Удалить">
+                        <div class="additional_block">
+                            <input type="button" class="edit_message" value="Редактировать">
+                            <input type="button" class="delete_message" value="Удалить">
+                        </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
         <div id="dialog_detail">
-            {% for message in messages %}
-                <hr>
-                <div class="message_block">
-                    <div class="l_dialog_block">
-                        <a href="/profile/{{ message|income_or_outgoing_id  }}">
-                            <img src="{{ message|income_or_outgoing_image }}" class="avatar_round">
-                        </a>
-                    </div>
-                    <div class="r_dialog_block">
-                        {{ message|income_or_outgoing }}
-                        <div class="message">
-                            {{ message.text}}
-                            {{ message.created }}
-                        </div>
-                        <div class="additional_block">
-                            <input type="button" class="edit_message" value="Редактировать">
-                            <input type="button" class="remove_message" value="Удалить">
-                        </div>
-                    </div>
-                </div>
-                <hr>
-            {% endfor %}
+            <div class="d_none get_messages" data-url="/chats/get_messages?{{ chat_type }}={{ chat_id }}"></div>
+            <div class="content_paginator_messages"></div>
         </div>
         {% if peer|status == 200 %}
             <input id="chat-message-input" type="text" size="100"/><br/>
-            <input id="chat-message-submit" type="button" value="Send"/>
+            <input id="chat-message-submit" type="button" disabled="true" value="Send"/>
         {% else %}
             <span>{{ peer|except_text }}</span>
         {% endif %}
@@ -61,7 +41,25 @@
                 id = {{ room_id_json }};
                 is_room = '_room';
             }
+            function scroll_down() {
+                var block = document.getElementById("dialog_detail");
+                block.scrollTop = block.scrollHeight;
+            }
 
+            var url = $('.get_messages', '#dialog_detail').data('url');
+            $.ajax({
+                url: url,
+                success: function (data) {
+                    $('.content_paginator_messages').html(data);
+                    var infinite_ = new Waypoint.Infinite({
+                        element: $('.infinite-container_messages')[0],
+                        more: '.infinite-more-link_messages',
+                        items: '.infinite-item_messages',
+                        reverse: true,
+                    });
+                    scroll_down();
+                }
+            });
 
             var chatSocket = new WebSocket(
                 'ws://' + window.location.host +
@@ -72,14 +70,22 @@
                     status = data['message']['message'].status,
                     message = data['message']['message'].text,
                     {#time = data['message'].time,#}
-                    user_id = data['message']['message'].user_id;
+                    user_id = data['message']['message'].user_id,
+                    message_id = data['message']['message'].message_id;
 
-                if (status == 200) {
+                if (status === 200) {
                     var message_block = $('[data-user_id='+user_id+']').clone().removeAttr('data-user_id').appendTo('#dialog_detail');
+                    if (user_id === {{ user.id }}) {
+                        message_block.addClass('is_my').attr('message_id', message_id);
+                    }
                     message_block.find('.message').text(message);
-                } else {
+                } else if (status === 100) {
+                    $('[message_id='+ message_id +']').find('.message', '.r_dialog_block').text(message);
+                }
+                else {
                     $('#dialog_detail').append('<p class="error_message">' + message + '</p>')
                 }
+                scroll_down();
 
             };
 
@@ -99,16 +105,31 @@
                     message = {
                         'peer_id': id,
                         'text': input.val(),
-                        'is_edit': false,   // TODO заглушка
+                        'edit_message_id': false,   // TODO заглушка
                         'is_room': is_room
                     };
 
-                chatSocket.send(JSON.stringify({
-                    'message': message
-                }));
-
+                if (input.hasClass('edited_message')) {
+                    message['edit_message_id'] = input.attr('message_id');
+                    chatSocket.send(JSON.stringify({
+                        'message': message
+                    }));
+                } else {
+                    chatSocket.send(JSON.stringify({
+                        'message': message
+                    }));
+                }
+                input.removeClass('edited_message');
+                input.removeAttr('message_id');
                 input.val('');
             });
+            $('#chat-message-input').on('input', function () {
+                if ($(this).val().length > 0) {
+                    $('#chat-message-submit').removeAttr('disabled');
+                } else {
+                    $('#chat-message-submit').attr('disabled', 'disabled');
+                }
+            })
         </script>
     </div>
 {% endblock %}

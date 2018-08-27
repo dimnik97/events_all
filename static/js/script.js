@@ -75,8 +75,6 @@ function GetCorrectNumber(Number, is_month=0, is_min = 0){
 
 
 $(document).ready(function() {
-
-
     // Проброс токена CSRF во все запросы ajax
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
@@ -376,7 +374,8 @@ $(document).ready(function() {
             success: function (data) {
                 $('.content_paginator').html(data);
                 var infinite = new Waypoint.Infinite({
-                    element: $('.infinite-container')[0]
+                    element: $('.infinite-container')[0],
+                    reverse: true
                 });
             }
         });
@@ -587,41 +586,50 @@ $(document).ready(function() {
     });
 
 
-    // TODO Редактирование сообщений? пока хз будет ли
-    // $('body').on('click', '.message_block', function () {
-    //     debugger;
-    //     $('#dialog_detail').removeClass('selected_message');
-    //     if ($(this).hasClass('selected_message')) {
-    //         $(this).removeClass('selected_message');
-    //         // $(this).find('.additional_block').hide();
-    //     } else {
-    //         $(this).addClass('selected_message');
-    //         // $(this).find('.additional_block').show();
-    //     }
-    // });
+    $('body').on('click', '.message_block', function () {
+        $('.message_block').removeClass('selected_message');
+        $('.message_block').find('.additional_block').hide();
+        if ($(this).hasClass('is_my')) {
+            if ($(this).hasClass('selected_message')) {
+                $(this).removeClass('selected_message');
+                $(this).find('.additional_block').hide();
+            } else {
+                $(this).addClass('selected_message');
+                $(this).find('.additional_block').show();
+            }
+        }
 
-    // $('body').on('click', '.edit_message', function () {
-    //
-    // });
-    //
-    // $('body').on('click', '.remove_message', function () {
-    //
-    // });
-    // TODO Редактирование сообщений? пока хз будет ли
+    });
 
-    //
-    // var st=$("#chat").scrollTop();
-    // $("#chat").prepend(me);
-    // $("#chat").scrollTop(st+me.outerHeight());
-    //
-    // $("#dialog_detail").scroll(function() {
-    //     if($(this).scrollTop() < 500) {
-    //         debugger
-    //     }
-    //
-    // });
+    $('body').on('click', '.edit_message', function () {
+        var $message_block = $(this).closest('.message_block'),
+            id_message = $message_block.attr('message_id'),
+            message_text = $message_block.find('.message').text();
+        $('#chat-message-input').val(message_text);
+        $('#chat-message-input').addClass('edited_message');
+        $('#chat-message-input').attr('message_id', id_message);
+    });
 
-    $('.dialog_last_info').on('click', function () {
+    $('body').on('click', '.delete_message', function () {
+        var message_id = $(this).closest('.message_block').attr('message_id');
+        $.ajax({
+            url: '/chats/delete_message',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'message_id': message_id,
+            },
+            success: function (data) {
+                if (data.status === 200) {
+                    $('[message_id='+ message_id +']').find('.message', '.r_dialog_block').text('[Сообщение удалено]');
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    });
+
+    $('#dialogs').on('click', '.dialog_last_info', function () {
         if ($(this).find('.chat_status').hasClass('blocked')) {
             return;
         }
@@ -707,7 +715,7 @@ $(document).ready(function() {
     $('.accept', '.dialog_row').on('click', function () {
         var room_id = $(this).closest('.dialog_last_info').data('room_id');
         $.ajax({
-            url: '/chats/join_chat',
+            url: '/chats/join_room',
             type: 'POST',
             dataType: 'json',
             data: {
