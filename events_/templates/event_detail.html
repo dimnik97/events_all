@@ -49,12 +49,15 @@
         </ul>
     </div>
 {#    ФОРМА ДЛЯ СОЗДАНИЯ НОВОСТИ#}
-    <form method="post" novalidate id="news_create_form" enctype="multipart/form-data">
-        {% csrf_token %}
-        {% include 'includes/bootstrap4_form.html' with form=news_form %}
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-
+    {% if is_editor == 1 or is_creator == 1 %}
+        <div class="news-form">
+            <form method="post" novalidate id="news_create_form" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% include 'includes/bootstrap4_form.html' with form=news_form %}
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    {% endif %}
 
 
     <ul class="event_news">
@@ -63,7 +66,10 @@
 
                 <a href="/profile/{{ item.news_creator.id }}"> {{ item.news_creator.name }}  {{ item.news_creator.last_name }} </a>
                 <p>{{ item.text }}</p>
-                <p>{{ item.create_time }}</p>
+                {%  if item.news_image %}
+                    <img src="{{ item.news_image.url }}" width="100px" height="100px">
+                {% endif %}
+                <p>Дата создания: {{ item.create_time }}</p>
 
             </li>
         {% endfor %}

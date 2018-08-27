@@ -10,6 +10,7 @@ def index(request):
         user_id = request.user.pk
         user = User.objects.get(id=user_id)
 
+        location = 1 # Заглушка
         events = Event.get_events()
         events_dict = []
 

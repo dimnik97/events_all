@@ -4,6 +4,7 @@ from django.middleware.csrf import get_token
 from django.shortcuts import render, get_object_or_404, render_to_response, redirect
 
 from events_.forms import EditEvent, CreateEventNews
+from groups.models import Membership, Group
 from .models import Event, EventParty, Event_avatar, EventNews
 
 
@@ -33,12 +34,20 @@ def index(request, id):
     subs = [friend for friend in ev_object.user_id.all()]
 
     news = None
+
+    is_editor = 0
+    if Group.is_editor(request, event_detail.created_by_group.id):
+        is_editor = 1
+
     if request.method == 'POST':
         form = CreateEventNews(request.POST, request.FILES, request.GET)
         if form.is_valid():
-            form.save(request, event_detail)  # 1 - флаг для определения создания, а не редактирвания, обрабатывается в форме
-            # return redirect('/events/' + str(int(response.content)))
 
+            if (event_detail.creator_id == request.user):
+                form.save(request, event_detail)  # 1 - флаг для определения создания, а не редактирвания, обрабатывается в форме
+            elif( event_detail.created_by_group ):
+                if (is_editor == 1):
+                    form.save(request, event_detail)
             try:
                 news = list(EventNews.objects.filter(news_event=event_detail))
             except:
@@ -65,6 +74,7 @@ def index(request, id):
         'party_flag': party_flag,
         'avatar': avatar,
         'is_creator': is_creator,
+        'is_editor': is_editor,
         'event_news': event_news,
         "csrf_token": get_token(request),
         "ajax_response": news

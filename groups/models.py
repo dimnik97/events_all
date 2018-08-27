@@ -81,9 +81,14 @@ class Group(models.Model):
     # Проверка на возможность создавать посты
     @classmethod
     def is_editor(cls, request, group_id):
-        user = Membership.objects.get(group_id=group_id,
-                                      person=request.user)
-        if user.role == 'admin' or user.role == 'editor':
+
+
+        try:
+            user = Membership.objects.get(group_id=group_id, person=request.user.profile)
+        except:
+            return False
+
+        if user.role.role == 'admin' or user.role.role == 'editor':
             return True
         return False
 

@@ -3,6 +3,10 @@
 {% block content %}
     <button class="btn btn-grey"><a href="/events/create">Создать событие</a></button>
     <h2>Список событий</h2>
+
+    <button class="last_events">Новые события</button>
+    <button class="friends_events">События друзей</button>
+    <button class="closest_events">События рядом</button>
     {% for event in events %}
         <div class="event_item" data-event_id="{{event.event.id}}" >
 

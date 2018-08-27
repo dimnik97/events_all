@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from PIL import Image
+from django.http import JsonResponse
 from django.utils.functional import curry
 
 import datetime
@@ -36,9 +37,19 @@ class Event(models.Model):
     participants = models.IntegerField(null=True, blank=True)
     status = models.ForeignKey(EventStatus, on_delete=models.CASCADE, default=1)
     created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
+    location = models.CharField(max_length=20, default=1) # Заглушка для функционала определения по локации
 
-    def get_events():
-        events = Event.objects.all()
+    def get_events(ajax_request = None):
+        if ajax_request is None:
+            events = Event.objects.filter(location = 1).order_by('-create_time')
+        elif ajax_request.POST['last_events']:
+            events = Event.objects.filter(location=1).order_by('-create_time')
+            return events
+        elif ajax_request.POST['friends_events']:
+            events = Event.objects.filter(location=1).order_by('-create_time')
+        elif ajax_request.POST['closest_events']:
+            events = Event.objects.filter(location=1).order_by('-create_time')
+
         return events
 
     def __str__(self):
@@ -59,6 +70,40 @@ class EventNews(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     news_creator = models.ForeignKey(User, on_delete = models.CASCADE)
     news_event = models.ForeignKey(Event, on_delete = models.CASCADE)
+    news_image = models.ImageField(
+        upload_to=curry(helper.upload_to, prefix='news_img'),
+        # upload_to=helper.upload_to,
+        default= None
+    )
+
+    # Добавляем к свойствам объектов модели путь к миниатюре
+    def _get_reduced_path(self):
+        return helper._add_mini(self.news_image.path, postfix='reduced')
+
+    # Добавляем к свойствам объектов модели урл миниатюры
+    def _get_reduced_url(self):
+        return helper._add_mini(self.news_image.url, postfix='reduced')
+
+    reduced_path = property(_get_reduced_path)
+    reduced_url = property(_get_reduced_url)
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        try:
+            obj = EventNews.objects.get(id=self.id)
+            if obj.news_image.path != self.news_image.path:
+                helper._del_mini(obj.news_image.path, postfix='reduced')
+                if 'default' not in obj.news_image:
+                    obj.image.delete()
+        except:
+            pass
+
+        super(EventNews, self).save()
+        reduced = Image.open(self.news_image.path)
+        reduced = helper.create_medium_image(reduced)
+
+        quality_val = 85
+        reduced.save(self.reduced_path, quality=quality_val, optimize=True, progressive=True)
 
     # def save(self, request):
 

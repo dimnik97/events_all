@@ -11,12 +11,14 @@ from groups.models import Group
 
 class CreateEventNews(forms.Form):
     text = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Новость')
+    image = forms.ImageField(required=False, label='Фото')
 
     def save(self, request, event):
         news = EventNews()
         news.news_creator = request.user
         news.text = request.POST['text']
         news.news_event = event
+        news.news_image = request.FILES['image']
         news.save()
 
 

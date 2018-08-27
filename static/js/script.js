@@ -76,6 +76,32 @@ function GetCorrectNumber(Number, is_month=0, is_min = 0){
 
 $(document).ready(function() {
 
+    function draw_events(){
+        debugger;
+    }
+
+    $('button.last_events').on('click', function(){
+        $.ajax({
+            type: "POST",
+            url: "get_events/",
+            data: {
+                "last_events":1
+            },
+            success: function (data) {
+                draw_events(data);
+            },
+            error: function(data) {
+                // как то обработать ошибку
+            }
+        });
+    });
+    $('button.friends_events').on('click', function(){
+
+    });
+    $('button.closest_events').on('click', function(){
+
+    });
+
 
     // Проброс токена CSRF во все запросы ajax
     $.ajaxSetup({
@@ -238,10 +264,14 @@ $(document).ready(function() {
     $('#news_create_form').on('submit', function(event){
         event.preventDefault();
         frm = $('#news_create_form');
+        formData = new FormData(frm.get(0));
+
         $.ajax({
+            contentType: false, // важно - убираем форматирование данных по умолчанию
+            processData: false,
             type: frm.attr('method'),
             url: frm.attr('action'),
-            data: frm.serialize(),
+            data: formData,
             success: function (data) {
                 updated_news = $('ul.event_news', data);
                 $('ul.event_news').replaceWith($(data).filter(".event_news"));
