@@ -122,7 +122,7 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Введённый пароль слишком короткий</find>
+      <find />
       <find>django.po</find>
       <find>msgstr[0]</find>
       <find>sub</find>
@@ -132,8 +132,8 @@
       <find>rende</find>
       <find>group_id</find>
       <find>renderer</find>
-      <find>response = form.save(request)</find>
-      <find>news.news_crearor = request.User</find>
+      <find />
+      <find />
       <find>news_event_id</find>
       <find>objects.get</find>
       <find>response</find>
@@ -275,7 +275,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="SearchEverywhereHistoryKey" value="scri&#9;FILE&#9;file:///Users/dmitrii/events_all/static/js/script.js&#10;style&#9;FILE&#9;file:///Users/dmitrii/events_all/static/css/style.css&#10;setti&#9;FILE&#9;file:///Users/dmitrii/events_all/events_all/settings.py&#10;wid&#9;FILE&#9;file:///Users/dmitrii/events_all/events_all/widgets.py&#10;boundfield.py&#9;FILE&#9;file:///Users/dmitrii/events_all/lib/python3.6/site-packages/django/forms/boundfield.py&#10;even&#9;FILE&#9;file:///Users/dmitrii/events_all/events_/templates/event_detail.html&#10;sett&#9;FILE&#9;file:///Users/dmitrii/events_all/events_all/settings.py&#10;settings&#9;FILE&#9;file:///Users/dmitrij/events_all/events_all/settings.py" />
+    <property name="SearchEverywhereHistoryKey" value="style.&#9;FILE&#9;file:///Users/dmitrii/events_all/static/css/style.css&#10;scri&#9;FILE&#9;file:///Users/dmitrii/events_all/static/js/script.js&#10;style&#9;FILE&#9;file:///Users/dmitrii/events_all/static/css/style.css&#10;setti&#9;FILE&#9;file:///Users/dmitrii/events_all/events_all/settings.py&#10;wid&#9;FILE&#9;file:///Users/dmitrii/events_all/events_all/widgets.py&#10;boundfield.py&#9;FILE&#9;file:///Users/dmitrii/events_all/lib/python3.6/site-packages/django/forms/boundfield.py&#10;even&#9;FILE&#9;file:///Users/dmitrii/events_all/events_/templates/event_detail.html&#10;sett&#9;FILE&#9;file:///Users/dmitrii/events_all/events_all/settings.py&#10;settings&#9;FILE&#9;file:///Users/dmitrij/events_all/events_all/settings.py" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />

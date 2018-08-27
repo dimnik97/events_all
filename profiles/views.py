@@ -10,21 +10,32 @@ from groups.models import Group
 from images_custom.models import PhotoEditor
 from profiles.forms import EditProfile, EditUserSettings, ImageUploadForm
 from profiles.models import Profile, ProfileAvatar
-from django.shortcuts import get_object_or_404, render_to_response, render
+from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from events_all.helper import parse_from_error_to_json
+
+
+# Редирект на аккаунт пользователя
+@login_required(login_url='/accounts/login/')
+def my_profile(request):
+    url = '/profile/' + str(request.user.id)
+    return redirect(url)
 
 
 @login_required(login_url='/accounts/login/')
 def detail(request, id):
     account = request.user.id  # Залогиненный пользователь
-    user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
+    user = get_object_or_404(
+        User, id=id)  # Отвечает за юзера, который отобразится в профиле
 
     avatar, created = ProfileAvatar.objects.get_or_create(user=user)
 
     subscribers_object = user.profile.subscribers
     profile = user.profile
     # TODO выборка из 5 показываемых
-    subscribers = [User.objects.get(id=subscriber.user_id) for subscriber in subscribers_object.all() if subscriber != profile]
+    subscribers = [
+        User.objects.get(id=subscriber.user_id)
+        for subscriber in subscribers_object.all() if subscriber != profile
+    ]
 
     groups = Group.objects.all()
 
@@ -76,6 +87,7 @@ def add_or_remove_friends(request):
 
 class Edit(FormView):
     @login_required(login_url='/accounts/login/')
+    @staticmethod
     def edit_view(request):
         user = request.user
         if request.method == 'POST':
@@ -90,19 +102,25 @@ class Edit(FormView):
                 data = parse_from_error_to_json(request, form)
                 return HttpResponse(json.dumps(data))
 
-        form = EditProfile({'first_name': user.first_name,
-                            'last_name': user.last_name,
-                            'email': user.email,
-                            'birth_date': user.profile.birth_date,
-                            'phone': user.profile.phone,
-                            'description': user.profile.description,
-                            'gender': user.profile.gender
-                            })
-        form_private = EditUserSettings({'messages': user.usersettings.messages,
-                                         'birth_date': user.usersettings.birth_date,
-                                         'invite': user.usersettings.invite,
-                                         'near_invite': user.usersettings.near_invite,
-                                         })
+        form = EditProfile({
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'birth_date': user.profile.birth_date,
+            'phone': user.profile.phone,
+            'description': user.profile.description,
+            'gender': user.profile.gender
+        })
+        form_private = EditUserSettings({
+            'messages':
+                user.usersettings.messages,
+            'birth_date':
+                user.usersettings.birth_date,
+            'invite':
+                user.usersettings.invite,
+            'near_invite':
+                user.usersettings.near_invite,
+        })
         context = {
             'title': 'Профиль',
             'form': form,
@@ -112,6 +130,7 @@ class Edit(FormView):
         }
         return render(request, 'profile_edit.html', context)
 
+    @staticmethod
     def change_avatar(request):
         if request.method == 'POST' and request.is_ajax():
             return PhotoEditor.load_image(request)
@@ -123,6 +142,7 @@ class Edit(FormView):
         }
         return render(request, 'change_avatar.html', context)
 
+    @staticmethod
     def change_mini(request):
         if request.method == 'POST' and request.is_ajax():
             return PhotoEditor.load_image(request)
@@ -141,6 +161,7 @@ class Edit(FormView):
         }
         return render(request, 'change_mini.html', context)
 
+    @staticmethod
     def save_image(request):
         if request.method == 'POST' and request.is_ajax():
             model = request.user.profileavatar
@@ -148,40 +169,15 @@ class Edit(FormView):
 
 
 def get_subscribers(request):
-    # TODO ПРОВЕРИТЬ!!!!!!!!!!!!!!!!!!!!!!!!!!
-    user_id = request.GET.get('user', 1)
-    is_my_account = False
-    if str(request.user.id) == user_id:
-        is_my_account = True
-
-    user = User.objects.get(id=user_id)
-    subscribers_object = user.profile.subscribers
-    profile = user.profile
-
-    subscribers = [subscriber for subscriber in subscribers_object.all() if
-                   subscriber != profile]
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(subscribers, 20)
-    try:
-        subscribers = paginator.page(page)
-    except PageNotAnInteger:
-        subscribers = paginator.page(1)
-    except EmptyPage:
-        subscribers = paginator.page(paginator.num_pages)
-
-    context = {
-        'items': subscribers,
-        'user_id': user_id,
-        'action': is_my_account
-    }
+    context = Profile.get_subscribers(request)
     return render(request, 'subscribers.html', context)
 
 
 def get_followers(request):
     user_id = request.GET.get('user', 1)
 
-    followers = Profile.objects.filter(subscribers=User.objects.get(id=user_id).profile.id)
+    followers = Profile.objects.filter(
+        subscribers=User.objects.get(id=user_id).profile.id)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(followers, 20)
@@ -192,10 +188,5 @@ def get_followers(request):
     except EmptyPage:
         followers = paginator.page(paginator.num_pages)
 
-    context = {
-        'items': followers,
-        'user_id': user_id,
-        'action': False
-    }
+    context = {'items': followers, 'user_id': user_id, 'action': False}
     return render(request, 'subscribers.html', context)
-

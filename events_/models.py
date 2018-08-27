@@ -34,7 +34,7 @@ class Event(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
-    participants = models.IntegerField(null=True, blank=True)
+    participants = models.IntegerField(null=True, blank=True) # Это поле точно нужно?
     status = models.ForeignKey(EventStatus, on_delete=models.CASCADE, default=1)
     created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
     location = models.CharField(max_length=20, default=1) # Заглушка для функционала определения по локации

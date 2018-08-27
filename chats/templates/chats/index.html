@@ -1,39 +1,104 @@
 {% extends "main_template.html" %}
+{% load chats_filters %}
 
 {% block content %}
     Последние сообщения
-    <ul>
-        {% for chat in chats %}
 
+    <div class="messages_wrapper">
+        <span class="back_to_dialogs">Ко всем диалогам</span>
+    </div>
+
+    <input class="create_chat" type="button" value="Создать беседу">
+    <div class="create_chat_wrapper">
+
+        <form class="create_chat_form">
+            <input type="text" name="dialog_name" placeholder="Введите название беседы" >
+            <div class="added_users"></div>
+            <div class="create_chat_form_subscribers">
+
+            </div>
+        </form>
+        <input class="cancel" type="button" value="Отмена">
+        <input class="submite" type="button" value="Создать">
+    </div>
+
+    <ul class="dialogs">
+        {% for chat in chats %}
             <hr>
-            <li>
-                <div>
-                    <a href="{{ chat.peer.profile.get_absolute_url }}">
-                        <img src="{{ chat.peer.profileavatar.mini_url }}">
-                    </a>
+            <li class="dialog_row">
+                <div class="dialog_photo">
+                    {% if chat.peer %}
+                        <a href="{{ chat.peer.profile.get_absolute_url }}">
+                            <img class="avatar_round" src="{{ chat.peer.profileavatar.mini_url }}">
+                        </a>
+                    {% else %}
+                        <a href="{{ chat.get_absolute_url }}">
+                            <img class="avatar_round" src="{{ chat.room.group.groupavatar.mini_url }}">
+                        </a>
+                    {% endif %}
+
                 </div>
-                <div>
-                    От кого: {{ chat.peer.first_name }} <br>
-                    Последнее сообщение от {{ chat.text_html|safe }}
+                <div class="dialog_last_info" data-chat_id="{{ chat.peer.id }}" data-room_id="{{ chat.room.id }}">
+                    {% if chat|message_flag == 'blocked' %}
+                        <div class="chat_status blocked">
+                            C кем чат:
+                                {{ chat.room.name }}
+                        </div>
+                        <div>
+                            Вы хотите вступить в чат?
+                            <input class="accept" type="button" value="Принять">
+                            <input class="decline" type="button" value="Отклонить">
+                        </div>
+                    {% elif chat|message_flag == 'repost' %}
+                        <div>
+                            C кем чат:
+                            {% if chat.peer %}
+                                {{ chat.peer|fullname }}
+                            {% else %}
+                                {{ chat.room.name }}
+                            {% endif %}
+                        </div>
+                        <div>
+                            Последнее сообщение от: {{ chat|income_or_outgoing }} <br>
+                            Текст сообщения: (Событие с ленты) Нужно по особомо оформить
+                        </div>
+                    {% else %}
+                        <div>
+                            C кем чат:
+                            {% if chat.peer %}
+                                {{ chat.peer|fullname }}
+                            {% else %}
+                                {{ chat.room.name }}
+                            {% endif %}
+                        </div>
+                        <div>
+                            Последнее сообщение от: {{ chat|income_or_outgoing }} <br>
+                            Текст сообщения: {{ chat.text }}
+                        </div>
+                    {% endif %}
                 </div>
             </li>
-            <hr>
         {% endfor %}
     </ul>
-    <input id="room-name-input" type="text" size="100"/><br/>
-    <input id="room-name-submit" type="button" value="Enter"/>
 
-    <script>
-        document.querySelector('#room-name-input').focus();
-        document.querySelector('#room-name-input').onkeyup = function(e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#room-name-submit').click();
+    {% if is_request %}
+        <script>
+            function request_dialog(url, url_type){
+                var url_ = 'dlg?' + url_type + '=' + url;
+
+                $('.dialogs').hide();
+                $('.back_to_dialogs').on('click', function () {
+                    $('.messages').remove();
+                    $('.dialogs').show();
+                    $('.back_to_dialogs').hide();
+                });
+                $.get(url_, function(data) {
+                    $('.back_to_dialogs').show();
+                    $('.messages_wrapper').append(data);
+                });
             }
-        };
 
-        document.querySelector('#room-name-submit').onclick = function(e) {
-            var roomName = document.querySelector('#room-name-input').value;
-            window.location.pathname = '/chats/' + roomName + '/';
-        };
-    </script>
+            request_dialog({{ is_request }}, '{{ url_type }}');
+        </script>
+    {% endif %}
 {% endblock %}
