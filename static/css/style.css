@@ -118,6 +118,12 @@ body {
 li.dialog_row {
     cursor: pointer;
 }
+
+
+
+.news-form {
+    width: 700px;
+}
 #dialog_detail {
     background-color: white;
     color: black;
