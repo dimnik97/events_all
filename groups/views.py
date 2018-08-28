@@ -24,11 +24,14 @@ def detail(request, id):
         except Membership.DoesNotExist:
             roles = ''
 
+        chat = Room.objects.get(group=group.id)
+
         context = {
             'roles': roles,
             'group': group,
             'members': members,
-            'avatar': GroupAvatar.objects.get(group=group.id)
+            'avatar': GroupAvatar.objects.get(group=group.id),
+            'chat': chat
         }
     else:
         return render_to_response('error_page.html', context)
@@ -130,7 +133,7 @@ def subscribe_group(request):
                     Membership.unsubscribe(user, group)
                     room = Room.objects.get(group=group)
                     member = RoomMembers.objects.get(user_rel=request.user,
-                                                     room_rel=room)  # TODO Придумать как ограничить доступ к чатам
+                                                     room_rel=room)
 
                     member.delete()
                     RoomMembers.invite_message(request.user, room, False)

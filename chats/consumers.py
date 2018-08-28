@@ -4,7 +4,9 @@ import json
 from chats.models import ChatMessage, Room
 
 
+# Класс по работе с сообщениями
 class ChatConsumer(AsyncWebsocketConsumer):
+    # Коннект к каналу TODO посмотреть, мб исправить
     async def connect(self):
         id = self.scope['url_route']['kwargs']['room_name']
         if id.find('_room') == -1:
@@ -31,20 +33,38 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.room_group_name,
                                                self.channel_name)
 
-    # Receive message from WebSocket
+    # Обработка сообщения после отпрвки
     async def receive(self, text_data):
-        # TODO Остановился здесь
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-
         id = message['peer_id']
         text = message['text']
+
         status = 200
         end_message = {
             'status': status,
             'user_id': self.scope['user'].id,
             'text': text,
+            'message_id': ''
         }
+        if message['edit_message_id']:
+            edit_message_answer = ChatMessage.edit_message(self.scope['user'].id, message)
+            if edit_message_answer['status'] == 100:  # В случае успеха
+                end_message['status'] = edit_message_answer['status']
+                end_message['message_id'] = edit_message_answer['message_id']
+                await self.channel_layer.group_send(self.room_group_name, {
+                    'type': 'chat_message',
+                    'message': end_message
+                })
+                return
+            else:  # В случае ошибки
+                end_message['status'] = edit_message_answer['status']
+                end_message['text'] = edit_message_answer['text']
+                await self.channel_layer.group_send(self.room_group_name, {
+                    'type': 'chat_message',
+                    'message': end_message
+                })
+
         message_db = ChatMessage()
         # Простановка флагов, идет первой, для проверки прав доступа
         dict = ChatMessage.message_flags(self, message)
@@ -65,8 +85,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message_db.room_id = id
         else:
             message_db.peer_id = id
-        message_db.save()
-
+        message_id = message_db.save()
+        end_message['message_id'] = message_id
         # message['time'] = message_db.created  # TODO Разобраться с выводимым временем
         # Send message to WebSocket
 
@@ -76,6 +96,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'message': end_message
         })
 
-    # Receive message from room group
+    # Отправка на клиента
     async def chat_message(self, message):
         await self.send(text_data=json.dumps({'message': message}))

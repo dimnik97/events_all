@@ -1,6 +1,6 @@
 <div class="infinite-container">
     {% for item in items %}
-        <div>
+        <div class="infinite-item">
             <a href="/profile/{{ item.user.id }}">
                 <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
             </a>
@@ -14,8 +14,8 @@
     {% endfor %}
 </div>
 
-{% if numbers.has_next %}
+{% if items.has_next %}
     <a class="infinite-more-link"
-       href="/profile/get_subscribers?user={{ user_id }}&page={{ numbers.next_page_number }}">More
+       href="/profile/get_subscribers?user={{ user_id }}&page={{ items.next_page_number }}">More
     </a>
 {% endif %}

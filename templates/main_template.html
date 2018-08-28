@@ -3,18 +3,29 @@
 {% block main %}
     {% block main_col %}
         <header class="navbar navbar-fixed-top__">
+            <!-- Главное меню -->
+            {% load menubuilder %}
+            {% menu main_menu %}
+
+            {% for item in menuitems %}
+                <span class="main_menu" {% if item.current %}class="active"{% endif %}>
+                    <a href="{{ item.url }}" title="{{ item.title|escape }}">{{ item.title }}</a>
+                </span>
+            {% endfor %}
+            <!-- Главное меню -->
+
             <!-- Блок с информацией о пользователе -->
             {% block signin %}
                 <div>
                     {% if user.is_authenticated %}
                         <a href="/profile/{{ user.id }}">Аккаунт</a>
-                        First name  : {{ user.first_name }} <br>
-                        Last name: {{ user.last_name }} <br>
-                        City: {{ locate.city }} <br>
+                        First name  : {{ user.first_name }}
+                        Last name: {{ user.last_name }}
+                        City: {{ locate.city }}
                         <a href="/accounts/logout/">logout</a>
                     {% else %}
                         {% if request.path != '/profile/signin/' %}
-                            <a href="/accounts/login/">Войдите</a><br>
+                            <a href="/accounts/login/">Войдите</a>
                         {% endif %}
                         {% if request.path != '/profile/signup/' %}
                             <a href="/accounts/signup/">Или зарегестрируйтесь</a>

@@ -45,7 +45,9 @@ def detail(request, id):
         for item in request.user.profile.subscribers.all():
             if item == profile:
                 friend_flag = 'remove'
+                is_friend = 'subscribe'
     except:
+        is_friend = 'subscribe'
         friend_flag = 'add'
 
     followers = Profile.objects.filter(subscribers=profile.id)
@@ -180,7 +182,7 @@ def get_followers(request):
         subscribers=User.objects.get(id=user_id).profile.id)
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(followers, 20)
+    paginator = Paginator(followers, 1)
     try:
         followers = paginator.page(page)
     except PageNotAnInteger:

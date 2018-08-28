@@ -1,0 +1,63 @@
+{% load chats_filters %}
+<div class="infinite-container">
+    {% for chat in chats %}
+        <li class="dialog_row infinite-item">
+            <div class="dialog_photo">
+                {% if chat.peer %}
+                    <a href="{{ chat.peer.profile.get_absolute_url }}">
+                        <img class="avatar_round" src="{{ chat.peer.profileavatar.mini_url }}">
+                    </a>
+                {% else %}
+                    <a href="{{ chat.get_absolute_url }}">
+                        <img class="avatar_round" src="{{ chat.room.group.groupavatar.mini_url }}">
+                    </a>
+                {% endif %}
+            </div>
+            <div class="dialog_last_info" data-chat_id="{{ chat.peer.id }}" data-room_id="{{ chat.room.id }}">
+                {% if chat|message_flag == 'blocked' %}
+                    <div class="chat_status blocked">
+                        C кем чат:
+                        {{ chat.room.name }}
+                    </div>
+                    <div>
+                        Вы хотите вступить в чат?
+                        <input class="accept" type="button" value="Принять">
+                        <input class="decline" type="button" value="Отклонить">
+                    </div>
+                {% elif chat|message_flag == 'repost' %}
+                    <div>
+                        C кем чат:
+                        {% if chat.peer %}
+                            {{ chat.peer|fullname }}
+                        {% else %}
+                            {{ chat.room.name }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        Последнее сообщение от: {{ chat|income_or_outgoing }} <br>
+                        Текст сообщения: (Событие с ленты) Нужно по особомо оформить
+                    </div>
+                {% else %}
+                    <div>
+                        C кем чат:
+                        {% if chat.peer %}
+                            {{ chat.peer|fullname }}
+                        {% else %}
+                            {{ chat.room.name }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        Последнее сообщение от: {{ chat|income_or_outgoing }} <br>
+                        Текст сообщения: {{ chat.text }}
+                    </div>
+                {% endif %}
+            </div>
+        </li>
+    {% endfor %}
+</div>
+
+{% if chats.has_next %}
+    <a class="infinite-more-link"
+       href="/chats/get_dialogs?page={{ chats.next_page_number }}">More
+    </a>
+{% endif %}

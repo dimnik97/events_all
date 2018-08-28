@@ -1,5 +1,3 @@
-<!-- Главное меню -->
-Это хидер
 {% load staticfiles %}
 {% load bootstrap3 %}
 <script src="{% bootstrap_jquery_url %}"></script>
@@ -14,18 +12,3 @@
 <link rel="stylesheet" media="all" href={% static "css/plagins/jquery-ui.css" %} type="text/css">
 <link rel="stylesheet" media="all" href={% static "css/plagins/jquery-ui.theme.css" %} type="text/css">
 <link rel="stylesheet" type="text/css" href={% static "css/plagins/imgareaselect-default.css" %} />
-
-<!-- Главное меню -->
-<ul>
-    {% load menubuilder %}
-    {% menu main_menu %}
-
-    {% for item in menuitems %}
-        <li {% if item.current %}class="active"{% endif %}>
-            <a href="{{ item.url }}" title="{{ item.title|escape }}">{{ item.title }}</a>
-        </li>
-    {% endfor %}
-</ul>
-<!-- Главное меню -->
-
-Конец хидера

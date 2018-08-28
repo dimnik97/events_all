@@ -1,0 +1,30 @@
+{% load chats_filters %}
+
+{% if messages.has_next %}
+    <div class="link_paginator_messages">
+        <a class="infinite-more-link_messages"
+           href="/chats/get_messages?{{ chat_type }}={{ chat_id }}&page={{ messages.next_page_number }}">More
+        </a>
+    </div>
+{% endif %}
+
+<div class="infinite-container_messages">
+    {% for message in messages reversed %}
+        <div class="message_block infinite-item_messages {{ message|is_my }}" message_id="{{ message.id }}">
+            <div class="l_dialog_block">
+                <a href="/profile/{{ message|income_or_outgoing_id  }}">
+                    <img src="{{ message|income_or_outgoing_image }}" class="avatar_round">
+                </a>
+                <div class="user_name">{{ message|income_or_outgoing }}</div>
+            </div>
+            <div class="r_dialog_block">
+                <div class="message">{{ message.text}}</div>
+                <div class="date_create">{{ message.created }}</div>
+                <div class="additional_block">
+                    <input type="button" class="edit_message" value="Редактировать">
+                    <input type="button" class="delete_message" value="Удалить">
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

@@ -51,6 +51,7 @@ class Room(models.Model):
         for user_id in added_users:
             objs.append(RoomMembers(user_rel_id=user_id, room_rel_id=room_id, joined=False))
         RoomMembers.objects.bulk_create(objs)
+        RoomMembers.invite_message(request.user, room_id, True)
         result['room_url'] = '/chats/?room=' + str(room_id)
         return result
 
@@ -72,7 +73,7 @@ class Room(models.Model):
                                                                                        room_id=room_id).distinct('room')[0]
                 last_message.flags = last_message.flags - 64
                 last_message.save()
-                RoomMembers.invite_message(request.user, self, True)
+
                 result['room_url'] = '/chats/?room=' + str(room_id)
             else:
                 result['status'] = '400'
@@ -106,7 +107,7 @@ class Room(models.Model):
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
         super(Room, self).save(force_insert=force_insert, force_update=force_update, *args, **kwargs)
         RoomMembers.objects.create(user_rel=self.creator, room_rel=self, additional_info=1)
-        RoomMembers.invite_message(self.creator, self, True)
+        # RoomMembers.invite_message(self.creator, self.id, True)
         return self.id
 
     def get_absolute_url(self):
@@ -144,16 +145,17 @@ class RoomMembers(models.Model):
         verbose_name_plural = ('Участники чатов')
 
     @staticmethod
-    def invite_message(user, room, is_invite):
+    def invite_message(user, room_id, is_invite):
         message_db = ChatMessage()
         message_db.user = user
         if is_invite:
-            message_db.text = 'Присоединился к чату'
+            text = 'Присоединился к чату'
         else:
-            message_db.text = 'Отключился от чата'
+            text = 'Отключился от чата'
+        message_db.text = text
         message_db.flags = 34  # Отправленное в комнату
-        message_db.room = room
-        message_db.save()
+        message_db.room_id = room_id
+        message_id = message_db.save()
 
 
 # TODO добавить индексы
@@ -237,20 +239,23 @@ class ChatMessage(models.Model):
     def save(self, force_insert=False, force_update=False):
         is_new = self.id is None
         super(ChatMessage, self).save(force_insert, force_update)
+        message_id = self.id
         if is_new:
             flags = convert_base(self.flags)
             if len(flags) > 4 and flags[-2] == 1:  # Если отправленное в комнату
                 if flags[-6] == 1:
                     members = RoomMembers.objects.exclude(user_rel_id=self.user_id).filter(room_rel=self.room)
+                    peer_msg_id = message_id
                     for member in members:
                         id = self.id
                         self.pk = None
                         self.user = member.user_rel
                         self.flags = self.flags - 2  # теперь сообщение считается входящим
-                        self.peer_msg_id = id
+                        self.peer_msg_id = peer_msg_id
                         if member.joined == False:
                             self.flags = self.flags + 64
                         super(ChatMessage, self).save(force_insert, force_update)
+                return message_id
             else:
                 id = self.id
                 self.pk = None
@@ -258,6 +263,54 @@ class ChatMessage(models.Model):
                 self.flags = self.flags - 2  # теперь сообщение считается входящим
                 self.peer_msg_id = id
                 super(ChatMessage, self).save(force_insert, force_update)
-                return
+                return self.id
         else:
             return
+
+    # Редактирование сообщений
+    @staticmethod
+    def edit_message(user_id, message):
+        dic = {
+            'status': 100,
+            'text': '',
+            'message_id': message['edit_message_id']
+        }
+        try:
+            edit_obj = ChatMessage.objects.get(id=message['edit_message_id'], user_id=user_id)
+            edit_obj.text = message['text']
+            edit_obj.flags = edit_obj.flags + 8
+            edit_obj.save()
+            related_messages = ChatMessage.objects.filter(peer_msg_id=message['edit_message_id'])
+            for rel_message in related_messages:
+                rel_message.text = message['text']
+                rel_message.flags = rel_message.flags + 8
+                rel_message.save()
+        except ChatMessage.DoesNotExist:
+            dic['status'] == 403
+            dic['text'] == 'Сообщение не найдено'
+        return dic
+
+    # Редактирование сообщений TODO ПРОТЕСТИРОВАТЬ
+    @staticmethod
+    def delete_message(request):
+        dic = {
+            'status': 200,
+            'text': '',
+            'message_id': request.POST['message_id']
+        }
+        try:
+            # удаление сообщения у отправителя
+            delete_object = ChatMessage.objects.get(id=request.POST['message_id'], user_id=request.user.id)
+            delete_object.text = '[Сообщение удалено]'
+            delete_object.flags = delete_object.flags + 16
+            delete_object.save()
+            # удаление сообщения у тех, кому отправили
+            related_messages = ChatMessage.objects.filter(peer_msg_id=request.POST['message_id'])
+            for message in related_messages:
+                message.text = '[Сообщение удалено]'
+                message.flags = message.flags + 16
+                message.save()
+        except ChatMessage.DoesNotExist:
+            dic['status'] == 403
+            dic['text'] == 'Сообщение не найдено'
+        return dic

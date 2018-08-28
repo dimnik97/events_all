@@ -1,3 +1,6 @@
+body {
+    background: #edeef0;
+}
 .d_none {
     display: none;
 }
@@ -122,11 +125,21 @@ li.dialog_row {
     width: 700px;
 }
 #dialog_detail {
-    background-color: dimgrey;
-    color: aliceblue;
-    height:200px;
-    width:100%;
-    overflow-y:scroll;
+    background-color: white;
+    color: black;
+    height:550px;
+    width: 640px;
+    overflow:scroll;
+}
+.dialogs {
+    background-color: white;
+    color: black;
+    height: 600px;
+    overflow: scroll;
+}
+.main_block, .dialogs {
+    width: 640px;
+    margin: auto;
 }
 .form_to_messages {
     display: none;
@@ -139,4 +152,60 @@ li.dialog_row {
 }
 .create_chat_wrapper {
     display: none;
+}
+.selected_message {
+    background-color: #edf0f5;
+}
+.message {
+    color: black
+}
+.date_create {
+    color: rgba(120, 127, 140, 0.6);
+}
+.r_dialog_block {
+    color: rgb(66, 100, 139);
+}
+.l_dialog_block, .r_dialog_block {
+    margin: 10px;
+}
+.main_menu {
+    padding-right: 20px;
+
+}
+.main_menu A {
+    color: #cecece; /* Цвет ссылок */
+}
+.main_menu A:visited {
+    color: #cecece; /* Цвет посещенных ссылок */
+}
+.main_menu A:active {
+    color: #cecece;
+}
+.navbar {
+    background: #4a76a8;
+    height: 42px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #4872a3;
+}
+.l_dialog_block {
+    display: flex;
+}
+.r_dialog_block {
+    display: flex;
+}
+.user_name {
+    position: relative;
+    top: 10px;
+    left: 10px;
+}
+.message {
+    width: 70%;
+    float: left;
+}
+.message_block {
+    border-bottom: 1px solid lightgray;
+}
+.date_create {
+    width: 30%;
+    float: right;
 }

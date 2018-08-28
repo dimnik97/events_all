@@ -2,103 +2,59 @@
 {% load chats_filters %}
 
 {% block content %}
-    Последние сообщения
+    <div class="main_block">
+        <div class="messages_wrapper">
+            <span class="back_to_dialogs">Ко всем диалогам</span>
+        </div>
+        <input class="create_chat" type="button" value="Создать беседу">
+        <div class="create_chat_wrapper">
 
-    <div class="messages_wrapper">
-        <span class="back_to_dialogs">Ко всем диалогам</span>
-    </div>
-
-    <input class="create_chat" type="button" value="Создать беседу">
-    <div class="create_chat_wrapper">
-
-        <form class="create_chat_form">
-            <input type="text" name="dialog_name" placeholder="Введите название беседы" >
-            <div class="added_users"></div>
-            <div class="create_chat_form_subscribers">
-
-            </div>
-        </form>
-        <input class="cancel" type="button" value="Отмена">
-        <input class="submite" type="button" value="Создать">
-    </div>
-
-    <ul class="dialogs">
-        {% for chat in chats %}
-            <hr>
-            <li class="dialog_row">
-                <div class="dialog_photo">
-                    {% if chat.peer %}
-                        <a href="{{ chat.peer.profile.get_absolute_url }}">
-                            <img class="avatar_round" src="{{ chat.peer.profileavatar.mini_url }}">
-                        </a>
-                    {% else %}
-                        <a href="{{ chat.get_absolute_url }}">
-                            <img class="avatar_round" src="{{ chat.room.group.groupavatar.mini_url }}">
-                        </a>
-                    {% endif %}
+            <form class="create_chat_form">
+                <input type="text" name="dialog_name" placeholder="Введите название беседы" >
+                <div class="added_users"></div>
+                <div class="create_chat_form_subscribers">
 
                 </div>
-                <div class="dialog_last_info" data-chat_id="{{ chat.peer.id }}" data-room_id="{{ chat.room.id }}">
-                    {% if chat|message_flag == 'blocked' %}
-                        <div class="chat_status blocked">
-                            C кем чат:
-                                {{ chat.room.name }}
-                        </div>
-                        <div>
-                            Вы хотите вступить в чат?
-                            <input class="accept" type="button" value="Принять">
-                            <input class="decline" type="button" value="Отклонить">
-                        </div>
-                    {% elif chat|message_flag == 'repost' %}
-                        <div>
-                            C кем чат:
-                            {% if chat.peer %}
-                                {{ chat.peer|fullname }}
-                            {% else %}
-                                {{ chat.room.name }}
-                            {% endif %}
-                        </div>
-                        <div>
-                            Последнее сообщение от: {{ chat|income_or_outgoing }} <br>
-                            Текст сообщения: (Событие с ленты) Нужно по особомо оформить
-                        </div>
-                    {% else %}
-                        <div>
-                            C кем чат:
-                            {% if chat.peer %}
-                                {{ chat.peer|fullname }}
-                            {% else %}
-                                {{ chat.room.name }}
-                            {% endif %}
-                        </div>
-                        <div>
-                            Последнее сообщение от: {{ chat|income_or_outgoing }} <br>
-                            Текст сообщения: {{ chat.text }}
-                        </div>
-                    {% endif %}
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
-
-    {% if is_request %}
+            </form>
+            <input class="cancel" type="button" value="Отмена">
+            <input class="submite" type="button" value="Создать">
+        </div>
+        <ul class="dialogs" id="dialogs">
+            <div class="d_none get_dialogs" data-url="/chats/get_dialogs"></div>
+            <div class="content_paginator_chat"></div>
+        </ul>
         <script>
-            function request_dialog(url, url_type){
-                var url_ = 'dlg?' + url_type + '=' + url;
-
-                $('.dialogs').hide();
-                $('.back_to_dialogs').on('click', function () {
-                    $('.messages').remove();
-                    $('.dialogs').show();
-                    $('.back_to_dialogs').hide();
-                });
-                $.get(url_, function(data) {
-                    $('.back_to_dialogs').show();
-                    $('.messages_wrapper').append(data);
-                });
-            }
-
-            request_dialog({{ is_request }}, '{{ url_type }}');
+            var url = $('.get_dialogs', '.dialogs').data('url');
+            $.ajax({
+                url: url,
+                success: function (data) {
+                    $('.content_paginator_chat').html(data);
+                    var infinite = new Waypoint.Infinite({
+                        element: $('.infinite-container')[0],
+                    });
+                }
+            });
         </script>
-    {% endif %}
+
+        {% if is_request %}
+            <script>
+                function request_dialog(url, url_type){
+                    var url_ = 'dlg?' + url_type + '=' + url;
+
+                    $('.dialogs').hide();
+                    $('.back_to_dialogs').on('click', function () {
+                        $('.messages').remove();
+                        $('.dialogs').show();
+                        $('.back_to_dialogs').hide();
+                    });
+                    $.get(url_, function(data) {
+                        $('.back_to_dialogs').show();
+                        $('.messages_wrapper').append(data);
+                    });
+                }
+
+                request_dialog({{ is_request }}, '{{ url_type }}');
+            </script>
+        {% endif %}
+    </div>
 {% endblock %}
