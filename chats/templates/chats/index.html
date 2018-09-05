@@ -1,58 +1,31 @@
 {% extends "main_template.html" %}
 {% load chats_filters %}
+{% load staticfiles%}
 
 {% block content %}
     <div class="main_block">
         <div class="messages_wrapper">
             <span class="back_to_dialogs">Ко всем диалогам</span>
         </div>
-        <input class="create_chat" type="button" value="Создать беседу">
-        <div class="create_chat_wrapper">
-
-            <form class="create_chat_form">
-                <input type="text" name="dialog_name" placeholder="Введите название беседы" >
-                <div class="added_users"></div>
-                <div class="create_chat_form_subscribers">
-
-                </div>
-            </form>
-            <input class="cancel" type="button" value="Отмена">
-            <input class="submite" type="button" value="Создать">
-        </div>
-        <ul class="dialogs" id="dialogs">
+        <div class="dialogs" id="dialogs">
+            <input type="text" class="find_dialogs" placeholder="Начните вводить название беседы">
+            <input class="create_chat" type="button" value="Создать беседу">
+            <div class="create_chat_wrapper">
+                <form class="create_chat_form">
+                    <input type="text" name="dialog_name" placeholder="Введите название беседы" >
+                    <div class="added_users"></div>
+                    <div class="create_chat_form_subscribers"></div>
+                </form>
+                <input class="cancel" type="button" value="Отмена">
+                <input class="submite" type="button" value="Создать">
+            </div>
             <div class="d_none get_dialogs" data-url="/chats/get_dialogs"></div>
             <div class="content_paginator_chat"></div>
-        </ul>
-        <script>
-            var url = $('.get_dialogs', '.dialogs').data('url');
-            $.ajax({
-                url: url,
-                success: function (data) {
-                    $('.content_paginator_chat').html(data);
-                    var infinite = new Waypoint.Infinite({
-                        element: $('.infinite-container')[0],
-                    });
-                }
-            });
-        </script>
+        </div>
+        <script type="text/javascript" src="{% static 'js/dialog.js' %}"></script>
 
         {% if is_request %}
             <script>
-                function request_dialog(url, url_type){
-                    var url_ = 'dlg?' + url_type + '=' + url;
-
-                    $('.dialogs').hide();
-                    $('.back_to_dialogs').on('click', function () {
-                        $('.messages').remove();
-                        $('.dialogs').show();
-                        $('.back_to_dialogs').hide();
-                    });
-                    $.get(url_, function(data) {
-                        $('.back_to_dialogs').show();
-                        $('.messages_wrapper').append(data);
-                    });
-                }
-
                 request_dialog({{ is_request }}, '{{ url_type }}');
             </script>
         {% endif %}

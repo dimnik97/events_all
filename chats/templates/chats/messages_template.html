@@ -1,4 +1,6 @@
 {% load chats_filters %}
+{% load tz %}
+{% load i18n %}
 
 {% if messages.has_next %}
     <div class="link_paginator_messages">
@@ -10,7 +12,9 @@
 
 <div class="infinite-container_messages">
     {% for message in messages reversed %}
-        <div class="message_block infinite-item_messages {{ message|is_my }}" message_id="{{ message.id }}">
+        <div class="message_block infinite-item_messages {{ message|is_my }} {{ message|unreaded }}"
+             message_id="{{ message.id }}"
+             data-unread="{{ message|unreaded }}">
             <div class="l_dialog_block">
                 <a href="/profile/{{ message|income_or_outgoing_id  }}">
                     <img src="{{ message|income_or_outgoing_image }}" class="avatar_round">
@@ -18,8 +22,19 @@
                 <div class="user_name">{{ message|income_or_outgoing }}</div>
             </div>
             <div class="r_dialog_block">
-                <div class="message">{{ message.text}}</div>
-                <div class="date_create">{{ message.created }}</div>
+
+                <div class="message">
+                    {% if message|system_message %}
+                        {{ message.text|safe}}
+                    {% else %}
+                        {{ message.text}}
+                    {% endif %}
+                </div>
+                <div class="date_create">
+                    <script>
+                        SetTimeChats("{{ message.created|print_timestamp }}", "[message_id={{ message.id }}]");
+                    </script>
+                </div>
                 <div class="additional_block">
                     <input type="button" class="edit_message" value="Редактировать">
                     <input type="button" class="delete_message" value="Удалить">

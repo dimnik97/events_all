@@ -49,10 +49,6 @@ input.content {
 body {
     font: 12px Arial, sans-serif;
 }
-.infinite-container {
-    /*height: 100px;*/
-    overflow: auto;
-}
 
 .uploader {
     position:relative;
@@ -118,28 +114,26 @@ body {
 li.dialog_row {
     cursor: pointer;
 }
-
-
-
 .news-form {
     width: 700px;
 }
 #dialog_detail {
     background-color: white;
     color: black;
-    height:550px;
+    height: 550px;
     width: 640px;
-    overflow:scroll;
+    overflow: scroll;
 }
 .dialogs {
-    background-color: white;
-    color: black;
-    height: 600px;
+    height: auto;
     overflow: scroll;
 }
 .main_block, .dialogs {
     width: 640px;
     margin: auto;
+    background-color: white;
+    color: black;
+    min-height: 550px;
 }
 .form_to_messages {
     display: none;
@@ -151,6 +145,9 @@ li.dialog_row {
     display: none;
 }
 .create_chat_wrapper {
+    display: none;
+}
+.add_chat_wrapper {
     display: none;
 }
 .selected_message {
@@ -170,7 +167,6 @@ li.dialog_row {
 }
 .main_menu {
     padding-right: 20px;
-
 }
 .main_menu A {
     color: #cecece; /* Цвет ссылок */
@@ -208,4 +204,18 @@ li.dialog_row {
 .date_create {
     width: 30%;
     float: right;
+}
+.date_create_dailogs {
+    color: rgba(120, 127, 140, 0.6);
+}
+.unreaded_message {
+    border-top: solid 1px #e7e8ec;
+    background: #f5f7fa;
+}
+.is_my .unreaded_message {
+    border-top: solid 1px #e7e8ec;
+    background: red;
+}
+.delete_from_chat_wrapper {
+    display: none;
 }

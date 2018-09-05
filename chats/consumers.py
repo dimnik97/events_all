@@ -35,6 +35,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Обработка сообщения после отпрвки
     async def receive(self, text_data):
+        if 'is_read' in text_data:
+            await self.channel_layer.group_send(self.room_group_name, {
+                'type': 'chat_message',
+                'message': {'status': 'is_read', 'user_id': self.scope['user'].id}
+            })
+            return
+
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         id = message['peer_id']
@@ -87,8 +94,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message_db.peer_id = id
         message_id = message_db.save()
         end_message['message_id'] = message_id
-        # message['time'] = message_db.created  # TODO Разобраться с выводимым временем
-        # Send message to WebSocket
 
         # Send message to room group
         await self.channel_layer.group_send(self.room_group_name, {

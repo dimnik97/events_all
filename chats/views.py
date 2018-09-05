@@ -1,3 +1,5 @@
+import operator
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -30,8 +32,19 @@ def home(request):
 
 
 def get_dialogs(request):
-    chats = ChatMessage.objects.filter(user=request.user).order_by('-peer__id', '-room', '-created').distinct(
-        'peer__id', 'room')
+    name = ''
+    if 'name' in request.GET:
+        name = request.GET['name']
+
+    from django.db.models import Q
+    chats = ChatMessage.objects.filter(
+        Q(room__name__istartswith=name)
+        | Q(peer__last_name__istartswith=name)
+        | Q(peer__first_name__istartswith=name),
+        user=request.user).order_by('-peer__id', '-room__id', '-created').distinct(
+        'peer__id', 'room__id')
+
+    chats = sorted(chats, key=operator.attrgetter('created'), reverse=True)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(chats, 10)
@@ -58,6 +71,8 @@ def room(request):
     }
     room_id = ''
     peer_id = ''
+    room = ''
+    room_name = ''
     chat_type = ''
     if 'room' in request.GET:
         chat_type = 'room'
@@ -68,6 +83,17 @@ def room(request):
         room_id = request.GET[chat_type]
         flag = False
         members = RoomMembers.objects.filter(room_rel_id=request.GET['room'])
+        try:
+            room = Room.objects.get(id=room_id)
+        except Room.DoesNotExist:
+            context = {
+                'status': '',
+                'text': ''
+            }
+            context['status'] = 404
+            context['text'] = 'Чат не создан, либо у вас нет доступа к данному чату'
+
+            render(request, 'chats/room.html', context)
         for member in members:
             if member.user_rel == request.user:
                 flag = True
@@ -79,6 +105,8 @@ def room(request):
         if not flag:
             peer['status'] = '404'
             peer['text'] = 'У вас нет доступа в этот чат'
+        else:
+            room_name = Room.objects.get(id=room_id).name
     else:
         try:
             peer_id = request.GET[chat_type]
@@ -92,23 +120,27 @@ def room(request):
 
             room_members.append(user)
             room_members.append(peer['peer'])
+            room_name = peer['peer'].first_name + ' ' + peer['peer'].last_name
         except:
             peer['status'] = '404'
             peer['text'] = 'Пользователя с таким id не существует'
     context = {
         'peer_id_json': mark_safe(json.dumps(peer_id)),
         'room_id_json': mark_safe(json.dumps(room_id)),
-        # 'messages': messages,
         'room_members': room_members,
         'peer': peer,
         'user': request.user,
         'chat_type': chat_type,
-        'chat_id': request.GET[chat_type]
+        'chat_id': request.GET[chat_type],
+        'room_name': room_name,
+        'room': room
     }
     return render(request, 'chats/room.html', context)
 
 
 def get_messages(request):
+    messages = []
+    chat_type = ''
     if 'room' in request.GET:
         chat_type = 'room'
         messages = ChatMessage.objects.filter(user=request.user, room=request.GET[chat_type]).order_by('-created')
@@ -138,6 +170,11 @@ def create_room(request):
     return HttpResponse(json.dumps(result))
 
 
+def add_user_to_room(request):
+    result = Room.add_user_to_room(request)
+    return HttpResponse(json.dumps(result))
+
+
 def join_room(request):
     result = Room.join_room(request)
     return HttpResponse(json.dumps(result))
@@ -148,6 +185,16 @@ def decline_room(request):
     return HttpResponse(json.dumps(result))
 
 
+def remove_user_from_room(request):
+    result = Room.remove_user_from_room(request)
+    return HttpResponse(json.dumps(result))
+
+
 def delete_message(request):
     result = ChatMessage.delete_message(request)
+    return HttpResponse(json.dumps(result))
+
+
+def read_message(request):
+    result = ChatMessage.read_messages(request)
     return HttpResponse(json.dumps(result))

@@ -1,7 +1,10 @@
 {% load chats_filters %}
+{% load staticfiles%}
 
 {% block content %}
-    <div class="messages">
+    {% if status ==  200 %}
+    <div class="messages" data-room_id="{{ chat_id }}">
+        название комнаты: {{ room_name }} <br>
         <div class="form_to_messages">
             {% for room_member in room_members %}
                 <div class="message_block" data-user_id="{{ room_member.id  }}" >
@@ -13,6 +16,7 @@
                     </div>
                     <div class="r_dialog_block">
                         <div class="message"></div>
+                        <div class="date_create"></div>
                         <div class="additional_block">
                             <input type="button" class="edit_message" value="Редактировать">
                             <input type="button" class="delete_message" value="Удалить">
@@ -21,6 +25,36 @@
                 </div>
             {% endfor %}
         </div>
+        {% if room_id_json %}
+            {% if room.creator == user %}
+                <input class="add_to_chat" type="button" value="Добавить пользователей в чат">
+                <div class="add_chat_wrapper">
+                    <form class="add_chat_form">
+                        <div class="added_users"></div>
+                        <div class="add_chat_form_subscribers"></div>
+                    </form>
+                    <input class="cancel" type="button" value="Отмена">
+                    <input class="submite" type="button" value="Добавить">
+                </div>
+
+                <input class="delete_from_chat" type="button" value="Удалить пользователей из чата">
+                <div class="delete_from_chat_wrapper">
+                    <div class="deleted_users">
+                        {% for room_member in room_members %}
+                            {% if room_member != user %}
+                                <span data-id="{{ room_member.id }}"><a href="/profile/{{ room_member.id }} ">
+                                {{ room_member.first_name }} {{ room_member.last_name }} </a>
+                                <input type="button" class="delete" value="Удалить">
+                            </span><br>
+                            {% endif %}
+                        {% endfor %}
+                        <input class="cancel" type="button" value="Отмена">
+                    </div>
+                </div>
+            {% else %}
+                <input class="leave_room" type="button" value="Выйти из группы">
+            {% endif %}
+        {% endif %}
         <div id="dialog_detail">
             <div class="d_none get_messages" data-url="/chats/get_messages?{{ chat_type }}={{ chat_id }}"></div>
             <div class="content_paginator_messages"></div>
@@ -31,9 +65,10 @@
         {% else %}
             <span>{{ peer|except_text }}</span>
         {% endif %}
+
         <script>
             {#TODO Сделать с этим что-нибудь #}
-            var id, is_room;
+            my_user_id = {{ user.id }};
             if ({{ peer_id_json }}) {
                 id ={{ peer_id_json }};
                 is_room = '';
@@ -46,9 +81,38 @@
                 block.scrollTop = block.scrollHeight;
             }
 
-            var url = $('.get_messages', '#dialog_detail').data('url');
+            var url_ = $('.get_messages', '#dialog_detail').data('url');
+
+            function read_message(text) {
+                if (text === 'user') {
+                    var ids = '';
+                    $('.is_my.unreaded_message').removeAttr('data-unread').removeClass('unreaded_message');
+                    return
+
+                }
+                var ids = '';
+                $('[data-unread="unreaded_message"]:not(".is_my")').each(function( index, element ) {
+                    ids = ids + " " + $(this).attr('message_id');
+                });
+                if (ids) {
+                    $.ajax({
+                        url: '/chats/read_message',
+                        data: {
+                            'ids': ids
+                        },
+                        async: false,
+                        type: 'POST',
+                        success: function (data) {
+                            $('[data-unread="unreaded_message"]:not(".is_my")').each(function( index, element ) {
+                                $(this).removeAttr('data-unread').removeClass('unreaded_message');
+                            });
+                        }
+                    });
+                }
+            }
+
             $.ajax({
-                url: url,
+                url: url_,
                 success: function (data) {
                     $('.content_paginator_messages').html(data);
                     var infinite_ = new Waypoint.Infinite({
@@ -58,6 +122,10 @@
                         reverse: true,
                     });
                     scroll_down();
+                    read_message('');
+                    chatSocket.send(JSON.stringify({
+                        'is_read': 'true'
+                    }));
                 }
             });
 
@@ -65,42 +133,67 @@
                 'ws://' + window.location.host +
                 '/ws/chats/' + id + is_room + '/');
 
-            chatSocket.onmessage = function(e) {
+            $('.back_to_dialogs').on('click', function () {
+                chatSocket.close();
+            });
+
+            chatSocket.onmessage = function (e) {
                 var data = JSON.parse(e.data),
                     status = data['message']['message'].status,
                     message = data['message']['message'].text,
-                    {#time = data['message'].time,#}
                     user_id = data['message']['message'].user_id,
                     message_id = data['message']['message'].message_id;
 
-                if (status === 200) {
-                    var message_block = $('[data-user_id='+user_id+']').clone().removeAttr('data-user_id').appendTo('#dialog_detail');
-                    if (user_id === {{ user.id }}) {
-                        message_block.addClass('is_my').attr('message_id', message_id);
+                var d = new Date(),
+                    time = d.getHours() + ":" + d.getMinutes();
+
+                if (status === 'is_read') {
+                    var text = 'peer';
+                    if (user_id !== my_user_id) {
+                        text = 'user';
                     }
-                    message_block.find('.message').text(message);
-                } else if (status === 100) {
-                    $('[message_id='+ message_id +']').find('.message', '.r_dialog_block').text(message);
+                    read_message(text);
+                    return;
+                }
+                if (status === 200) {
+                    var $message_block = $('[data-user_id=' + user_id + ']').clone().removeAttr('data-user_id').appendTo('#dialog_detail');
+                    if (user_id === my_user_id) {
+                        $message_block.addClass('is_my').attr('message_id', message_id);
+                    }
+                    $message_block.attr('data-unread', 'unreaded_message');
+                    $message_block.addClass('unreaded_message');
+                    $message_block.find('.date_create').text(time);
+                    $message_block.find('.message').text(message);
+
+                } else if (status === 100) {  // Если сообщение редактировано
+                    var $message_block = $('[message_id=' + message_id + ']');
+                    $message_block.find('.date_create').text(time);
+                    $message_block.find('.message', '.r_dialog_block').text(message);
                 }
                 else {
                     $('#dialog_detail').append('<p class="error_message">' + message + '</p>')
+                }
+                if (user_id !== my_user_id) {
+                    chatSocket.send(JSON.stringify({
+                        'is_read': 'true'
+                    }));
                 }
                 scroll_down();
 
             };
 
-            chatSocket.onclose = function(e) {
+            chatSocket.onclose = function (e) {
                 console.error('Chat socket closed unexpectedly');
             };
 
             document.querySelector('#chat-message-input').focus();
-            document.querySelector('#chat-message-input').onkeyup = function(e) {
+            document.querySelector('#chat-message-input').onkeyup = function (e) {
                 if (e.keyCode === 13) {  // enter, return
                     document.querySelector('#chat-message-submit').click();
                 }
             };
 
-            $('#chat-message-submit').on('click', function(e) {
+            $('#chat-message-submit').on('click', function (e) {
                 var input = $('#chat-message-input'),
                     message = {
                         'peer_id': id,
@@ -123,13 +216,19 @@
                 input.removeAttr('message_id');
                 input.val('');
             });
+
             $('#chat-message-input').on('input', function () {
                 if ($(this).val().length > 0) {
                     $('#chat-message-submit').removeAttr('disabled');
                 } else {
                     $('#chat-message-submit').attr('disabled', 'disabled');
                 }
-            })
+            });
         </script>
     </div>
+    {% else %}
+        <div class="messages">
+            {{ text }}
+        </div>
+    {% endif %}
 {% endblock %}

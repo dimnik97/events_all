@@ -8,13 +8,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
-from PIL import Image
 
 from events_all import helper
 from images_custom.models import PhotoEditor
-from profiles import forms
 from profiles.validator import SignupValidator
-
 
 # Получение общей информации для юзера
 class Users:
