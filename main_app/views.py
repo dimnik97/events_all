@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.shortcuts import render_to_response, get_object_or_404, redirect, render
 from events_.models import Event, EventParty
 from profiles.models import Users
 
@@ -41,3 +42,21 @@ def index(request):
         return render_to_response('index.html', context)
     else:
         return redirect('/accounts/login')
+
+
+
+def get_infinite_events(request):
+
+    events = Event.get_events()
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(events, 20)
+    try:
+        events = paginator.page(page)
+    except PageNotAnInteger:
+        events = paginator.page(1)
+    except EmptyPage:
+        events = paginator.page(paginator.num_pages)
+
+    context = {'items': events, 'action': False}
+    return render(request, 'subscribers.html', context)
