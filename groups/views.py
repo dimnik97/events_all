@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.shortcuts import render, get_object_or_404, render_to_response, redirect
@@ -37,6 +38,23 @@ def detail(request, id):
         return render_to_response('error_page.html', context)
     return render_to_response('detail_group.html', context)
 
+
+@login_required(login_url='/accounts/login/')
+def view(request):
+
+    groups = Membership.objects.filter(person=request.user.profile)
+    messages = Group.objects.filter()
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(messages, 20)
+    try:
+        messages = paginator.page(page)
+    except PageNotAnInteger:
+        messages = paginator.page(1)
+    except EmptyPage:
+        messages = paginator.page(paginator.num_pages)
+    context = {}
+    return render_to_response('group_view.html', context)
 
 @login_required(login_url='/accounts/login/')
 def edit(request, id=None):

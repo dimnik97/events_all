@@ -414,7 +414,7 @@ class ChatMessage(models.Model):
 
                     peer_msg = ChatMessage.objects.get(id=message.peer_msg_id)
                     flags = helper.convert_base(peer_msg.flags)
-                    if flags[0] != 1:
+                    if flags[0] == 1:
                         peer_msg.flags = peer_msg.flags - 1
                         peer_msg.save()
         except:

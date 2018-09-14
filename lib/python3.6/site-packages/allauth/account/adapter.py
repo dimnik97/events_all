@@ -268,7 +268,13 @@ class DefaultAccountAdapter(object):
                     username_field).error_messages.get('unique')
                 if not error_message:
                     error_message = self.error_messages['username_taken']
-                raise forms.ValidationError(error_message)
+                raise forms.ValidationError(
+                    error_message,
+                    params={
+                        'model_name': user_model.__name__,
+                        'field_label': username_field,
+                    }
+                )
         return username
 
     def clean_email(self, email):
@@ -333,8 +339,8 @@ class DefaultAccountAdapter(object):
             if hasattr(response, 'render'):
                 response.render()
             resp['html'] = response.content.decode('utf8')
-            if data is not None:
-                resp['data'] = data
+        if data is not None:
+            resp['data'] = data
         return HttpResponse(json.dumps(resp),
                             status=status,
                             content_type='application/json')

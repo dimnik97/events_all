@@ -347,7 +347,7 @@ $(document).ready(function() {
      * Мод. Subscribers
      *
      */
-    $('.add_to_friend').on('click', function(){
+    $('body').on('click', '.add_to_friend', function(){
         var user_id = $(this).data('user_id'),
             action = $(this).data('action'),
             $this = $(this);
@@ -391,6 +391,7 @@ $(document).ready(function() {
             },
             dataType: 'json',
             success: function(data){
+                debugger;
                 if (data) {
                     if (atcion_type == 'add') {
                         $this.text('Выйти из группы');
@@ -852,6 +853,7 @@ $(document).ready(function() {
      * Обработчики на чекбоксы
      */
     $('body').on('click', '.add_to_chat', function () {
+        debugger;
         $('.add_chat_wrapper').show();
         $('.add_to_chat').hide();
         $.ajax({

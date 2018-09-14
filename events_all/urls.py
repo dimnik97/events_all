@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.views.generic import RedirectView
 
 from . import settings
 
@@ -31,6 +32,7 @@ urlpatterns = [
     path('cities/', include('cities.urls')),
     path('events/', include('events_.urls')),
     path('chats/', include('chats.urls')),
+    # url(r'^$', RedirectView.as_view(url='/main_app')),
 ]
 
 

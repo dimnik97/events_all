@@ -5,6 +5,7 @@ urlpatterns = [
     url(r'^(?P<id>[0-9]+)$', views.detail, name='views'),
     url(r'create$', views.create, name='edit_or_create'),
     url(r'edit/(?P<id>[0-9]+)$', views.edit, name='edit_or_create'),
+    url(r'view$', views.view, name='view'),
     url(r'subscribe_group/$', views.subscribe_group, name='subscribe_group'),
     url(r'^change_avatar', views.change_avatar, name='change_avatar'),
     url(r'^change_mini', views.change_mini, name='change_mini'),

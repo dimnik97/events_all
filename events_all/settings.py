@@ -77,6 +77,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'profiles.middleware_profile.UpdateLastActivityMiddleware'
 ]
 
 ROOT_URLCONF = 'events_all.urls'

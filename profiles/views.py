@@ -24,8 +24,7 @@ def my_profile(request):
 @login_required(login_url='/accounts/login/')
 def detail(request, id):
     account = request.user.id  # Залогиненный пользователь
-    user = get_object_or_404(
-        User, id=id)  # Отвечает за юзера, который отобразится в профиле
+    user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
 
     avatar, created = ProfileAvatar.objects.get_or_create(user=user)
 
@@ -34,10 +33,10 @@ def detail(request, id):
     # TODO выборка из 5 показываемых
     subscribers = [
         User.objects.get(id=subscriber.user_id)
-        for subscriber in subscribers_object.all() if subscriber != profile
+        for subscriber in subscribers_object.all()[:5] if subscriber != profile
     ]
 
-    groups = Group.objects.all()
+    groups = Group.objects.all()[:5]
 
     friend_flag = 'add'
     try:
@@ -50,9 +49,19 @@ def detail(request, id):
         is_friend = 'subscribe'
         friend_flag = 'add'
 
-    followers = Profile.objects.filter(subscribers=profile.id)
+    followers = Profile.objects.filter(subscribers=profile.id)[:5]
+
+    from django.utils import timezone
+
+    if (timezone.now() - user.profile.last_activity).seconds > 1800:
+        is_online = 'Последний раз в сети ' + str(user.profile.last_activity)
+    elif (timezone.now() - user.profile.last_activity).seconds > 900:
+        is_online = 'Последний раз в сети менее 15 минут назад'
+    else:
+        is_online = 'online'
 
     context = {
+        'is_online': is_online,
         'title': 'Профиль',
         'user': user,
         'users': Profile.get_users(),
@@ -72,14 +81,15 @@ def add_or_remove_friends(request):
     if request.is_ajax():
         try:
             user_id = request.POST['user_id']
-            action = request.POST['action']
-            owner = request.user
-            new_friend = User.objects.get(id=user_id)
+            if user_id != request.user.id:
+                action = request.POST['action']
+                owner = request.user
+                new_friend = User.objects.get(id=user_id)
 
-            if action == "add":
-                Profile.make_friend(request, new_friend)
-            else:
-                Profile.remove_friend(request, new_friend)
+                if action == "add":
+                    Profile.make_friend(request, new_friend)
+                else:
+                    Profile.remove_friend(request, new_friend)
         except KeyError:
             return HttpResponse('Error')
         return HttpResponse(str(200))
@@ -89,7 +99,6 @@ def add_or_remove_friends(request):
 
 class Edit(FormView):
     @login_required(login_url='/accounts/login/')
-    @staticmethod
     def edit_view(request):
         user = request.user
         if request.method == 'POST':
@@ -172,17 +181,30 @@ class Edit(FormView):
 
 def get_subscribers(request):
     context = Profile.get_subscribers(request)
-    return render(request, 'subscribers.html', context)
+    if not context['flag']:
+        return render(request, 'subscribers.html', context)
+    else:
+        return render(request, 'search_subscribers_items.html', context)
 
 
 def get_followers(request):
     user_id = request.GET.get('user', 1)
+    flag = False
 
-    followers = Profile.objects.filter(
-        subscribers=User.objects.get(id=user_id).profile.id)
+    if 'value' in request.POST and 'search' in request.POST:
+        # TODO Тут ошибка, знаю, надо доделать, не работает паджинация
+        from django.db.models import Q
+        user = User.objects.get(id=user_id)
+        followers = Profile.objects.filter(Q(user__first_name__istartswith=request.POST['value'])
+                                             | Q(user__last_name__istartswith=request.POST['value']),
+                                             subscribers=user.profile)
+        flag = True
+    else:
+        followers = Profile.objects.filter(
+            subscribers=User.objects.get(id=user_id).profile.id)
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(followers, 1)
+    paginator = Paginator(followers, 20)
     try:
         followers = paginator.page(page)
     except PageNotAnInteger:
@@ -190,5 +212,8 @@ def get_followers(request):
     except EmptyPage:
         followers = paginator.page(paginator.num_pages)
 
-    context = {'items': followers, 'user_id': user_id, 'action': False}
-    return render(request, 'subscribers.html', context)
+    context = {'items': followers, 'user_id': user_id, 'action': False, 'type': 'followers'}
+    if not flag:
+        return render(request, 'subscribers.html', context)
+    else:
+        return render(request, 'search_subscribers_items.html', context)

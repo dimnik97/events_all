@@ -92,8 +92,8 @@ def room(request):
             }
             context['status'] = 404
             context['text'] = 'Чат не создан, либо у вас нет доступа к данному чату'
+            return render(request, 'chats/room.html', context)
 
-            render(request, 'chats/room.html', context)
         for member in members:
             if member.user_rel == request.user:
                 flag = True
@@ -133,7 +133,8 @@ def room(request):
         'chat_type': chat_type,
         'chat_id': request.GET[chat_type],
         'room_name': room_name,
-        'room': room
+        'room': room,
+        'status': 200
     }
     return render(request, 'chats/room.html', context)
 
