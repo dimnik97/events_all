@@ -14,29 +14,29 @@ def index(request):
         user = User.objects.get(id=user_id)
 
         location = 1 # Заглушка
-        events = Event.get_events()
-        events_dict = []
+        # events = Event.get_events()
+        # events_dict = []
 
         # todo вынести в отдельную функцию
-        for number in range(len(events)):
-            current_event = events[number]
-
-            try:
-                    EventParty.objects.get(user_id=user, event_id=current_event)
-
-                    events_dict.append({
-                        'event': current_event,
-                        'party_flag': 1
-                    })
-            except:
-                events_dict.append({
-                    'event': current_event,
-                    'party_flag': 0
-                })
+        # for number in range(len(events)):
+        #     current_event = events[number]
+        #
+        #     try:
+        #             EventParty.objects.get(user_id=user, event_id=current_event)
+        #
+        #             events_dict.append({
+        #                 'event': current_event,
+        #                 'party_flag': 1
+        #             })
+        #     except:
+        #         events_dict.append({
+        #             'event': current_event,
+        #             'party_flag': 0
+        #         })
 
         context = {
             'title': "Лента событий",
-            'events': events_dict,
+            # 'events': events_dict,
             'user': user,
             'locate': Users.get_user_locations(user_id),
         }
@@ -46,10 +46,10 @@ def index(request):
         return redirect('/accounts/login')
 
 
-
 def get_infinite_events(request):
 
-    events = Event.get_events()
+    category = request.GET.get('cat', None);
+    events = Event.get_events(category)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(events, 20)
@@ -60,5 +60,5 @@ def get_infinite_events(request):
     except EmptyPage:
         events = paginator.page(paginator.num_pages)
 
-    context = {'items': events, 'action': False}
-    return render(request, 'subscribers.html', context)
+    context = {'events': events, 'action': False}
+    return render(request, 'event_item.html', context)

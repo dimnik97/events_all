@@ -36,8 +36,11 @@ def index(request, id):
     news = None
 
     is_editor = 0
-    if Group.is_editor(request, event_detail.created_by_group.id):
-        is_editor = 1
+    try:
+        if Group.is_editor(request, event_detail.created_by_group.id):
+            is_editor = 1
+    except:
+        pass
 
     if request.method == 'POST':
         form = CreateEventNews(request.POST, request.FILES, request.GET)
