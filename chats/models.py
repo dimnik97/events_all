@@ -223,7 +223,7 @@ class RoomMembers(models.Model):
         else:
             text = 'Отключился от чата'
         message_db.text = text
-        message_db.flags = 35  # Отправленное в комнату, системное
+        message_db.flags = 35 + 256  # Отправленное в комнату, системное
         message_db.room_id = room_id
         message_id = message_db.save()
 

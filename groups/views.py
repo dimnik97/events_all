@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.shortcuts import render, get_object_or_404, render_to_response, redirect
-
-from chats.models import Room, ChatMessage, RoomMembers
+from chats.models import Room, RoomMembers
 from groups.forms import GroupsForm
 from groups.models import Group, AllRoles, Membership, GroupAvatar
 from images_custom.models import PhotoEditor
@@ -39,22 +39,63 @@ def detail(request, id):
     return render_to_response('detail_group.html', context)
 
 
+# Список всех групп
 @login_required(login_url='/accounts/login/')
 def view(request):
+    if 'id' in request.GET:  # Если нет id, то ошибка
+        user = User.objects.get(id=request.GET['id'])
+    else:
+        return  # TODO Придумать как обрабатывать ошибки
+    context = {
+        'user': user
+    }
+    return render_to_response('view_group.html', context)
 
-    groups = Membership.objects.filter(person=request.user.profile)
-    messages = Group.objects.filter()
+
+# Получение списка всех групп с последующей фильтрацией
+def get_groups(request):
+    exclude_access_to_closed_groups = 2  # Не показывать закрытые группы у пользвователей
+    is_my = False  # Если страница пользователя, то показывать административные поля
+    user = request.user  # По умолчанию юзер из реквеста
+    # Параметры приходящие постом
+    if 'name' in request.POST:
+        name = request.POST['name']
+    else:
+        name = ''
+
+    if 'all' in request.POST:
+        groups = Group.objects.filter(name__icontains=name).exclude(type=exclude_access_to_closed_groups)
+    else:
+        if 'id' in request.GET:  # Если нет id, то ошибка
+            user = User.objects.get(id=request.GET['id'])
+            if user == request.user:
+                exclude_access_to_closed_groups = ''
+                is_my = True
+        else:
+            exclude_access_to_closed_groups = ''
+            is_my = True
+
+        groups = Group.objects.filter(membership__person=user.profile, name__icontains=name).exclude(
+            type=exclude_access_to_closed_groups)
+    # Параметры приходящие постом
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(messages, 20)
+    paginator = Paginator(groups, 20)
     try:
-        messages = paginator.page(page)
+        groups = paginator.page(page)
     except PageNotAnInteger:
-        messages = paginator.page(1)
+        groups = paginator.page(1)
     except EmptyPage:
-        messages = paginator.page(paginator.num_pages)
-    context = {}
-    return render_to_response('group_view.html', context)
+        groups = paginator.page(paginator.num_pages)
+
+    context = {
+        'user': user,
+        'is_my': is_my,
+        'find': name,
+        'groups': groups
+    }
+    return render_to_response('groups_template.html', context)
+
 
 @login_required(login_url='/accounts/login/')
 def edit(request, id=None):
@@ -144,17 +185,18 @@ def subscribe_group(request):
                 user = request.user
                 if action == "add":
                     room = Room.objects.get(group=group)
-                    RoomMembers.objects.create(user_rel=request.user, room_rel=room)
-                    Membership.subscribe(user, group)
-                    RoomMembers.invite_message(request.user, room, True)
+                    if not RoomMembers.objects.filter(user_rel=request.user, room_rel=room):
+                        RoomMembers.objects.create(user_rel=request.user, room_rel=room)
+                        Membership.subscribe(user, group)
+                        RoomMembers.invite_message(request.user, room.id, True)
                 elif action == 'remove':
                     Membership.unsubscribe(user, group)
                     room = Room.objects.get(group=group)
-                    member = RoomMembers.objects.get(user_rel=request.user,
-                                                     room_rel=room)
+                    member = RoomMembers.objects.filter(user_rel=request.user,
+                                                        room_rel=room)
 
                     member.delete()
-                    RoomMembers.invite_message(request.user, room, False)
+                    RoomMembers.invite_message(request.user, room.id, False)
                 else:
                     return HttpResponse(str(400))  # Todo Посмотреть что по статусам
             except KeyError:
