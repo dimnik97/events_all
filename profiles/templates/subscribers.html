@@ -1,3 +1,4 @@
+<input type="text" placeholder="Начните вводить" class="find_people {{ type }}" data-user_id="{{ user_id }}">
 <div class="infinite-container">
     {% for item in items %}
         <div class="infinite-item">
@@ -15,7 +16,47 @@
 </div>
 
 {% if items.has_next %}
-    <a class="infinite-more-link"
-       href="/profile/get_subscribers?user={{ user_id }}&page={{ items.next_page_number }}">More
-    </a>
+    {% if type == 'subscribers' %}
+        <a class="infinite-more-link"
+           href="/profile/get_subscribers?user={{ user_id }}&page={{ items.next_page_number }}">More
+        </a>
+    {% elif type == 'followers' %}
+        <a class="infinite-more-link"
+           href="/profile/get_followers?user={{ user_id }}&page={{ items.next_page_number }}">More
+        </a>
+    {% endif %}
 {% endif %}
+
+<script>
+    /**
+     * Поиск подписчика
+     *
+     */
+    $('.find_people').on('input', function () {
+        var url = '',
+            user_id = $('.find_people').data('user_id'),
+            $this = $(this);
+
+        if ($(this).hasClass('followers')) {
+            url = 'get_followers?user=' + user_id + '&action={{ action }}';
+        } else if ($(this).hasClass('subscribers')){
+            url = 'get_subscribers?user=' + user_id + '&action={{ action }}';
+        }
+        $.ajax({
+            url: '/profile/'+ url,
+            type: 'POST',
+            data: {
+                'search': true,
+                'value': $(this).val()
+            },
+            success: function (data) {
+                if (data) {
+                    $this.parent().find('.infinite-item', '.infinite-container').remove();
+                    $this.parent().find('.infinite-container').append(data);
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    });
+</script>

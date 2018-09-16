@@ -1,135 +1,241 @@
 {% load chats_filters %}
+{% load staticfiles%}
 
 {% block content %}
-    <div class="messages">
-        <div class="form_to_messages">
-            {% for room_member in room_members %}
-                <div class="message_block" data-user_id="{{ room_member.id  }}" >
-                    <div class="l_dialog_block">
-                        <a href="/profile/{{ room_member.id  }}">
-                            <img src="{{ room_member.profileavatar.mini_url }}" class="avatar_round">
-                        </a>
-                        <div class="user_name">{{ room_member|fullname }}</div>
-                    </div>
-                    <div class="r_dialog_block">
-                        <div class="message"></div>
-                        <div class="additional_block">
-                            <input type="button" class="edit_message" value="Редактировать">
-                            <input type="button" class="delete_message" value="Удалить">
+    {% if status ==  200 %}
+        <div class="messages" data-room_id="{{ chat_id }}">
+            название комнаты: {{ room_name }} <br>
+            <div class="form_to_messages">
+                {% for room_member in room_members %}
+                    <div class="message_block" data-user_id="{{ room_member.id  }}" >
+                        <div class="l_dialog_block">
+                            <a href="/profile/{{ room_member.id  }}">
+                                <img src="{{ room_member.profileavatar.mini_url }}" class="avatar_round">
+                            </a>
+                            <div class="user_name">{{ room_member|fullname }}</div>
+                        </div>
+                        <div class="r_dialog_block">
+                            <div class="message"></div>
+                            <div class="date_create"></div>
+                            <div class="additional_block">
+                                <input type="button" class="edit_message" value="Редактировать">
+                                <input type="button" class="delete_message" value="Удалить">
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-        <div id="dialog_detail">
-            <div class="d_none get_messages" data-url="/chats/get_messages?{{ chat_type }}={{ chat_id }}"></div>
-            <div class="content_paginator_messages"></div>
-        </div>
-        {% if peer|status == 200 %}
-            <input id="chat-message-input" type="text" size="100"/><br/>
-            <input id="chat-message-submit" type="button" disabled="true" value="Send"/>
-        {% else %}
-            <span>{{ peer|except_text }}</span>
-        {% endif %}
-        <script>
-            {#TODO Сделать с этим что-нибудь #}
-            var id, is_room;
-            if ({{ peer_id_json }}) {
-                id ={{ peer_id_json }};
-                is_room = '';
-            } else if ({{ room_id_json }}) {
-                id = {{ room_id_json }};
-                is_room = '_room';
-            }
-            function scroll_down() {
-                var block = document.getElementById("dialog_detail");
-                block.scrollTop = block.scrollHeight;
-            }
+                {% endfor %}
+            </div>
+            {% if room_id_json %}
+                {% if room.creator == user %}
+                    <input class="add_to_chat" type="button" value="Добавить пользователей в чат">
+                    <div class="add_chat_wrapper">
+                        <form class="add_chat_form">
+                            <div class="added_users"></div>
+                            <div class="add_chat_form_subscribers"></div>
+                        </form>
+                        <input class="cancel" type="button" value="Отмена">
+                        <input class="submite" type="button" value="Добавить">
+                    </div>
 
-            var url = $('.get_messages', '#dialog_detail').data('url');
-            $.ajax({
-                url: url,
-                success: function (data) {
-                    $('.content_paginator_messages').html(data);
-                    var infinite_ = new Waypoint.Infinite({
-                        element: $('.infinite-container_messages')[0],
-                        more: '.infinite-more-link_messages',
-                        items: '.infinite-item_messages',
-                        reverse: true,
-                    });
-                    scroll_down();
+                    <input class="delete_from_chat" type="button" value="Удалить пользователей из чата">
+                    <div class="delete_from_chat_wrapper">
+                        <div class="deleted_users">
+                            {% for room_member in room_members %}
+                                {% if room_member != user %}
+                                    <span data-id="{{ room_member.id }}"><a href="/profile/{{ room_member.id }} ">
+                                {{ room_member.first_name }} {{ room_member.last_name }} </a>
+                                <input type="button" class="delete" value="Удалить">
+                            </span><br>
+                                {% endif %}
+                            {% endfor %}
+                            <input class="cancel" type="button" value="Отмена">
+                        </div>
+                    </div>
+                {% else %}
+                    <input class="leave_room" type="button" value="Выйти из группы">
+                {% endif %}
+            {% endif %}
+            <div id="dialog_detail">
+                <div class="d_none get_messages" data-url="/chats/get_messages?{{ chat_type }}={{ chat_id }}"></div>
+                <div class="content_paginator_messages"></div>
+            </div>
+            {% if peer|status == 200 %}
+                <input id="chat-message-input" type="text" size="100"/><br/>
+                <input id="chat-message-submit" type="button" disabled="true" value="Send"/>
+            {% else %}
+                <span>{{ peer|except_text }}</span>
+            {% endif %}
+
+            <script>
+                {#TODO Сделать с этим что-нибудь #}
+                my_user_id = {{ user.id }};
+                if ({{ peer_id_json }}) {
+                    id ={{ peer_id_json }};
+                    is_room = '';
+                } else if ({{ room_id_json }}) {
+                    id = {{ room_id_json }};
+                    is_room = '_room';
                 }
-            });
+                function scroll_down() {
+                    var block = document.getElementById("dialog_detail");
+                    block.scrollTop = block.scrollHeight;
+                }
 
-            var chatSocket = new WebSocket(
-                'ws://' + window.location.host +
-                '/ws/chats/' + id + is_room + '/');
+                var url_ = $('.get_messages', '#dialog_detail').data('url');
 
-            chatSocket.onmessage = function(e) {
-                var data = JSON.parse(e.data),
-                    status = data['message']['message'].status,
-                    message = data['message']['message'].text,
-                    {#time = data['message'].time,#}
-                    user_id = data['message']['message'].user_id,
-                    message_id = data['message']['message'].message_id;
 
-                if (status === 200) {
-                    var message_block = $('[data-user_id='+user_id+']').clone().removeAttr('data-user_id').appendTo('#dialog_detail');
-                    if (user_id === {{ user.id }}) {
-                        message_block.addClass('is_my').attr('message_id', message_id);
+                // НАГРУЗОЧНОЕ ТЕСТИРОВАНИЕ
+                //setInterval(function tick() {
+                //    $('#chat-message-input').val('test');
+                //    $('#chat-message-submit').click();
+                //}, 1);
+
+                function read_message(text) {
+                    if (text === 'user') {
+                        var ids = '';
+                        $('.is_my.unreaded_message').removeAttr('data-unread').removeClass('unreaded_message');
+                        return
+
                     }
-                    message_block.find('.message').text(message);
-                } else if (status === 100) {
-                    $('[message_id='+ message_id +']').find('.message', '.r_dialog_block').text(message);
+                    var ids = '';
+                    $('[data-unread="unreaded_message"]:not(".is_my")').each(function( index, element ) {
+                        ids = ids + " " + $(this).attr('message_id');
+                    });
+                    if (ids) {
+                        $.ajax({
+                            url: '/chats/read_message',
+                            data: {
+                                'ids': ids
+                            },
+                            async: false,
+                            type: 'POST',
+                            success: function (data) {
+                                $('[data-unread="unreaded_message"]:not(".is_my")').each(function( index, element ) {
+                                    $(this).removeAttr('data-unread').removeClass('unreaded_message');
+                                });
+                            }
+                        });
+                    }
                 }
-                else {
-                    $('#dialog_detail').append('<p class="error_message">' + message + '</p>')
-                }
-                scroll_down();
 
-            };
+                $.ajax({
+                    url: url_,
+                    success: function (data) {
+                        $('.content_paginator_messages').html(data);
+                        var infinite_ = new Waypoint.Infinite({
+                            element: $('.infinite-container_messages')[0],
+                            more: '.infinite-more-link_messages',
+                            items: '.infinite-item_messages',
+                            reverse: true,
+                        });
+                        scroll_down();
+                        read_message('');
+                        chatSocket.send(JSON.stringify({
+                            'is_read': 'true'
+                        }));
+                    }
+                });
 
-            chatSocket.onclose = function(e) {
-                console.error('Chat socket closed unexpectedly');
-            };
+                var chatSocket = new WebSocket(
+                    'ws://' + window.location.host +
+                    '/ws/chats/' + id + is_room + '/');
 
-            document.querySelector('#chat-message-input').focus();
-            document.querySelector('#chat-message-input').onkeyup = function(e) {
-                if (e.keyCode === 13) {  // enter, return
-                    document.querySelector('#chat-message-submit').click();
-                }
-            };
+                $('.back_to_dialogs').on('click', function () {
+                    chatSocket.close();
+                });
 
-            $('#chat-message-submit').on('click', function(e) {
-                var input = $('#chat-message-input'),
-                    message = {
-                        'peer_id': id,
-                        'text': input.val(),
-                        'edit_message_id': false,   // TODO заглушка
-                        'is_room': is_room
-                    };
+                chatSocket.onmessage = function (e) {
+                    var data = JSON.parse(e.data),
+                        status = data['message']['message'].status,
+                        message = data['message']['message'].text,
+                        user_id = data['message']['message'].user_id,
+                        message_id = data['message']['message'].message_id;
 
-                if (input.hasClass('edited_message')) {
-                    message['edit_message_id'] = input.attr('message_id');
-                    chatSocket.send(JSON.stringify({
-                        'message': message
-                    }));
-                } else {
-                    chatSocket.send(JSON.stringify({
-                        'message': message
-                    }));
-                }
-                input.removeClass('edited_message');
-                input.removeAttr('message_id');
-                input.val('');
-            });
-            $('#chat-message-input').on('input', function () {
-                if ($(this).val().length > 0) {
-                    $('#chat-message-submit').removeAttr('disabled');
-                } else {
-                    $('#chat-message-submit').attr('disabled', 'disabled');
-                }
-            })
-        </script>
-    </div>
+                    var d = new Date(),
+                        time = d.getHours() + ":" + d.getMinutes();
+
+                    if (status === 'is_read') {
+                        var text = 'peer';
+                        if (user_id !== my_user_id) {
+                            text = 'user';
+                        }
+                        read_message(text);
+                        return;
+                    }
+                    if (status === 200) {
+                        var $message_block = $('[data-user_id=' + user_id + ']').clone().removeAttr('data-user_id').appendTo('#dialog_detail');
+                        if (user_id === my_user_id) {
+                            $message_block.addClass('is_my').attr('message_id', message_id);
+                        }
+                        $message_block.attr('data-unread', 'unreaded_message');
+                        $message_block.addClass('unreaded_message');
+                        $message_block.find('.date_create').text(time);
+                        $message_block.find('.message').text(message);
+
+                    } else if (status === 100) {  // Если сообщение редактировано
+                        var $message_block = $('[message_id=' + message_id + ']');
+                        $message_block.find('.date_create').text(time);
+                        $message_block.find('.message', '.r_dialog_block').text(message);
+                    }
+                    else {
+                        $('#dialog_detail').append('<p class="error_message">' + message + '</p>')
+                    }
+                    if (user_id !== my_user_id) {
+                        chatSocket.send(JSON.stringify({
+                            'is_read': 'true'
+                        }));
+                    }
+                    scroll_down();
+
+                };
+
+                chatSocket.onclose = function (e) {
+                    console.error('Chat socket closed unexpectedly');
+                };
+
+                document.querySelector('#chat-message-input').focus();
+                document.querySelector('#chat-message-input').onkeyup = function (e) {
+                    if (e.keyCode === 13) {  // enter, return
+                        document.querySelector('#chat-message-submit').click();
+                    }
+                };
+
+                $('#chat-message-submit').on('click', function (e) {
+                    var input = $('#chat-message-input'),
+                        message = {
+                            'peer_id': id,
+                            'text': input.val(),
+                            'edit_message_id': false,   // TODO заглушка
+                            'is_room': is_room
+                        };
+
+                    if (input.hasClass('edited_message')) {
+                        message['edit_message_id'] = input.attr('message_id');
+                        chatSocket.send(JSON.stringify({
+                            'message': message
+                        }));
+                    } else {
+                        chatSocket.send(JSON.stringify({
+                            'message': message
+                        }));
+                    }
+                    input.removeClass('edited_message');
+                    input.removeAttr('message_id');
+                    input.val('');
+                });
+
+                $('#chat-message-input').on('input', function () {
+                    if ($(this).val().length > 0) {
+                        $('#chat-message-submit').removeAttr('disabled');
+                    } else {
+                        $('#chat-message-submit').attr('disabled', 'disabled');
+                    }
+                });
+            </script>
+        </div>
+    {% else %}
+        <div class="messages">
+            {{ text|safe }}
+        </div>
+    {% endif %}
 {% endblock %}

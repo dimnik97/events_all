@@ -8,13 +8,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
-from PIL import Image
 
 from events_all import helper
 from images_custom.models import PhotoEditor
-from profiles import forms
 from profiles.validator import SignupValidator
-
 
 # Получение общей информации для юзера
 class Users:
@@ -58,6 +55,7 @@ class Profile(models.Model):
     description = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phone = models.TextField(null=True, blank=True)
+    last_activity = models.DateTimeField(null=True, blank=True)
     gender = models.CharField(
         max_length=2,
         choices=CHOICES_M,
@@ -67,18 +65,18 @@ class Profile(models.Model):
     CHOICES_ACTIVE = (('1', 'Активный'),
                       ('2', 'Удаленный'),
                       ('3', 'Заблокированный'),)
-    # active = models.CharField(  # для бана
-    #     max_length=2,
-    #     choices=CHOICES_ACTIVE,
-    #     default=1,
-    # )
+    active = models.CharField(  # для бана
+        max_length=2,
+        choices=CHOICES_ACTIVE,
+        default=1,
+    )
 
     class Meta:
         verbose_name = ('Профили')
         verbose_name_plural = ('Профили')
 
     def __str__(self):
-        return self.user.first_name + self.user.last_name + ' (' + self.user.username + ')'
+        return self.user.first_name + ' ' + self.user.last_name + ' (' + self.user.username + ')'
 
     # Создание юзера
     @receiver(post_save, sender=User)
@@ -114,20 +112,31 @@ class Profile(models.Model):
         else:
             user_id = request.user.id
 
-        is_my_account = False
+        flag = False
         action = ''  # Просмотр
         if 'action' in request.GET:
             action = request.GET.get('action')  # Тип - выбор подписчиков (с чекбоксами)
         else:
-            if str(request.user.id) == user_id:
+            if str(request.user.id) == user_id or request.user.id == user_id:
                 action = 'context_menu'  # Тип - контекстное меню
 
         user = User.objects.get(id=user_id)
-        subscribers_object = user.profile.subscribers
-
-        subscribers = [
-            subscriber for subscriber in subscribers_object.all()
-        ]
+        if 'value' in request.POST and 'search' in request.POST:
+            # TODO Тут ошибка, знаю, надо доделать, не работает паджинация
+            from django.db.models import Q
+            subscribers = []
+            subscribers_object = user.profile.subscribers
+            for subscriber in subscribers_object.all():
+                if request.POST['value'] in subscriber.user.first_name or request.POST['value'] in subscriber.user.last_name:
+                    subscribers.append(subscriber)
+                else:
+                    continue
+            flag = True
+        else:
+            subscribers_object = user.profile.subscribers
+            subscribers = [
+                subscriber for subscriber in subscribers_object.all()
+            ]
 
         page = request.GET.get('page', 1)
         paginator = Paginator(subscribers, 20)
@@ -139,9 +148,11 @@ class Profile(models.Model):
             subscribers = paginator.page(paginator.num_pages)
 
         return {
+            'flag': flag,
             'items': subscribers,
             'user_id': user_id,
-            'action': action
+            'action': action,
+            'type': 'subscribers'
         }
 
     # Возвращает абсолютный URL

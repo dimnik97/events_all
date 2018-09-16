@@ -6,6 +6,8 @@ from profiles.models import Users
 
 
 def index(request):
+
+    # Как думаешь, сколько у тебя рухнет, если пользователь будет неавторизован?
     if request.user.is_authenticated:
 
         user_id = request.user.pk

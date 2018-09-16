@@ -6,7 +6,6 @@ from PIL import Image
 
 
 # Возвращает массив в 2СС из 10СС
-# TODO дозаполнить массив нулями, а то на группах может ебануться
 def convert_base(num):
     if num == 0:
         return [0]

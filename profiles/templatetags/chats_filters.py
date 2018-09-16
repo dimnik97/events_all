@@ -1,4 +1,5 @@
 from django import template
+import datetime
 
 from events_all.helper import convert_base
 
@@ -58,6 +59,14 @@ def is_my(message):
 
 
 @register.filter
+def unreaded(message):
+    flags = convert_base(message.flags)
+    if flags[len(flags) - 1] == 1:
+        return "unreaded_message"
+    return ""
+
+
+@register.filter
 def status(peer):
     return peer['status']
 
@@ -65,14 +74,28 @@ def status(peer):
 @register.filter
 def message_flag(chat):
     flags = convert_base(chat.flags)
-    result = ''
-    if len(flags) >= 7 and flags[-8] == 1:
-        result = 'blocked'  # Заблокировано до того момента, пока пользователь не вступит в чат
-    elif len(flags) >= 8 and flags[-9] == 1:
-        result = 'repost'  # Репост
-    return result
+    if len(flags) >= 7 and flags[-7] == 1:
+        return 'blocked'  # Заблокировано до того момента, пока пользователь не вступит в чат
+    elif len(flags) >= 8 and flags[-8] == 1:
+        return 'repost'  # Репост
+    return ''
+
+
+@register.filter
+def system_message(message):
+    flags = convert_base(message.flags)
+    try:
+        if flags[-9] == 1:
+            return True
+    except IndexError:
+        return False
 
 
 @register.filter
 def except_text(peer):
     return peer['text']
+
+
+@register.filter
+def print_timestamp(timestamp):
+    return timestamp.timestamp()

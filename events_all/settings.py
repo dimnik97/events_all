@@ -77,6 +77,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'profiles.middleware_profile.UpdateLastActivityMiddleware'
 ]
 
 ROOT_URLCONF = 'events_all.urls'
@@ -119,14 +120,14 @@ if (getpass.getuser() == 'dmitrij'):
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'NAME': 'test2',
-        # 'USER': 'postgreadmin',
-        # 'PASSWORD': '4321',
-        # 'HOST': 'localhost',
-        'NAME': 'local_db',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': host,
+        'NAME': 'test2',
+        'USER': 'postgreadmin',
+        'PASSWORD': '4321',
+        'HOST': 'localhost',
+        # 'NAME': 'local_db',
+        # 'USER': 'postgres',
+        # 'PASSWORD': '',
+        # 'HOST': host,
         'PORT': '5432',
     }
 }

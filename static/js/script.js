@@ -1,10 +1,46 @@
 function SetTimeToUser(DateStr, div_id){
-    var d = new Date();
-    var timezone = d.getTimezoneOffset();
-    var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
-    var date_with_timezone = new Date(+date - timezone * 6e4);
-    $('.event_time','#'+div_id).text(date_with_timezone);
+    var d = new Date(),
+        timezone = d.getTimezoneOffset(),
+        date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1')),
+        x = new Date(+date - timezone * 6e4);
+    $('.event_time','#'+div_id).text(x);
 // document.write(date_with_timezone)
+}
+function SetTimeChats(DateStr, div_id){
+    $('.date_create', div_id).text(time_(DateStr));
+// document.write(date_with_timezone)
+}
+function SetTimeDialogs(DateStr, div_id){
+    $('.date_create_dailogs', div_id).text(time_(DateStr));
+// document.write(date_with_timezone)
+}
+
+/**
+ * Дата серверная - в часовой пояс клиента
+ *
+ */
+function time_(DateStr) {
+    var x =  new Date((+DateStr.replace(',', '.')) * 1000),
+        arr=[
+            'Января',
+            'Февраля',
+            'Марта',
+            'Апреля',
+            'Мая',
+            'Июня',
+            'Июля',
+            'Августа',
+            'Сентября',
+            'Ноября',
+            'Декабря',
+        ];
+
+    var curr_date = x.getDate(),
+        curr_month = arr[x.getMonth()],
+        curr_year = x.getFullYear(),
+        curr_hours = x.getHours(),
+        curr_minutes = x.getMinutes();
+    return curr_date + " " + curr_month + " " + curr_year + " " + curr_hours + ":" + curr_minutes;
 }
 
 
@@ -45,9 +81,6 @@ function SetTimeToServer(DateStr){
         GetCorrectNumber(date_with_timezone.getDate()) +' '+
         GetCorrectNumber(date_with_timezone.getHours()) +':' +
         GetCorrectNumber(date_with_timezone.getMinutes());
-
-
-
     return str_date;
 }
 
@@ -100,7 +133,11 @@ $(document).ready(function() {
     $('button.closest_events').on('click', function(){
 
     });
-    // Проброс токена CSRF во все запросы ajax
+
+    /**
+     * Проброс токена CSRF во все запросы ajax
+     *
+     */
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
             function getCookie(name) {
@@ -125,7 +162,10 @@ $(document).ready(function() {
         }
     });
 
-    // Валидация второго шага регистрации
+    /**
+     * Отправка данных
+     *
+     */
     $('.signup', '#signup').on('click', function(event) {
         if ( validateForm() ) { // если есть ошибки возвращает true
             event.preventDefault();
@@ -134,6 +174,10 @@ $(document).ready(function() {
         $('#signup').submit();
     });
 
+    /**
+     * Валидация второго шага регистрации
+     *
+     */
     function validateForm() {
         $form = $('#signup');
         $('.invalid-feedback', $form).remove();
@@ -175,13 +219,20 @@ $(document).ready(function() {
             f_sex);
     }
 
+    /**
+     * Переход на второй шаг регистрации
+     *
+     */
     $('.next_step').on('click', function(event){
         event.preventDefault();
-        $form = $('#signup');
+        var $form = $('#signup');
         ajax_validate_first_step($form);
     });
 
-    // Валидация первого шага регистрации
+    /**
+     * Валидация первого шага регистрации
+     *
+     */
     function ajax_validate_first_step(form) {
         $.ajax({
             url : "/main_app/signup_check/",
@@ -213,7 +264,10 @@ $(document).ready(function() {
         });
     };
 
-    // Возврат на первый шаг
+    /**
+     * Возврат на первый шаг
+     *
+     */
     $('.prev_step').on('click', function () {
         $form = $('#signup');
         $('.form-group', $form).addClass('field_d_none').removeClass('form-group');
@@ -229,7 +283,10 @@ $(document).ready(function() {
         $('#id_password1', $(this).parent()).attr('type','password');
     });
 
-    // функция для подписки/отписки на событие
+    /**
+     * функция для подписки/отписки на событие
+     *
+     */
     $('.subscribe_event').on('click', function(){
         var event_id = $(this).closest("div.event_item").data('event_id'),
             atcion_type = $(this).data('action'),
@@ -258,6 +315,11 @@ $(document).ready(function() {
         });
     });
 
+
+    /**
+     * Форма создания новостей
+     *
+     */
     $('#news_create_form').on('submit', function(event){
         event.preventDefault();
         frm = $('#news_create_form');
@@ -278,9 +340,14 @@ $(document).ready(function() {
             }
         });
     });
-    // Подписка на пользователей
-    // Мод. Subscribers
-    $('.add_to_friend').on('click', function(){
+
+
+    /**
+     * Подписка на пользователей
+     * Мод. Subscribers
+     *
+     */
+    $('body').on('click', '.add_to_friend', function(){
         var user_id = $(this).data('user_id'),
             action = $(this).data('action'),
             $this = $(this);
@@ -307,7 +374,10 @@ $(document).ready(function() {
         });
     });
 
-    // функция для подписки/отписки на группу
+    /**
+     * функция для подписки/отписки на группу
+     *
+     */
     $('.subscribe_group').on('click', function(){
         var group_id = $(this).closest("div.group_item").data('group_id'),
             atcion_type = $(this).data('action'),
@@ -321,6 +391,7 @@ $(document).ready(function() {
             },
             dataType: 'json',
             success: function(data){
+                debugger;
                 if (data) {
                     if (atcion_type == 'add') {
                         $this.text('Выйти из группы');
@@ -344,7 +415,10 @@ $(document).ready(function() {
         ajax_validate_form($('#settings'), e)
     });
 
-    // Ajax для форм
+    /**
+     * Ajax для формы редактирования профиля
+     *
+     */
     function ajax_validate_form($form, e){
         e.preventDefault();
         var data = $form.serialize();
@@ -360,7 +434,10 @@ $(document).ready(function() {
         });
     };
 
-    // Обработка данных валидации
+    /**
+     * Обработка данных валидации
+     *
+     */
     function ajax_validate_form_data($form, data) {
         $('input').removeClass('is-invalid');
         $('.invalid-feedback').remove();
@@ -374,7 +451,10 @@ $(document).ready(function() {
         }
     }
 
-    // Подписки и подписчики
+    /**
+     * Показать подписчиков и подписки
+     *
+     */
     $('.all_subscribers, .all_followers').on('click', function () {
         $( "#dialog" ).dialog({
             title: 'Подписчики',
@@ -410,6 +490,11 @@ $(document).ready(function() {
         });
     });
 
+
+    /**
+     * Смена аватара
+     *
+     */
     $('.change_avatar, .change_mini').on('click', function () {
         var url = $(this).data('url'),
             title = $(this).html();
@@ -452,6 +537,10 @@ $(document).ready(function() {
         });
     });
 
+    /**
+     * Поиск подписчика
+     *
+     */
     $('.find_subscribers').on('input', function () {
         $.ajax({
             url: '/groups/find_subscribers',
@@ -471,6 +560,11 @@ $(document).ready(function() {
         });
     });
 
+
+    /**
+     * Перевод из подписчика в редактора
+     *
+     */
     function add_to_editor() {
         $('.add_to_editor').off('click').on('click', function () {
             var $this = $(this);
@@ -495,6 +589,10 @@ $(document).ready(function() {
         });
     }
 
+    /**
+     * Перевод из редактора в подписчика
+     *
+     */
     function add_to_subscriber() {
         $('.add_to_subscriber').off('click').on('click', function () {
             var $this = $(this);
@@ -519,6 +617,12 @@ $(document).ready(function() {
         });
     }
 
+    /**
+     * Удаление из подписчиков
+     *
+     * Удалять могут только админы
+     *
+     */
     $('.delete', '.select_roles').on('click', function () {
         var $this = $(this);
         $.ajax({
@@ -541,6 +645,11 @@ $(document).ready(function() {
     add_to_editor();
     add_to_subscriber();
 
+
+    /**
+     * Удаление группы, диалог, обработчики
+     *
+     */
     $('.delete_group', '.tab-content').on('click', function () {
         $( "#dialog_confirm" ).dialog({
             title: 'Подтвердите действие',
@@ -581,6 +690,10 @@ $(document).ready(function() {
         }).dialog('open');
     });
 
+    /**
+     * Удаление группы
+     *
+     */
     function delete_group() {
         $.ajax({
             url: '/groups/delete_group',
@@ -597,6 +710,11 @@ $(document).ready(function() {
         });
     };
 
+
+    /**
+     * Отправка заявки на вступление в группу
+     *
+     */
     $('.invite_group').on('click', function() {
         $.ajax({
             url: '/groups/invite_group',
@@ -615,6 +733,10 @@ $(document).ready(function() {
     });
 
 
+    /**
+     * Выделение сообщений
+     *
+     */
     $('body').on('click', '.message_block', function () {
         $('.message_block').removeClass('selected_message');
         $('.message_block').find('.additional_block').hide();
@@ -627,9 +749,13 @@ $(document).ready(function() {
                 $(this).find('.additional_block').show();
             }
         }
-
     });
 
+
+    /**
+     * Обработка редактирования сообщений
+     *
+     */
     $('body').on('click', '.edit_message', function () {
         var $message_block = $(this).closest('.message_block'),
             id_message = $message_block.attr('message_id'),
@@ -639,6 +765,11 @@ $(document).ready(function() {
         $('#chat-message-input').attr('message_id', id_message);
     });
 
+
+    /**
+     * Обработка удаления сообщений
+     *
+     */
     $('body').on('click', '.delete_message', function () {
         var message_id = $(this).closest('.message_block').attr('message_id');
         $.ajax({
@@ -658,6 +789,11 @@ $(document).ready(function() {
         });
     });
 
+
+    /**
+     * Переход в определенный чат (Либо диалог, либо комната)
+     *
+     */
     $('#dialogs').on('click', '.dialog_last_info', function () {
         if ($(this).find('.chat_status').hasClass('blocked')) {
             return;
@@ -669,53 +805,202 @@ $(document).ready(function() {
             url = 'dlg?room=' + $(this).data('room_id');
         $('.dialogs').hide();
         $('.back_to_dialogs').on('click', function () {
+            $('.infinite-container').empty();
+            infinity_dialogs();
             $('.messages').remove();
             $('.dialogs').show();
             $('.back_to_dialogs').hide();
+            $('.create_chat').show();
         });
         $.get(url, function(data) {
             $('.back_to_dialogs').show();
             $('.messages_wrapper').append(data);
+            $('.create_chat').hide()
         });
     });
 
+    /**
+     * Обработка чекбоксов для получения подписчиков
+     *
+     * Как работает можно посмотреть на "Создании чатов"
+     *
+     */
+    function add_to_chat($this) {
+        if ($this.is(':checked')) {
+            var username = $this.parent().find('.username').html(),
+                user_id = '"' + $this.val() + '"',
+                user_item = '<span class="inside_mark" data-id='+user_id+'>'+ username +'</span>',
+                user = '<div class="user">'+ user_item +'<span data-id=' + user_id + ' class="delete_user">x</span></div>';
+            $('.added_users').append(user);
+
+            $('.user span.delete_user', '.added_users').off('click').on('click', function () {
+                id = $(this).data('id');
+                $('[name=checkbox_' + id + ']').attr('checked', false);
+                $(this).closest('.user').remove();
+            });
+        } else {
+            var id = $this.val();
+            $('*[data-id='+ id +']', '.added_users').closest('.user').remove();
+        }
+    }
+
+
+    /**
+     * Добавить пользователей в чат, включает в себя:
+     *
+     * Получает список подписчиков, исключает тех, кто уже есть в чате
+     * Навешивает обработчики на cancel
+     * Обработчики на чекбоксы
+     */
+    $('body').on('click', '.add_to_chat', function () {
+        debugger;
+        $('.add_chat_wrapper').show();
+        $('.add_to_chat').hide();
+        $.ajax({
+            url: '/profile/get_subscribers?action=checkbox',
+            type: 'GET',
+            success: function (data) {
+                $('.add_chat_form_subscribers', '.add_chat_wrapper').html(data);
+                $('.added_users').empty();
+                $(':checkbox', '.add_chat_wrapper').off('click').on('click', function () {
+                    add_to_chat($(this));
+                });
+                var obj = $('input[type=checkbox]', '.add_chat_form_subscribers'), iter = '', added_users = [];
+                $('.message_block', '.form_to_messages').each(function (key, value) {
+                    added_users.push(($(this).data('user_id')).toString());
+                });
+                obj.each(function (key, value) {
+                    iter = $(this);
+                    if (added_users.indexOf(iter.val()) !== -1) {
+                        iter.attr('disabled', true);
+                    }
+                });
+            }
+        });
+
+        $('.cancel', '.add_chat_wrapper').off('click').on('click', function () {
+            $('.add_to_chat').show();
+            $('.create_chat_wrapper').hide();
+        });
+
+        $('.submite', '.add_chat_wrapper').off('click').on('click', function () {
+            var obj = $('.user', '.add_chat_wrapper'),
+                added_users = '',
+                room_id = $('.messages').data('room_id');
+
+            obj.each(function (key, value) {
+                added_users += ($(this).find('span').data('id')).toString() + ' ';
+            });
+
+            $.ajax({
+                url: '/chats/add_user_to_room',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'room_id': room_id,
+                    'added_users': added_users
+                },
+                success: function (data) {
+                    if (data.status === 200) {
+                        window.location.replace(data.room_url);
+                    } else {
+                        // TODO заполнить error
+                    }
+                }
+            });
+        });
+    });
+
+    /**
+     * Выход из группы:
+     *
+     * На вход room_id
+     * На выходе результат
+     *
+     */
+    $('body').on('click', '.leave_room', function () {
+        var room_id = $('.messages', '.messages_wrapper').data('room_id');
+        $.ajax({
+            url: '/chats/decline_room',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'room_id': room_id
+            },
+            success: function (data) {
+                if (data['status'] == 200) {
+                    window.location.replace('/chats');
+                }
+            }
+        });
+    });
+
+    /**
+     * Удалить пользователя из чата:
+     *
+     * На вход room_id
+     * На выходе результат в виде обьекта
+     *
+     */
+    $('body').on('click', '.delete_from_chat', function () {
+        $('.delete_from_chat_wrapper').show();
+        $('.cancel', '.deleted_users').off('click').on('click', function () {
+            $('.delete_from_chat_wrapper').hide();
+        })
+        $('.delete', '.delete_from_chat_wrapper').off('click').on('click',function () {
+            var room_id = $('.messages', '.messages_wrapper').data('room_id'),
+                peer_id = $(this).closest('span').data('id');
+            $.ajax({
+                url: '/chats/remove_user_from_room',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'room_id': room_id,
+                    'user_id': peer_id
+                },
+                success: function (data) {
+                    if (data['status'] === 200) {
+                        window.location.replace(data.room_url);
+                    }
+                }
+            });
+        });
+
+    });
+
+
+    /**
+     * Создать чат, включает в себя:
+     *
+     * Получает список подписчиков
+     * Навешивает обработчики на cancel
+     * Обработчики на чекбоксы
+     * Обработчик на submite
+     */
     $('.create_chat').on('click', function () {
         $('.create_chat_wrapper').show();
+        $('.content_paginator_chat').hide();
+        $('.find_dialogs').hide();
+        $('.create_chat').hide();
         $.ajax({
             url: '/profile/get_subscribers?action=checkbox',
             type: 'GET',
             success: function (data) {
                 $('.create_chat_form_subscribers', '.create_chat_wrapper').html(data);
                 $('.added_users').empty();
-                $(':checkbox', '.create_chat_wrapper').on('click', function () {
-                    if ($(this).is(':checked')) {
-                        var username = $(this).parent().find('.username').html(),
-                            user_id = '"' + $(this).val() + '"',
-                            user_item = '<span class="inside_mark" data-id='+user_id+'>'+ username +'</span>',
-                            user = '<div class="user">'+ user_item +'<span data-id=' + user_id + ' class="delete_user">x</span></div>';
-                        $('.added_users').append(user);
-                        $('.user span.delete_user', '.added_users').off('click').on('click', function () {
-                            id = $(this).data('id');
-                            $('[name=checkbox_' + id + ']', '.create_chat_wrapper').attr('checked', false);
-                            $(this).closest('.user').remove();
-
-                        });
-                    } else {
-                        var id = $(this).val();
-                        $('*[data-id='+ id +']', '.added_users').closest('.user').remove();
-                    }
+                $(':checkbox', '.create_chat_wrapper').off('click').on('click', function () {
+                    add_to_chat($(this));
                 });
             }
         });
-        $('.create_chat').hide();
-        $('.dialogs').hide();
-        $('.cancel', '.create_chat_wrapper').on('click', function () {
-            $('.create_chat_wrapper').hide();
+        $('.cancel', '.create_chat_wrapper').off('click').on('click', function () {
+            $('.find_dialogs').show();
+            $('.content_paginator_chat').show();
             $('.create_chat').show();
-            $('.dialogs').show();
+            $('.create_chat_wrapper').hide();
         });
 
-        $('.submite', '.create_chat_wrapper').on('click', function () {
+        $('.submite', '.create_chat_wrapper').off('click').on('click', function () {
             var dialog_name = $('[name=dialog_name]').val(),
                 obj = $('.user', '.added_users'),
                 added_users = '';
@@ -741,7 +1026,12 @@ $(document).ready(function() {
         });
     });
 
-    $('.accept', '.dialog_row').on('click', function () {
+
+    /**
+     * Принять заявку на чат
+     *
+     */
+    $('.content_paginator_chat').on('click', '.accept', function () {
         var room_id = $(this).closest('.dialog_last_info').data('room_id');
         $.ajax({
             url: '/chats/join_room',
@@ -758,9 +1048,14 @@ $(document).ready(function() {
                 }
             }
         });
-    })
+    });
 
-    $('.decline', '.dialog_row').on('click', function () {
+
+    /**
+     * Отклонить заявку на чат
+     *
+     */
+    $('.content_paginator_chat').on('click', '.decline', function () {
         var room_id = $(this).closest('.dialog_last_info').data('room_id');
         $.ajax({
             url: '/chats/decline_room',
