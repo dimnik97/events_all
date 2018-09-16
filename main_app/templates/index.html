@@ -7,22 +7,42 @@
     <button class="last_events">Новые события</button>
     <button class="friends_events">События друзей</button>
     <button class="closest_events">События рядом</button>
-    {% for event in events %}
-        <div class="event_item" data-event_id="{{event.event.id}}" >
+    <div class="event_filter_block">
+        <select id="" class="event_filter_category">
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
 
-            <a href="/events/{{ event.event.id }}">
-                <img src="{{ event.event.event_avatar.mini_url }}" class="avatar_round">
-            </a>
-            {{ event.event.id }}    {{ event.event.name }}    {{ event.event.creator_id.user.first_name }}
+        <button class="submit_event_filter">Фильтр</button>
+    </div>
+    <div class="content_paginator"></div>
 
-            {% if event.party_flag == 1 %}
-                <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
-            {% elif event.party_flag == 0 %}
-                <button class="subscribe_event" data-action="subscribe">Пойти</button>
-            {% endif %}
-        </div>
-    {% empty %}
-        <p>There are no athletes. Only computer programmers.</p>
-    {% endfor %}
+
+
+
+    <script>
+    draw_events(12);
+    function draw_events(filter_data) {
+        var url = '/main_app/get_infinite_events';
+        $.ajax({
+            url: url,
+            data: filter_data,
+            success: function (data) {
+                $('.content_paginator').html(data);
+                var infinite = new Waypoint.Infinite({
+                    element: $('.infinite-container')[0]
+                });
+            }
+        });
+    }
+
+
+    $('.submit_event_filter').on('click', ()=>{
+        $category = $('.event_filter_block .event_filter_category').val();
+        console.log($category);
+        draw_events({'cat':$category});
+    });
+
+    </script>
 
 {% endblock %}

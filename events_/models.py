@@ -39,17 +39,11 @@ class Event(models.Model):
     created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
     location = models.CharField(max_length=20, default=1) # Заглушка для функционала определения по локации
 
-    def get_events(ajax_request = None):
-        if ajax_request is None:
+    def get_events(category = None):
+        if category is not None:
+            events = Event.objects.filter(location = 1, category=category).order_by('-create_time')
+        else:
             events = Event.objects.filter(location = 1).order_by('-create_time')
-        elif ajax_request.POST['last_events']:
-            events = Event.objects.filter(location=1).order_by('-create_time')
-            return events
-        elif ajax_request.POST['friends_events']:
-            events = Event.objects.filter(location=1).order_by('-create_time')
-        elif ajax_request.POST['closest_events']:
-            events = Event.objects.filter(location=1).order_by('-create_time')
-
         return events
 
     def __str__(self):

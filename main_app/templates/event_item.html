@@ -1,11 +1,11 @@
 <div class="infinite-container">
     {% for event in events %}
-        <div class="event_item" data-event_id="{{event.event.id}}" >
+        <div class="event_item infinite-item" data-event_id="{{event.id}}" >
 
-            <a href="/events/{{ event.event.id }}">
-                <img src="{{ event.event.event_avatar.mini_url }}" class="avatar_round">
+            <a href="/events/{{ event.id }}">
+                <img src="{{ event.event_avatar.mini_url }}" class="avatar_round">
             </a>
-            {{ event.event.id }}    {{ event.event.name }}    {{ event.event.creator_id.user.first_name }}
+            {{ event.id }}    {{ event.name }}    {{ event.creator_id.user.first_name }}
 
             {% if event.party_flag == 1 %}
                 <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
@@ -18,8 +18,8 @@
     {% endfor %}
 </div>
 
-{% if numbers.has_next %}
+{% if events.has_next %}
     <a class="infinite-more-link"
-       href="/main_app/get_infinite_events?page={{ numbers.next_page_number }}">More
+       href="/main_app/get_infinite_events?page={{ events.next_page_number }}">More
     </a>
 {% endif %}
