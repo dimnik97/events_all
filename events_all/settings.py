@@ -120,13 +120,13 @@ if (getpass.getuser() == 'dmitrij'):
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test2',
-        'USER': 'postgreadmin',
-        'PASSWORD': '4321',
+        # 'NAME': 'test2',
+        # 'USER': 'postgreadmin',
+        # 'PASSWORD': '4321',
         'HOST': 'localhost',
-        # 'NAME': 'local_db',
-        # 'USER': 'postgres',
-        # 'PASSWORD': '',
+        'NAME': 'local_db',
+        'USER': 'postgres',
+        'PASSWORD': '',
         # 'HOST': host,
         'PORT': '5432',
     }
