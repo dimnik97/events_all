@@ -33,23 +33,21 @@ def detail(request, id):
     # TODO выборка из 5 показываемых
     subscribers = [
         User.objects.get(id=subscriber.user_id)
-        for subscriber in subscribers_object.all()[:5] if subscriber != profile
+        for subscriber in subscribers_object.all().select_related("user__profileavatar").only(
+            "user__first_name", 'user__last_name', 'user_id')[:5] if subscriber != profile
     ]
 
-    groups = Group.objects.all()[:5]
+    groups = Group.objects.all().select_related("groupavatar").only("name")[:5]
 
-    friend_flag = 'add'
-    try:
-        # TODO Долго, переписать
-        for item in request.user.profile.subscribers.all():
-            if item == profile:
-                friend_flag = 'remove'
-                is_friend = 'subscribe'
-    except:
+    if Profile.objects.filter(user=account, subscribers=profile).exists():
+        friend_flag = 'remove'
+        is_friend = 'subscribe'
+    else:
         is_friend = 'subscribe'
         friend_flag = 'add'
 
-    followers = Profile.objects.filter(subscribers=profile.id)[:5]
+    followers = Profile.objects.filter(subscribers=profile.id).select_related("user__profileavatar").only(
+        "user__first_name", 'user__last_name', 'user_id')[:5]
 
     from django.utils import timezone
 
@@ -64,7 +62,7 @@ def detail(request, id):
         'is_online': is_online,
         'title': 'Профиль',
         'user': user,
-        'users': Profile.get_users(),
+        'users': Profile.objects.all().select_related("user__profileavatar").only("user__first_name", 'user__last_name', 'user_id'),
         'followers': followers,
         'groups': groups,
         'subscribers': subscribers,
@@ -196,8 +194,8 @@ def get_followers(request):
         from django.db.models import Q
         user = User.objects.get(id=user_id)
         followers = Profile.objects.filter(Q(user__first_name__istartswith=request.POST['value'])
-                                             | Q(user__last_name__istartswith=request.POST['value']),
-                                             subscribers=user.profile)
+                                           | Q(user__last_name__istartswith=request.POST['value']),
+                                           subscribers=user.profile)
         flag = True
     else:
         followers = Profile.objects.filter(

@@ -89,11 +89,6 @@ class Profile(models.Model):
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
 
-    # Получение списка всех юзеров
-    # TODO в будущем грохнуть метод
-    def get_users():
-        events = User.objects.all()
-        return events
 
     # Подписка на пользователя
     @classmethod
