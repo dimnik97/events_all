@@ -34,36 +34,74 @@ https://github.com/imakewebthings/waypoints/blob/master/licenses.txt
             this.destroy()
             this.$container.addClass(this.options.loadingClass)
 
-            $.get($(this.options.more).attr('href'), $.proxy(function(data) {
-                var $data = $($.parseHTML(data));
-                var $newMore = $data.filter(this.options.more);
+            if (this.options.post) {
+                $.ajax({
+                    type: "POST",
+                    url: $(this.options.more).attr('href'),
+                    data: this.options.filter,
+                    success: $.proxy(function (data) {
+                        var $data = $($.parseHTML(data));
+                        var $newMore = $data.filter(this.options.more);
 
-                var $items = $data.find(this.options.items);
-                if (!$items.length) {
-                    $items = $data.filter(this.options.items);
-                }
-                if (this.options.reverse)
-                    this.$container.prepend($items);
-                else {
-                    this.$container.append($items);
-                }
+                        var $items = $data.find(this.options.items);
+                        if (!$items.length) {
+                            $items = $data.filter(this.options.items);
+                        }
+                        if (this.options.reverse)
+                            this.$container.prepend($items);
+                        else {
+                            this.$container.append($items);
+                        }
 
-                this.$container.removeClass(this.options.loadingClass)
+                        this.$container.removeClass(this.options.loadingClass)
 
-                if (!$newMore.length) {
-                    $newMore = $data.filter(this.options.more)
-                }
-                if ($newMore.length) {
-                    this.$more.replaceWith($newMore)
-                    this.$more = $newMore
-                    this.waypoint = new Waypoint(this.options)
-                }
-                else {
-                    this.$more.remove()
-                }
+                        if (!$newMore.length) {
+                            $newMore = $data.filter(this.options.more)
+                        }
+                        if ($newMore.length) {
+                            this.$more.replaceWith($newMore);
+                            this.$more = $newMore;
+                            this.waypoint = new Waypoint(this.options)
+                        }
+                        else {
+                            this.$more.remove()
+                        }
 
-                this.options.onAfterPageLoad($items)
-            }, this))
+                        this.options.onAfterPageLoad($items)
+                    }, this),
+                });
+            } else {
+                $.get($(this.options.more).attr('href'), $.proxy(function (data) {
+                    var $data = $($.parseHTML(data));
+                    var $newMore = $data.filter(this.options.more);
+
+                    var $items = $data.find(this.options.items);
+                    if (!$items.length) {
+                        $items = $data.filter(this.options.items);
+                    }
+                    if (this.options.reverse)
+                        this.$container.prepend($items);
+                    else {
+                        this.$container.append($items);
+                    }
+
+                    this.$container.removeClass(this.options.loadingClass)
+
+                    if (!$newMore.length) {
+                        $newMore = $data.filter(this.options.more)
+                    }
+                    if ($newMore.length) {
+                        this.$more.replaceWith($newMore)
+                        this.$more = $newMore
+                        this.waypoint = new Waypoint(this.options)
+                    }
+                    else {
+                        this.$more.remove()
+                    }
+
+                    this.options.onAfterPageLoad($items)
+                }, this))
+            }
         }, this)
     }
 
@@ -82,7 +120,9 @@ https://github.com/imakewebthings/waypoints/blob/master/licenses.txt
         offset: 'bottom-in-view',
         loadingClass: 'infinite-loading',
         onBeforePageLoad: $.noop,
-        onAfterPageLoad: $.noop
+        onAfterPageLoad: $.noop,
+        post: false, // Для пост запросов, чтобы не парится с урлами и так далее
+        filter: {} // Фильтр
     }
 
     Waypoint.Infinite = Infinite

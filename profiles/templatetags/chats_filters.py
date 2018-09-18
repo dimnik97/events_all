@@ -2,6 +2,7 @@ from django import template
 import datetime
 
 from events_all.helper import convert_base
+from groups.models import Membership
 
 register = template.Library()
 
@@ -99,3 +100,9 @@ def except_text(peer):
 @register.filter
 def print_timestamp(timestamp):
     return timestamp.timestamp()
+
+
+@register.filter
+def all_related_members(group):
+    from django.db.models import Q
+    return Membership.objects.filter(Q(role__role='admin') | Q(role__role='editor'), group=group.id)

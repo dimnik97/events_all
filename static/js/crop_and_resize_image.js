@@ -224,7 +224,7 @@ function to_second_step() {
     form.append('crop_height', crop_height_);
     form.append('crop_width', crop_width_);
     form.append('rotate', $help_image_div.data('rotate'));
-    form.append('model', $('.group_item').data('group_item'));
+    form.append('model', $('.group_item').data('group_id'));
     $.ajax({
         url: save_url,
         type: 'POST',
@@ -269,7 +269,7 @@ function load_reduced_image() {
                 'crop_y1': crop_y1 * crop_y,
                 'crop_y2': crop_y2 * crop_y,
                 'image_type': 'mini',
-                'model': $('.group_item').data('group_item')
+                'model': $('.group_item').data('group_id')
             };
         $.ajax({
             url: save_url,

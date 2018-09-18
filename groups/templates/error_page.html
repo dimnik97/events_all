@@ -11,5 +11,9 @@
             <button type="button" class="invite_group" data-group_id="{{ group.id }}">Отправить заявку</button>
         {% endif %}
     {% endif %}
+
+    {% if error %}
+        Упс, видимо, вы ошиблись адресом
+    {% endif %}
     </div>
 {% endblock %}

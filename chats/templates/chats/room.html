@@ -118,8 +118,13 @@
                     }
                 }
 
+                var chatSocket = new WebSocket(
+                    'ws://' + window.location.host +
+                    '/ws/chats/' + id + is_room + '/');
+
                 $.ajax({
                     url: url_,
+                    async: false,
                     success: function (data) {
                         $('.content_paginator_messages').html(data);
                         var infinite_ = new Waypoint.Infinite({
@@ -130,15 +135,13 @@
                         });
                         scroll_down();
                         read_message('');
-                        chatSocket.send(JSON.stringify({
-                            'is_read': 'true'
-                        }));
+                        setTimeout(function() {
+                            chatSocket.send(JSON.stringify({
+                                'is_read': 'true'
+                            }))
+                        }, 500);
                     }
                 });
-
-                var chatSocket = new WebSocket(
-                    'ws://' + window.location.host +
-                    '/ws/chats/' + id + is_room + '/');
 
                 $('.back_to_dialogs').on('click', function () {
                     chatSocket.close();
