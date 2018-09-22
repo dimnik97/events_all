@@ -1072,4 +1072,40 @@ $(document).ready(function() {
             }
         });
     })
+
+    /**
+     * Поиск группы по вводимому тексту
+     *
+     */
+    $('.find_groups').on('input', function () {
+        find_groups()
+    });
+
+    /**
+     * Поиск группы (При нажатии чекбокса "Все")
+     *
+     */
+    $('.all_groups').on('change', function () {
+        find_groups()
+    });
+
+    function find_groups() {
+        var url = $('.content_paginator_groups').data('url'),
+            $this = $(this);
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: get_filter('groups_filter'),
+            success: function (data) {
+                if (data) {
+                    $('.infinite-item_groups', '.infinite-container_groups').remove();
+                    $('.infinite-container_groups').append(data);
+                    waypoints_init(get_filter('groups_filter'));
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    }
 });
