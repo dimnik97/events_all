@@ -9,6 +9,6 @@ urlpatterns = [
      url(r'^$', views.index, name='index'),
      url(r'signup_check/$', Users.signup_check, name='signup_check'),
      url(r'subscribe_event/$', event_view.subsc_unsubsc, name='subscribe_event'),
-     url(r'get_events/$', Event.get_events, name='get_events'),
+     url(r'^get_events/$', Event.get_events, name='get_events'),
      url(r'^get_infinite_events$', views.get_infinite_events, name='get_infinite_events'),
 ]

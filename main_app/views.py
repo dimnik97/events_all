@@ -48,7 +48,10 @@ def index(request):
 
 def get_infinite_events(request):
 
-    category = request.GET.get('cat', None);
+    category = None
+    if 'category' in request.POST:
+        category = request.POST['category']
+
     events = Event.get_events(category)
 
     page = request.GET.get('page', 1)
