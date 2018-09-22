@@ -41,9 +41,9 @@ class Event(models.Model):
 
     def get_events(category = None):
         if category is not None:
-            events = Event.objects.filter(location = 1, category=category).order_by('-create_time')
+            events = Event.objects.filter(location = 1, category=category).only('name', 'creator_id__first_name', 'creator_id__last_name').select_related('event_avatar', 'creator_id').order_by('-create_time')
         else:
-            events = Event.objects.filter(location = 1).order_by('-create_time')
+            events = Event.objects.filter(location = 1).only('name', 'creator_id__first_name', 'creator_id__last_name').select_related('event_avatar', 'creator_id').order_by('-create_time')
         return events
 
     def __str__(self):

@@ -5,7 +5,7 @@
             <a href="/events/{{ event.id }}">
                 <img src="{{ event.event_avatar.mini_url }}" class="avatar_round">
             </a>
-            {{ event.id }}    {{ event.name }}    {{ event.creator_id.user.first_name }}
+            {{ event.id }}    {{ event.name }}    {{ event.creator_id.first_name }}
 
             {% if event.party_flag == 1 %}
                 <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
