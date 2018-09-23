@@ -53,9 +53,9 @@ INSTALLED_APPS = [
     'groups',
     'chats',
     'profiles',
-    'cities',
     'main_app',
     'events_',
+    'cities_'
 ]
 
 ASGI_APPLICATION = "events_all.routing.application"

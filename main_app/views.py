@@ -1,7 +1,7 @@
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render_to_response, render
 
-from cities.models import CityTable
+from cities_.models import CityTable
 from events_.models import Event, EventCategory
 from profiles.models import Users
 
