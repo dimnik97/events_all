@@ -39,7 +39,7 @@ class Event(models.Model):
     participants = models.IntegerField(null=True, blank=True) # Это поле точно нужно?
     status = models.ForeignKey(EventStatus, on_delete=models.CASCADE, default=1)
     created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
-    
+
     location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE)
     location_name = models.CharField(max_length=100, null=True, blank=True)
 
