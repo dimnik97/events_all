@@ -5,113 +5,131 @@
     <button class="btn btn-grey"><a href="/events/create">Создать событие</a></button>
     <h2>Список событий</h2>
 
-    <button class="last_events">Новые события</button>
-    <button class="friends_events">События друзей</button>
-    <button class="closest_events">События рядом</button>
     <form class="event_filter_block">
-        <select id="" name="category" class="event_filter_category">
-            <option value="1">Другое</option>
-            <option value="2">Спорт</option>
-        </select>
+        <div>
+            <input type="text" name="name" placeholder="поиск" class="find_groups" >
+        </div>
+        <div>
+            <label>Категория</label>
+            <select id="category" name="category">
+                <option value="">Все</option>
+                {% for category in category_list %}
+                    <option value="{{ category_id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Город</label>
+            <input type="text" placeholder="поиск" class="find_city" >
+            <select id="location" name="location">
+{#  TODO: На релизе будет эта строка <option selected value="{{ user_city.city_id }}">{{ user_city.city}}</option>#}
+                <option selected value="1">{{ user_city.city}}</option>
+                {% for city in city_list %}
+                    <option value="{{ city.city_id }}">{{ city.city}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Дата начала</label>
+            <select id="date" name="date">
+                <option value="1">Сегодня</option>
+                <option value="2">Завтра</option>
+                <option value="3">На этой неделе</option>
+                <option value="4">В этом месяце</option>
+                <option value="5">В слудеющем месяце</option>
+                <option value="6">Выбрать дату</option>
+            </select>
+        </div>
     </form>
-    <button class="submit_event_filter">Фильтр</button>
+
+    <button class="submit_event_filter">Найти</button>
     <div class="content_paginator_events"></div>
-
-
-
 
     <script>
 
-    /**
-     * Проброс токена CSRF во все запросы ajax
-     *
-     */
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            function getCookie(name) {
-                var cookieValue = null;
-                if (document.cookie && document.cookie != '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = jQuery.trim(cookies[i]);
-                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
+        /**
+         * Проброс токена CSRF во все запросы ajax
+         *
+         */
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie != '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
                         }
                     }
+                    return cookieValue;
                 }
-                return cookieValue;
-            }
 
-            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                // Only send the token to relative URLs i.e. locally.
-                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-            }
-        }
-    });
-
-
-    find_events();
-
-    function find_events() {
-        var url = '/main_app/get_infinite_events';
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: get_event_filter('event_filter_block'),
-            success: function (data) {
-                if (data) {
-
-                    $('.content_paginator_events').html(data);
-                    events_waypoints_init(get_event_filter('event_filter_block'));
-                } else {
-                    // TODO заполнить error
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                    // Only send the token to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
                 }
             }
         });
-    }
 
-
-
-    /**
-     * Получение параметров фильтрации для POST запроса
-     *
-     */
-    function get_event_filter(selector) {
-        var unindexed_array = $('.'+selector).serializeArray();
-        var indexed_array = {};
-
-        $.map(unindexed_array, function(n, i){
-            indexed_array[n['name']] = n['value'];
-        });
-        return indexed_array;
-    }
-
-    $('.submit_event_filter').on('click', (e)=>{
 
         find_events();
-    });
 
-    /**
-     * Инициализация плагина инфинити скролла, что-то вроде дата тейбла
-     *
-     */
-    function events_waypoints_init(filter) {
-        var infinite_ = new Waypoint.Infinite({
-            element: $('.content_paginator_events')[0],
-            more: '.infinite-more-link',
-            items: '.event_item',
-            reverse: false,
-            post: true,
-            filter: filter
+        function find_events() {
+            var url = '/main_app/get_infinite_events';
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: get_event_filter('event_filter_block'),
+                success: function (data) {
+                    if (data) {
+                        $('.content_paginator_events').html(data);
+                        events_waypoints_init(get_event_filter('event_filter_block'));
+                    } else {
+                        // TODO заполнить error
+                    }
+                }
+            });
+        }
+
+
+
+        /**
+         * Получение параметров фильтрации для POST запроса
+         *
+         */
+        function get_event_filter(selector) {
+            var unindexed_array = $('.'+selector).serializeArray();
+            var indexed_array = {};
+
+            $.map(unindexed_array, function(n, i){
+                indexed_array[n['name']] = n['value'];
+            });
+            return indexed_array;
+        }
+
+        $('.submit_event_filter').on('click', (e)=>{
+            find_events();
         });
-        return;
-    }
 
-
-
-
-
+        /**
+         * Инициализация плагина инфинити скролла, что-то вроде дата тейбла
+         *
+         */
+        function events_waypoints_init(filter) {
+            var infinite_ = new Waypoint.Infinite({
+                element: $('.content_paginator_events')[0],
+                more: '.infinite-more-link',
+                items: '.event_item',
+                reverse: false,
+                post: true,
+                filter: filter
+            });
+            return;
+        }
     </script>
 
 {% endblock %}

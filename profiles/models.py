@@ -13,9 +13,11 @@ from events_all import helper
 from images_custom.models import PhotoEditor
 from profiles.validator import SignupValidator
 
+
 # Получение общей информации для юзера
 class Users:
     # Определение IP юзера
+    @staticmethod
     def get_client_ip(request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
@@ -24,23 +26,26 @@ class Users:
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
+    @staticmethod
     def signup_check(request):
         return SignupValidator.email_and_password(request)
 
-    # Работает при помощи библиотеки ipgeobase
-    # Иногда необходимо апдейтить базу python manage.py ipgeobase_update
-    # -------------------------------------
-    # Список методов:
-    # print(ipgeobase.country)  # 'RU' - Страна
-    # print(ipgeobase.district)  # Округ (для указанного ip - Уральский федеральный округ)
-    # print(ipgeobase.region)  # Регион (Свердловская область)
-    # print(ipgeobase.city)  # Населенный пункт (Екатеринбург)
-    # print(ipgeobase.ip_block)  # IP-блок, в который попали (212.49.96.0 - 212.49.127.255)
-    # print(ipgeobase.start_ip, ipgeobase.end_ip)  # (3560005632, 3560013823), IP-блок в числовом формате
-    # print(ipgeobase.latitude, ipgeobase.longitude)  # (56.837814, 60.596844), широта и долгота
+    @staticmethod
     def get_user_locations(request):
+        # Работает при помощи библиотеки ipgeobase
+        # Иногда необходимо апдейтить базу python manage.py ipgeobase_update
+        # -------------------------------------
+        # Список методов:
+        # print(ipgeobase.country)  # 'RU' - Страна
+        # print(ipgeobase.district)  # Округ (для указанного ip - Уральский федеральный округ)
+        # print(ipgeobase.region)  # Регион (Свердловская область)
+        # print(ipgeobase.city)  # Населенный пункт (Екатеринбург)
+        # print(ipgeobase.ip_block)  # IP-блок, в который попали (212.49.96.0 - 212.49.127.255)
+        # print(ipgeobase.start_ip, ipgeobase.end_ip)  # (3560005632, 3560013823), IP-блок в числовом формате
+        # print(ipgeobase.latitude, ipgeobase.longitude)  # (56.837814, 60.596844), широта и долгота
+
         ip = "212.49.98.48"
-        # ipp = Users.get_client_ip(request)
+        # ip = Users.get_client_ip(request)
         ipgeobases = IPGeoBase.objects.by_ip(ip)
 
         if ipgeobases.exists():
@@ -88,7 +93,6 @@ class Profile(models.Model):
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
-
 
     # Подписка на пользователя
     @classmethod
@@ -200,7 +204,7 @@ class ProfileAvatar(models.Model):
 
     def delete_photo(self, using=None):
         PhotoEditor.delete_photo(
-            self = self,
+            self=self,
             using=using,
             cls=ProfileAvatar
         )

@@ -1,25 +1,27 @@
 from django.contrib.auth.models import User
 from django.db import models
 from PIL import Image
-from django.http import JsonResponse
 from django.utils.functional import curry
 
 import datetime
+
+from cities.models import CityTable
 from events_all import helper
 from groups.models import Group
 from django.db.models.signals import post_save
 
 
 class EventCategory(models.Model):
-    name = models.CharField(max_length = 30)
+    name = models.CharField(max_length=30)
     description = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return str(self.id) + " " + str(self.name)
 
+
 class EventStatus(models.Model):
     name = models.CharField(max_length=20)
-    description = models.TextField(null=True,blank=True)
+    description = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return str(self.id) + " " + str(self.name)
@@ -37,13 +39,32 @@ class Event(models.Model):
     participants = models.IntegerField(null=True, blank=True) # Это поле точно нужно?
     status = models.ForeignKey(EventStatus, on_delete=models.CASCADE, default=1)
     created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
-    location = models.CharField(max_length=20, default=1) # Заглушка для функционала определения по локации
+    
+    location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE)
+    location_name = models.CharField(max_length=100, null=True, blank=True)
 
-    def get_events(category = None):
-        if category is not None:
-            events = Event.objects.filter(location = 1, category=category).only('name', 'creator_id__first_name', 'creator_id__last_name').select_related('event_avatar', 'creator_id').order_by('-create_time')
-        else:
-            events = Event.objects.filter(location = 1).only('name', 'creator_id__first_name', 'creator_id__last_name').select_related('event_avatar', 'creator_id').order_by('-create_time')
+    # Получение эвентов с учетом фильтрации
+    @staticmethod
+    def get_events(request):
+        from django.db.models import Q
+        q_objects = Q()
+
+        if 'category' in request.POST and request.POST['category'] != '':
+            q_objects.add(Q(category=request.POST['category']), Q.AND)
+
+        if 'location' in request.POST and request.POST['location'] != '':
+            q_objects.add(Q(location=request.POST['location']), Q.AND)
+
+        if 'name' in request.POST and request.POST['name'] != '':
+            q_objects.add(Q(name__icontains=request.POST['name']), Q.AND)
+
+        try:
+            events = Event.objects.filter(q_objects). \
+                only('name', 'creator_id__first_name', 'description', 'creator_id__last_name'). \
+                select_related('event_avatar', 'creator_id', 'creator_id__profileavatar'). \
+                order_by('-create_time')
+        except:
+            return None
         return events
 
     def __str__(self):
@@ -99,9 +120,6 @@ class EventNews(models.Model):
         quality_val = 85
         reduced.save(self.reduced_path, quality=quality_val, optimize=True, progressive=True)
 
-    # def save(self, request):
-
-
 
 class Event_avatar(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, default=True)
@@ -109,7 +127,7 @@ class Event_avatar(models.Model):
     image = models.ImageField(
         upload_to=curry(helper.upload_to, prefix='avatar_event'),
         # upload_to=helper.upload_to,
-                              default='avatar_event/default/img.jpg')
+        default='avatar_event/default/img.jpg')
 
     class Meta:
         verbose_name = ('Аватары')
@@ -135,8 +153,6 @@ class Event_avatar(models.Model):
     mini_url = property(_get_mini_url)
     reduced_path = property(_get_reduced_path)
     reduced_url = property(_get_reduced_url)
-
-    mini_url = property(_get_mini_url)
 
     # Создаем свою save
     # Добавляем:

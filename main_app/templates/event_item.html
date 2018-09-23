@@ -1,11 +1,24 @@
 <div class="infinite-container">
     {% for event in events %}
+        <hr style="border-top: 1px solid #000;">
         <div class="event_item infinite-item" data-event_id="{{event.id}}" >
 
             <a href="/events/{{ event.id }}">
-                <img src="{{ event.event_avatar.mini_url }}" class="avatar_round">
+                <img src="{{ event.event_avatar.reduced_url }}" class="avatar_round">
             </a>
-            {{ event.id }}    {{ event.name }}    {{ event.creator_id.first_name }}
+            id:{{ event.id }}    <br>
+            Название эвента: {{ event.name }}    <br>
+            Описание эвента, оно пока без ограничений, режь на клиенте: {{ event.description }} <br>
+<br><br>
+        <div>
+            <a href="/profile/{{ event.creator_id_id }}">
+                <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
+            </a>
+        <br>
+            Информация о создателе: <br>
+            FIRST name: {{ event.creator_id.first_name }} <br>
+            LAST name: {{ event.creator_id.last_name }} <br>
+        </div>
 
             {% if event.party_flag == 1 %}
                 <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>

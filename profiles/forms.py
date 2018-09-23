@@ -2,9 +2,6 @@ from allauth.account.adapter import DefaultAccountAdapter
 from django import forms
 from django.http import HttpResponse, Http404
 
-from cities.models import Countries
-
-
 # Форма регистрации
 from events_all.widgets import CustomDatePicker
 

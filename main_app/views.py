@@ -1,58 +1,32 @@
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.shortcuts import render_to_response, get_object_or_404, redirect, render
-from events_.models import Event, EventParty
+from django.shortcuts import render_to_response, render
+
+from cities.models import CityTable
+from events_.models import Event, EventCategory
 from profiles.models import Users
 
 
 def index(request):
+    user = request.user
+    category_list = EventCategory.objects.all()
 
-    # Как думаешь, сколько у тебя рухнет, если пользователь будет неавторизован?
-    if request.user.is_authenticated:
+    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')[:10]
+    user_city = Users.get_user_locations(request)
 
-        user_id = request.user.pk
-        user = User.objects.get(id=user_id)
+    context = {
+        'title': "Лента событий",
+        'user': user,
+        'locate': Users.get_user_locations(user),
+        'category_list': category_list,
+        'city_list': city_list,
+        'user_city': user_city
+    }
 
-        location = 1 # Заглушка
-        # events = Event.get_events()
-        # events_dict = []
-
-        # todo вынести в отдельную функцию
-        # for number in range(len(events)):
-        #     current_event = events[number]
-        #
-        #     try:
-        #             EventParty.objects.get(user_id=user, event_id=current_event)
-        #
-        #             events_dict.append({
-        #                 'event': current_event,
-        #                 'party_flag': 1
-        #             })
-        #     except:
-        #         events_dict.append({
-        #             'event': current_event,
-        #             'party_flag': 0
-        #         })
-
-        context = {
-            'title': "Лента событий",
-            # 'events': events_dict,
-            'user': user,
-            'locate': Users.get_user_locations(user_id),
-        }
-
-        return render_to_response('index.html', context)
-    else:
-        return redirect('/accounts/login')
+    return render_to_response('index.html', context)
 
 
 def get_infinite_events(request):
-
-    category = None
-    if 'category' in request.POST:
-        category = request.POST['category']
-
-    events = Event.get_events(category)
+    events = Event.get_events(request)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(events, 20)
