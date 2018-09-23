@@ -5,7 +5,7 @@ from django.utils.functional import curry
 
 import datetime
 
-from cities.models import CityTable
+from cities_.models import CityTable
 from events_all import helper
 from groups.models import Group
 from django.db.models.signals import post_save
@@ -40,7 +40,7 @@ class Event(models.Model):
     status = models.ForeignKey(EventStatus, on_delete=models.CASCADE, default=1)
     created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
     
-    location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE)
+    location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=None)
     location_name = models.CharField(max_length=100, null=True, blank=True)
 
     # Получение эвентов с учетом фильтрации

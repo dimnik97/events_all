@@ -1,6 +1,4 @@
-body {
-    background: #edeef0;
-}
+
 .d_none {
     display: none;
 }
@@ -178,10 +176,11 @@ li.dialog_row {
     color: #cecece;
 }
 .navbar {
-    background: #4a76a8;
-    height: 42px;
+    display: inline-flex;
+    min-height: 25px;
+    width: 100%;
     box-sizing: border-box;
-    border-bottom: 1px solid #4872a3;
+    border-bottom: 1px solid #eeeeee;
 }
 .l_dialog_block {
     display: flex;
@@ -219,3 +218,4 @@ li.dialog_row {
 .delete_from_chat_wrapper {
     display: none;
 }
+

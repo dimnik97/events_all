@@ -53,9 +53,9 @@ INSTALLED_APPS = [
     'groups',
     'chats',
     'profiles',
-    'cities',
     'main_app',
     'events_',
+    'cities_'
 ]
 
 ASGI_APPLICATION = "events_all.routing.application"
@@ -143,14 +143,14 @@ if (getpass.getuser() == 'dmitrij'):
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test2',
-        'USER': 'postgreadmin',
-        'PASSWORD': '4321',
-        'HOST': 'localhost',
-        # 'NAME': 'local_db',
-        # 'USER': 'postgres',
-        # 'PASSWORD': '',
-        # 'HOST': host,
+        # 'NAME': 'test2',
+        # 'USER': 'postgreadmin',
+        # 'PASSWORD': '4321',
+        # 'HOST': 'localhost',
+        'NAME': 'local_db',
+        'USER': 'postgres',
+        'PASSWORD': '',
+        'HOST': host,
         'PORT': '5432',
     }
 }
