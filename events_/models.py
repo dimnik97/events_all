@@ -53,15 +53,29 @@ class Event(models.Model):
             q_objects.add(Q(category=request.POST['category']), Q.AND)
 
         if 'location' in request.POST and request.POST['location'] != '':
-            q_objects.add(Q(location=request.POST['location']), Q.AND)
+            if int(request.POST['location']) > 0:
+                q_objects.add(Q(location=request.POST['location']), Q.AND)
 
         if 'name' in request.POST and request.POST['name'] != '':
             q_objects.add(Q(name__icontains=request.POST['name']), Q.AND)
 
+        from datetime import datetime
+        if 'start_time' in request.POST and request.POST['start_time'] != '':
+            start_time = datetime.utcfromtimestamp(int(request.POST['start_time'])/1000)
+            q_objects.add(Q(start_time__gte=str(start_time)), Q.AND)
+            # q_objects.add(Q(end_time__lte=datetime.strptime(request.POST['start_time'], "%a, %d %b %Y %H:%M:%S %Z")), Q.OR)
+
+        if 'end_time' in request.POST and request.POST['end_time'] != '':
+            end_time = datetime.utcfromtimestamp(int(request.POST['end_time']) / 1000)
+            q_objects.add(Q(start_time__lte=str(end_time)), Q.AND)
+
+
         try:
             events = Event.objects.filter(q_objects). \
-                only('name', 'creator_id__first_name', 'description', 'creator_id__last_name'). \
-                select_related('event_avatar', 'creator_id', 'creator_id__profileavatar'). \
+                only('name', 'creator_id__first_name', 'description',
+                     'creator_id__last_name', 'created_by_group', 'created_by_group__name',
+                     'start_time', 'end_time'). \
+                select_related('event_avatar', 'creator_id', 'creator_id__profileavatar', 'created_by_group__groupavatar'). \
                 order_by('-create_time')
         except:
             return None
@@ -83,12 +97,12 @@ post_save.connect(event_creating_post_save, sender=Event)
 class EventNews(models.Model):
     text = models.TextField(null=True,blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
-    news_creator = models.ForeignKey(User, on_delete = models.CASCADE)
-    news_event = models.ForeignKey(Event, on_delete = models.CASCADE)
+    news_creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    news_event = models.ForeignKey(Event, on_delete=models.CASCADE)
     news_image = models.ImageField(
         upload_to=curry(helper.upload_to, prefix='news_img'),
         # upload_to=helper.upload_to,
-        default= None
+        default=None
     )
 
     # Добавляем к свойствам объектов модели путь к миниатюре
@@ -196,7 +210,7 @@ class Event_avatar(models.Model):
 class EventParty(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ManyToManyField(User)
-    event_id = models.ForeignKey(Event, on_delete = models.CASCADE)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
 
     @classmethod
     def subscr_to_event(cls, ev_id, u_id):

@@ -5,9 +5,21 @@
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
     <div class="content">
-        <form method="post" novalidate enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="event_form" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
+
+            <label>Город</label>
+            <div id="location" class="custom_select">
+                <input type="text" placeholder="поиск" class="find_city" >
+                {#  TODO: На релизе будет эта строка <option selected value="{{ user_city.city_id }}">{{ user_city.city}}</option>#}
+                <div class="custom_select_items">
+                    <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
+                    {% for city in city_list %}
+                        <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
+                    {% endfor %}
+                </div>
+            </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>

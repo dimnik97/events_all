@@ -1,12 +1,17 @@
+import json
+
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.shortcuts import render, get_object_or_404, render_to_response, redirect
 
-from events_.forms import EditEvent, CreateEventNews
+from cities_.models import CityTable
+from events_.forms import EventForm, CreateEventNews
+from events_all.helper import parse_from_error_to_json
 from groups.models import Membership, Group
+from profiles.models import Users
 from .models import Event, EventParty, Event_avatar, EventNews
-
 
 
 def index(request, id):
@@ -45,7 +50,6 @@ def index(request, id):
     if request.method == 'POST':
         form = CreateEventNews(request.POST, request.FILES, request.GET)
         if form.is_valid():
-
             if (event_detail.creator_id == request.user):
                 form.save(request, event_detail)  # 1 - флаг для определения создания, а не редактирвания, обрабатывается в форме
             elif( event_detail.created_by_group ):
@@ -55,18 +59,11 @@ def index(request, id):
                 news = list(EventNews.objects.filter(news_event=event_detail))
             except:
                 news = None
-
-
     else:
         form = CreateEventNews()
 
-
-    try:
-        event_news = EventNews.objects.filter(news_event=event_detail)
-    except:
-        event_news = None
-
-
+    event_news = EventNews.objects.filter(news_event=event_detail)
+    event_news = None
 
     context = {
         'news_form': form,
@@ -85,77 +82,86 @@ def index(request, id):
     return render_to_response('event_detail.html', context)
 
 
+@login_required(login_url='/accounts/login/')
 def subsc_unsubsc(request):
-    if request.user.is_authenticated:
-        if request.is_ajax():
-            try:
-                event = Event.objects.get(id=request.POST['event_id'])
-                action = request.POST['action']
-                user = request.user
+    if request.is_ajax():
+        try:
+            event = Event.objects.get(id=request.POST['event_id'])
+            action = request.POST['action']
+            user = request.user
 
-                if action == "subscribe":
-                    EventParty.subscr_to_event(event,user)
-                else:
-                    EventParty.unsubscr_from_event(event,user)
-            except KeyError:
-                return HttpResponse('Error')
-            return HttpResponse(str(200))
-        else:
-            raise Http404
+            if action == "subscribe":
+                EventParty.subscr_to_event(event,user)
+            else:
+                EventParty.unsubscr_from_event(event,user)
+        except KeyError:
+            return HttpResponse('Error')
+        return HttpResponse(str(200))
     else:
-        return redirect('/accounts/login')
+        raise Http404
 
-
+@login_required(login_url='/accounts/login/')
 def edit(request, id, group_id=None):
     user = request.user
-    if user.is_authenticated:
-        event = get_object_or_404(Event, id=id)
-        if event.creator_id == user:
-            if request.method == 'POST':
-                form = EditEvent(request.POST, request.FILES)
-                if form.is_valid():
-                    form.save(request)
-            else:
-                form = EditEvent({'id': event.id,
-                                  'name': event.name,
-                                  'description': event.description,
-                                  'start_time': event.start_time,
-                                  'end_time': event.end_time,
-                                  })
-
-            avatar, created = Event_avatar.objects.get_or_create(event=event)
-            context = {
-                'title': 'Редактирование события',
-                'form': form,
-                "csrf_token": get_token(request),
-                'avatar': avatar
-            }
-
-            return render_to_response('edit.html', context)
-        else:
-            raise Http404
-    else:
-        return redirect('/accounts/login')
-
-
-def create(request):
-    user = request.user
-    if user.is_authenticated:
+    user_city = Users.get_user_locations(request)
+    event = get_object_or_404(Event, id=id)
+    if event.creator_id == user:
         if request.method == 'POST':
-            form = EditEvent(request.POST, request.FILES, request.GET)
+            form = EventForm(request.POST, request.FILES)
             if form.is_valid():
-                response = form.save(request, 1)  # 1 - флаг для определения создания, а не редактирвания, обрабатывается в форме
-                return redirect('/events/' + str(int(response.content)))
+                form.save(request)
+            else:
+                data = parse_from_error_to_json(request, form)
+                return HttpResponse(json.dumps(data))
         else:
-            form = EditEvent()
+            user_city = event.location
+            form = EventForm({'id': event.id,
+                              'name': event.name,
+                              'description': event.description,
+                              'start_time': event.start_time,
+                              'end_time': event.end_time,
+                              })
+
+        avatar = Event_avatar.objects.get(event=event)
+        city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
 
         context = {
-            'title': 'Создание события',
+            'title': 'Редактирование события',
             'form': form,
-            "csrf_token": get_token(request)
+            "csrf_token": get_token(request),
+            'avatar': avatar,
+            'city_list': city_list,
+            'user_city': user_city
         }
-        return render_to_response('create.html', context)
 
+        return render_to_response('edit.html', context)
     else:
-        return redirect('/accounts/login')
+        raise Http404
+
+
+@login_required(login_url='/accounts/login/')
+def create(request):
+    if request.method == 'POST':
+        form = EventForm(request.POST, request.FILES, request.GET)
+        if form.is_valid():
+            result = form.save(request, 1)  # 1 - флаг создания
+            if result['status'] == 200:
+                return HttpResponse(json.dumps(result))
+        else:
+            data = parse_from_error_to_json(request, form)
+            return HttpResponse(json.dumps(data))
+    else:
+        form = EventForm()
+
+    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
+    user_city = Users.get_user_locations(request)
+    context = {
+        'title': 'Создание события',
+        'form': form,
+        "csrf_token": get_token(request),
+        'city_list': city_list,
+        'user_city': user_city
+    }
+    return render_to_response('create.html', context)
+
 
