@@ -139,8 +139,8 @@ class Event_avatar(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(
-        upload_to=curry(helper.upload_to, prefix='avatar_event'),
-        # upload_to=helper.upload_to,
+        # upload_to=curry(helper.upload_to, prefix='avatar_event'),
+        upload_to=helper.upload_to,
         default='avatar_event/default/img.jpg')
 
     class Meta:

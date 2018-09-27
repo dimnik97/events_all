@@ -71,21 +71,21 @@ CHANNEL_LAYERS = {
 
 # TODO Оптимизируем
 # Все отправленные запросы логируются
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-        }
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django.db.backends': {
+#             'level': 'DEBUG',
+#             'handlers': ['console'],
+#         }
+#     },
+# }
 # Все отправленные запросы логируются
 
 # SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -143,14 +143,14 @@ if (getpass.getuser() == 'dmitrij'):
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test3',
-        'USER': 'postgreadmin',
-        'PASSWORD': '4321',
-        'HOST': 'localhost',
-        # 'NAME': 'local_db',
-        # 'USER': 'postgres',
-        # 'PASSWORD': '',
-        # 'HOST': host,
+        # 'NAME': 'test3',
+        # 'USER': 'postgreadmin',
+        # 'PASSWORD': '4321',
+        # 'HOST': 'localhost',
+        'NAME': 'local_2',
+        'USER': 'postgres',
+        'PASSWORD': '',
+        'HOST': host,
         'PORT': '5432',
     }
 }
