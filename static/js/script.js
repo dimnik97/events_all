@@ -1142,7 +1142,6 @@ $(document).ready(function() {
             data: data,
             dataType: 'json',
             success: function(data) {
-                debugger;
                 if (data.status === 200) {
                     window.location.replace('/events/' + data.url);
                 } else {

@@ -20,10 +20,10 @@ class CityTable(models.Model):
 
     @staticmethod
     def find_city(request):
+        cities = ''
         try:
             if 'city_name' in request.POST and request.POST['city_name'] != '':
                 cities = CityTable.objects.filter(city__istartswith=request.POST['city_name'])
         except KeyError:
             return HttpResponse('Error')
         return HttpResponse(serializers.serialize('json', list(cities)))
-

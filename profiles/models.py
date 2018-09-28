@@ -77,8 +77,8 @@ class Profile(models.Model):
     )
 
     class Meta:
-        verbose_name = ('Профили')
-        verbose_name_plural = ('Профили')
+        verbose_name = 'Профили'
+        verbose_name_plural = 'Профили'
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name + ' (' + self.user.username + ')'
@@ -163,7 +163,7 @@ class Profile(models.Model):
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=curry(helper.upload_to, prefix='avatar'),
+    image = models.ImageField(upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
                               default='avatar/default/img.jpg')
 
     class Meta:
@@ -172,19 +172,19 @@ class ProfileAvatar(models.Model):
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_mini_path(self):
-        return helper._add_mini(self.image.path, postfix='mini')
+        return helper.ImageHelper.add_mini(self.image.path, postfix='mini')
 
     # Добавляем к свойствам объектов модели урл миниатюры
     def _get_mini_url(self):
-        return helper._add_mini(self.image.url, postfix='mini')
+        return helper.ImageHelper.add_mini(self.image.url, postfix='mini')
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_reduced_path(self):
-        return helper._add_mini(self.image.path, postfix='reduced')
+        return helper.ImageHelper.add_mini(self.image.path, postfix='reduced')
 
     # Добавляем к свойствам объектов модели урл миниатюры
     def _get_reduced_url(self):
-        return helper._add_mini(self.image.url, postfix='reduced')
+        return helper.ImageHelper.add_mini(self.image.url, postfix='reduced')
 
     mini_path = property(_get_mini_path)
     mini_url = property(_get_mini_url)
@@ -210,7 +210,7 @@ class ProfileAvatar(models.Model):
         )
 
     def get_absolute_url(self):
-        return ('photo_detail', None, {'object_id': self.id})
+        return 'photo_detail', None, {'object_id': self.id}
 
 
 # Настройки юзера
@@ -252,8 +252,8 @@ class UserSettings(models.Model):
     )
 
     class Meta:
-        verbose_name = ('Пользовательские настройки')
-        verbose_name_plural = ('Пользовательские настройки')
+        verbose_name = 'Пользовательские настройки'
+        verbose_name_plural = 'Пользовательские настройки'
 
     def __str__(self):
         return 'Пользовательские настройки ' + str(self.user.first_name)

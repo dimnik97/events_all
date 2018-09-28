@@ -29,8 +29,8 @@ class AllRoles(models.Model):
         return self.role
 
     class Meta:
-        verbose_name = ('Роли участников группы')
-        verbose_name_plural = ('Роли участников группы')
+        verbose_name = 'Роли участников группы'
+        verbose_name_plural = 'Роли участников группы'
 
 
 # Группы
@@ -43,8 +43,8 @@ class Group(models.Model):
     create_date = models.DateField(auto_now_add=True)
     # Настройки группы
     CHOICES_ACTIVE = (('1', 'Активная'),
-                     ('2', 'Удаленная'),
-                     ('3', 'Заблокированная'),)
+                      ('2', 'Удаленная'),
+                      ('3', 'Заблокированная'),)
     active = models.CharField(  # для бана
         max_length=2,
         choices=CHOICES_ACTIVE,
@@ -64,8 +64,8 @@ class Group(models.Model):
     )
 
     class Meta:
-        verbose_name = ('Группы')
-        verbose_name_plural = ('Группы')
+        verbose_name = 'Группы'
+        verbose_name_plural = 'Группы'
 
     def __str__(self):
         return self.name
@@ -81,11 +81,9 @@ class Group(models.Model):
     # Проверка на возможность создавать посты
     @classmethod
     def is_editor(cls, request, group_id):
-
-
         try:
             user = Membership.objects.get(group_id=group_id, person=request.user.profile)
-        except:
+        except Membership.DoesNotExist:
             return False
 
         if user.role.role == 'admin' or user.role.role == 'editor':
@@ -145,8 +143,8 @@ class Membership(models.Model):
     role = models.ForeignKey(AllRoles, related_name="roles", on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = ('Подписчики группы')
-        verbose_name_plural = ('Подписчики группы')
+        verbose_name = 'Подписчики группы'
+        verbose_name_plural = 'Подписчики группы'
 
     def __str__(self):
         return str(self.group.name) + ' подписчик ' + str(self.person)
@@ -154,7 +152,9 @@ class Membership(models.Model):
     # Подписка на пользователя
     @classmethod
     def subscribe(cls, user, group):
-        Membership.objects.create(group=group, person=user.profile, role=AllRoles.objects.get(role='subscribers'))
+        Membership.objects.create(group=group,
+                                  person=user.profile,
+                                  role=AllRoles.objects.get(role='subscribers'))
 
     # Отписка от пользователя
     @classmethod
@@ -167,38 +167,39 @@ class GroupAvatar(models.Model):
     group = models.OneToOneField(Group, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(
-        upload_to=curry(helper.upload_to, prefix='groups'),
+        upload_to=curry(helper.ImageHelper.upload_to, prefix='groups'),
         # upload_to=helper.upload_to,
-                              default='avatar/default/img.jpg')
+        default='avatar/default/img.jpg')
 
     class Meta:
-        verbose_name = ('Аватары группы')
-        verbose_name_plural = ('Аватары группы')
+        verbose_name = 'Аватары группы'
+        verbose_name_plural = 'Аватары группы'
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_mini_path(self):
-        return helper._add_mini(self.image.path, postfix='mini')
+        return helper.ImageHelper.add_mini(self.image.path, postfix='mini')
 
     # Добавляем к свойствам объектов модели урл миниатюры
     def _get_mini_url(self):
-        return helper._add_mini(self.image.url, postfix='mini')
+        return helper.ImageHelper.add_mini(self.image.url, postfix='mini')
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_reduced_path(self):
-        return helper._add_mini(self.image.path, postfix='reduced')
+        return helper.ImageHelper.add_mini(self.image.path, postfix='reduced')
 
     # Добавляем к свойствам объектов модели урл миниатюры
     def _get_reduced_url(self):
-        return helper._add_mini(self.image.url, postfix='reduced')
+        return helper.ImageHelper.add_mini(self.image.url, postfix='reduced')
 
     mini_path = property(_get_mini_path)
     mini_url = property(_get_mini_url)
     reduced_path = property(_get_reduced_path)
     reduced_url = property(_get_reduced_url)
 
-    def save(self, admin_panel=True, image_type='avatar', force_insert=False, force_update=False, using=None, request=None):
+    @classmethod
+    def save(cls, admin_panel=True, image_type='avatar', force_insert=False, force_update=False, using=None, request=None):
         PhotoEditor.save_photo(
-            self_cls=self,
+            self_cls=cls,
             cls=GroupAvatar,
             admin_panel=admin_panel,
             image_type=image_type,
@@ -207,14 +208,15 @@ class GroupAvatar(models.Model):
             using=using,
             request=request)
 
-    def delete_photo(self, using=None):
+    @classmethod
+    def delete_photo(cls, using=None):
         PhotoEditor.delete_photo(
-            self_cls = self,
+            self_cls=cls,
             using=using,
             cls=GroupAvatar
         )
 
     def get_absolute_url(self):
-        return ('photo_detail', None, {'object_id': self.id})
+        return 'photo_detail', None, {'object_id': self.id}
 
 

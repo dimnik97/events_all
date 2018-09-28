@@ -42,7 +42,6 @@ class EventForm(forms.Form):
                                widget=CustomDateTimePicker(prams={'default_time_plus_delta': '1'}),
                                label='Дата окончания')
 
-
     # метод для сохранения данных из формы, вызывается аяксом, валидируется на стороне сервера
     def save(self, request, is_creation=None):
         result = {
@@ -72,7 +71,7 @@ class EventForm(forms.Form):
             event.save()
             result['url'] = event.id
             return result
-        except Exception:
+        except CityTable.DoesNotExist:
             result['status'] = 400  # Ошибка
             return result
 

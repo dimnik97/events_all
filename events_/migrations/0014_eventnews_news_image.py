@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='eventnews',
             name='news_image',
-            field=models.ImageField(default=None, upload_to=events_all.helper.upload_to),
+            field=models.ImageField(default=None, upload_to=events_all.helper.ImageHelper.upload_to),
         ),
     ]
