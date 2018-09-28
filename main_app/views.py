@@ -6,11 +6,12 @@ from events_.models import Event, EventCategory
 from profiles.models import Users
 
 
+# Получение данных на основную ленту
 def index(request):
     user = request.user
     category_list = EventCategory.objects.all()
 
-    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')[:10]
+    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
     user_city = Users.get_user_locations(request)
 
     context = {
@@ -25,6 +26,7 @@ def index(request):
     return render_to_response('index.html', context)
 
 
+# Паджинация основной ленты
 def get_infinite_events(request):
     events = Event.get_events(request)
 

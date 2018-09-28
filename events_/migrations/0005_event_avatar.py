@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('last_update', models.DateField(blank=True, default=datetime.date.today, null=True)),
-                ('image', models.ImageField(default='media/avatar/default/img.jpg', upload_to=helper.upload_to)),
+                ('image', models.ImageField(default='media/avatar/default/img.jpg', upload_to=helper.ImageHelper.upload_to)),
                 ('event', models.OneToOneField(default=True, on_delete=django.db.models.deletion.CASCADE, to='events_.Event')),
             ],
             options={

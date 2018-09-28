@@ -3,7 +3,7 @@ from django.core.serializers import json
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 
-
+from cities_.models import CityTable
 from events_.models import Event, Event_avatar, EventCategory, EventNews
 from events_all.widgets import CustomDateTimePicker
 from groups.models import Group
@@ -22,59 +22,56 @@ class CreateEventNews(forms.Form):
         news.save()
 
 
-
-class EditEvent(forms.Form):
+class EventForm(forms.Form):
     id = forms.CharField(required=False, widget=forms.HiddenInput(), max_length=30, label='id')
     image = forms.ImageField(required=False, label='Фото')
-    name = forms.CharField(required=True, max_length=30, label='Имя')
+    name = forms.CharField(required=True, max_length=30, label='Название события')
     description = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Описание')
-    category_types = EventCategory.objects.all()
+
     CATEGORY_CH = []
-    for item in category_types:
+    for item in EventCategory.objects.all():
         CATEGORY_CH.append((item.id, item.name))
 
-    category = forms.ChoiceField(required=False,
-                               label='Категория', widget=forms.Select, choices=CATEGORY_CH)
-    start_time = forms.CharField(required=False,
+    category = forms.ChoiceField(required=True,
+                                 label='Категория', widget=forms.Select, choices=CATEGORY_CH)
+
+    start_time = forms.CharField(required=True,
                                  widget=CustomDateTimePicker(prams={'default_time': '1'}),
                                  label='Дата начала')
-    end_time = forms.CharField(required=False,
+    end_time = forms.CharField(required=True,
                                widget=CustomDateTimePicker(prams={'default_time_plus_delta': '1'}),
                                label='Дата окончания')
 
-    # метод для сохранения данных из формы
+    # метод для сохранения данных из формы, вызывается аяксом, валидируется на стороне сервера
     def save(self, request, is_creation=None):
+        result = {
+            'status': 200,
+            'url': ''
+        }
+        try:
+            cities = CityTable.objects.get(city_id=request.POST['location'])
 
-        if is_creation == 1:
-            event = Event()
+            if is_creation == 1:  # Если создание
+                event = Event()
+                if 'group_id' in request.GET:   # Создано ли от группы?
+                    group = Group.objects.get(pk=int(request.GET['group_id']))
+                    event.created_by_group = group
+
+            else:  # Если редактирование
+                event = Event.objects.get(id=request.POST['id'])
+
+            event.name = request.POST['name']
+            if 'description' in request.POST:
+                event.description = request.POST['description']
             event.creator_id = request.user
-
-        else:
-            event = get_object_or_404(Event, id=request.POST['id'])
-
-        event.name = request.POST['name']
-        event.description = request.POST['description']
-
-
-        if is_creation ==1:
-            if 'group_id' in request.GET:
-                group = Group.objects.get(pk=int(request.GET['group_id']))
-                event.created_by_group = group
-
-
-        if request.POST['start_time'] is not None:
+            event.location = cities
+            event.location_name = cities.city
             event.start_time = request.POST['start_time']
-        if request.POST['end_time'] is not None:
             event.end_time = request.POST['end_time']
-
-        event.save()
-
-        if len(request.FILES) > 0:
-            if request.FILES['image'] is not None:
-                event_photo = Event_avatar.objects.get_or_create(event=event)
-                event_photo[0].image = request.FILES['image']
-                event_photo[0].event = event
-                event_photo[0].save()
-
-        return HttpResponse(event.id)
+            event.save()
+            result['url'] = event.id
+            return result
+        except CityTable.DoesNotExist:
+            result['status'] = 400  # Ошибка
+            return result
 

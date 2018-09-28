@@ -69,9 +69,13 @@ def room(request):
         'text': '',
         'room': False
     }
+    context = {
+        'status': '',
+        'text': ''
+    }
     room_id = ''
     peer_id = ''
-    room = ''
+    room_object = ''
     room_name = ''
     chat_type = ''
     if 'room' in request.GET:
@@ -84,12 +88,8 @@ def room(request):
         flag = False
         members = RoomMembers.objects.filter(room_rel_id=request.GET['room'])
         try:
-            room = Room.objects.get(id=room_id)
+            room_object = Room.objects.get(id=room_id)
         except Room.DoesNotExist:
-            context = {
-                'status': '',
-                'text': ''
-            }
             context['status'] = 404
             context['text'] = 'Чат не создан, либо у вас нет доступа к данному чату'
             return render(request, 'chats/room.html', context)
@@ -97,7 +97,7 @@ def room(request):
         for member in members:
             if member.user_rel == request.user:
                 flag = True
-                if member.joined == False and member.user_rel == request.user:
+                if member.joined is False and member.user_rel == request.user:
                     peer['status'] = '404'
                     peer['text'] = 'Сначала присоединитесь к чату'
                     break
@@ -121,7 +121,7 @@ def room(request):
             room_members.append(user)
             room_members.append(peer['peer'])
             room_name = peer['peer'].first_name + ' ' + peer['peer'].last_name
-        except:
+        except User.DoesNotExist:
             peer['status'] = '404'
             peer['text'] = 'Пользователя с таким id не существует'
     context = {
@@ -133,7 +133,7 @@ def room(request):
         'chat_type': chat_type,
         'chat_id': request.GET[chat_type],
         'room_name': room_name,
-        'room': room,
+        'room': room_object,
         'status': 200
     }
     return render(request, 'chats/room.html', context)

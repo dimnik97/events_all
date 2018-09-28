@@ -1072,4 +1072,107 @@ $(document).ready(function() {
             }
         });
     })
+
+    /**
+     * Поиск города в кастомном селекте
+     *
+     */
+    $('.find_city', '.custom_select').on('input', function () {
+        var city_name = $(this).val(),
+            $this = $(this);
+        $.ajax({
+            url: '/cities_/find_city',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'city_name': city_name
+            },
+            success: function (data) {
+                $('.select_item', '.custom_select_items').remove();
+                if (data == false) {
+                    $('.custom_select_items').append("<span  class='select_item go_out' >Ничего не найдено</span>");
+                    return;
+                }
+                data.forEach(function(data, i, arr) {
+                    $('.custom_select_items').append("<span  class='select_item' data-city_id="+ data.pk +">" + data.fields.city + "</span>");
+                });
+
+                set_value_on_custom_select();
+            }
+        });
+    });
+
+    /**
+     * Установка значения в кастомном селекте
+     *
+     */
+    set_value_on_custom_select();
+    function set_value_on_custom_select() {
+        $('.select_item', '.custom_select_items').off('click').on('click', function () {
+            $(this).parent().find('.select_item').removeClass('selected');
+            if ($(this).hasClass('go_out'))
+                return;
+            $(this).addClass('selected');
+        })
+    }
+
+
+
+
+
+
+    /**
+     * Ajax для формы EventForm
+     *
+     */
+    $('#event_form').on('submit', function(e){
+        custom_save_event_form($('#event_form'), e)
+    });
+    /**
+     * Ajax для формы EventForm
+     *
+     */
+    function custom_save_event_form($form, e){
+        e.preventDefault();
+        var data = get_form_with_custom_modules($form);
+
+        $.ajax({
+            type: "POST",
+            url: "/events/create",
+            data: data,
+            dataType: 'json',
+            success: function(data) {
+                if (data.status === 200) {
+                    window.location.replace('/events/' + data.url);
+                } else {
+                    ajax_validate_form_data($form, data);
+                }
+            }
+        });
+    };
+
+    /**
+     * Получение выбранного в кастомном селекте
+     *
+     */
+    function get_value_from_custom_select(parent_selector) {
+        return parent_selector.find('.selected');
+    }
+    /**
+     * Получение формы с кастомными модулями, например селект по городам
+     *
+     */
+    function get_form_with_custom_modules($form) {
+        var unindexed_array = $form.serializeArray(),
+            indexed_array = {};
+
+        var location = get_value_from_custom_select($('#location'));
+        unindexed_array.push({name: 'location', value: location.data('city_id')});
+
+        $.map(unindexed_array, function(n, i){
+            indexed_array[n['name']] = n['value'];
+        });
+
+        return indexed_array;
+    }
 });

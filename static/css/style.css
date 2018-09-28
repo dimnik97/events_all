@@ -230,3 +230,17 @@ li.dialog_row {
     display: none;
 }
 
+.custom_select {
+    display: inline-grid;
+}
+.custom_select_items {
+    display: inline-grid;
+    max-height: 100px;
+    overflow: scroll;
+}
+.custom_select .selected {
+    color: red;
+}
+.is-invalid {
+    border: 1px solid red;
+}

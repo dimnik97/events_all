@@ -72,7 +72,7 @@ class Room(models.Model):
                 result['status'] = '400'
                 result['text'] = 'Вы не являетесь создателем группы'
                 return result
-        except:
+        except Room.DoesNotExist:
             result['status'] = '400'
             result['text'] = 'Группа не найдена'
             return result
@@ -119,14 +119,14 @@ class Room(models.Model):
                 member = RoomMembers.objects.get(user_rel=request.user, room_rel_id=room_id)
                 member.joined = True
                 member.save()
-                last_message = ChatMessage.objects.order_by('room', '-created').filter(user=request.user,
-                                                                                       room_id=room_id).distinct('room')[0]
+                last_message = ChatMessage.objects.order_by('room', '-created'). \
+                                                   filter(user=request.user, room_id=room_id).distinct('room')[0]
                 last_message.flags = last_message.flags - 64
                 last_message.save()
                 result['room_url'] = '/chats/?room=' + str(room_id)
             else:
                 result['status'] = '400'
-        except:
+        except RoomMembers.DoesNotExist:
             result['status'] = '400'
         return result
 
@@ -147,7 +147,7 @@ class Room(models.Model):
                 member.delete()
             else:
                 result['status'] = '400'
-        except:
+        except RoomMembers.DoesNotExist:
             result['status'] = '400'
         return result
 
@@ -211,8 +211,8 @@ class RoomMembers(models.Model):
         return self.user_rel.first_name + ' ' + self.user_rel.last_name + ' - группа ' + self.room_rel.name
 
     class Meta:
-        verbose_name = ('Участники чатов')
-        verbose_name_plural = ('Участники чатов')
+        verbose_name = 'Участники чатов'
+        verbose_name_plural = 'Участники чатов'
 
     @staticmethod
     def invite_message(user, room_id, is_invite):
@@ -417,7 +417,7 @@ class ChatMessage(models.Model):
                     if flags[0] == 1:
                         peer_msg.flags = peer_msg.flags - 1
                         peer_msg.save()
-        except:
+        except ChatMessage.DoesNotExist:
             dic['status'] == 403
             dic['text'] == 'Ошибка'
         pass

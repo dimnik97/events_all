@@ -29,9 +29,10 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('profile/', include('profiles.urls')),
     path('groups/', include('groups.urls')),
-    path('cities/', include('cities.urls')),
+    path('cities/', include('cities_.urls')),
     path('events/', include('events_.urls')),
     path('chats/', include('chats.urls')),
+    path('cities_/', include('cities_.urls')),
     # url(r'^$', RedirectView.as_view(url='/main_app')),
 ]
 

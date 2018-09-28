@@ -36,7 +36,7 @@ class Event(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
-    participants = models.IntegerField(null=True, blank=True) # Это поле точно нужно?
+    participants = models.IntegerField(null=True, blank=True)  # Это поле точно нужно?
     status = models.ForeignKey(EventStatus, on_delete=models.CASCADE, default=1)
     created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
     
@@ -53,17 +53,32 @@ class Event(models.Model):
             q_objects.add(Q(category=request.POST['category']), Q.AND)
 
         if 'location' in request.POST and request.POST['location'] != '':
-            q_objects.add(Q(location=request.POST['location']), Q.AND)
+            if int(request.POST['location']) > 0:
+                q_objects.add(Q(location=request.POST['location']), Q.AND)
 
         if 'name' in request.POST and request.POST['name'] != '':
             q_objects.add(Q(name__icontains=request.POST['name']), Q.AND)
 
+        from datetime import datetime
+        if 'start_time' in request.POST and request.POST['start_time'] != '':
+            start_time = datetime.utcfromtimestamp(int(request.POST['start_time'])/1000)
+            q_objects.add(Q(start_time__gte=str(start_time)), Q.AND)
+            # q_objects.add(Q(end_time__lte=datetime.strptime(request.POST['start_time'],
+            # "%a, %d %b %Y %H:%M:%S %Z")), Q.OR)
+
+        if 'end_time' in request.POST and request.POST['end_time'] != '':
+            end_time = datetime.utcfromtimestamp(int(request.POST['end_time']) / 1000)
+            q_objects.add(Q(start_time__lte=str(end_time)), Q.AND)
+
         try:
             events = Event.objects.filter(q_objects). \
-                only('name', 'creator_id__first_name', 'description', 'creator_id__last_name'). \
-                select_related('event_avatar', 'creator_id', 'creator_id__profileavatar'). \
+                only('name', 'creator_id__first_name', 'description',
+                     'creator_id__last_name', 'created_by_group', 'created_by_group__name',
+                     'start_time', 'end_time'). \
+                select_related('event_avatar', 'creator_id', 'creator_id__profileavatar',
+                               'created_by_group__groupavatar'). \
                 order_by('-create_time')
-        except:
+        except Event.DoesNotExist:
             return None
         return events
 
@@ -83,21 +98,21 @@ post_save.connect(event_creating_post_save, sender=Event)
 class EventNews(models.Model):
     text = models.TextField(null=True,blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
-    news_creator = models.ForeignKey(User, on_delete = models.CASCADE)
-    news_event = models.ForeignKey(Event, on_delete = models.CASCADE)
+    news_creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    news_event = models.ForeignKey(Event, on_delete=models.CASCADE)
     news_image = models.ImageField(
-        # upload_to=curry(helper.upload_to, prefix='news_img'),
-        upload_to=helper.upload_to,
-        default= None
+        upload_to=curry(helper.ImageHelper.upload_to, prefix='news_img'),
+        # upload_to=helper.upload_to,
+        default=None
     )
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_reduced_path(self):
-        return helper._add_mini(self.news_image.path, postfix='reduced')
+        return helper.ImageHelper.add_mini(self.news_image.path, postfix='reduced')
 
     # Добавляем к свойствам объектов модели урл миниатюры
     def _get_reduced_url(self):
-        return helper._add_mini(self.news_image.url, postfix='reduced')
+        return helper.ImageHelper.add_mini(self.news_image.url, postfix='reduced')
 
     reduced_path = property(_get_reduced_path)
     reduced_url = property(_get_reduced_url)
@@ -107,10 +122,10 @@ class EventNews(models.Model):
         try:
             obj = EventNews.objects.get(id=self.id)
             if obj.news_image.path != self.news_image.path:
-                helper._del_mini(obj.news_image.path, postfix='reduced')
+                helper.ImageHelper.del_mini(obj.news_image.path, postfix='reduced')
                 if 'default' not in obj.news_image:
                     obj.image.delete()
-        except:
+        except EventNews.DoesNotExist:
             pass
 
         super(EventNews, self).save()
@@ -126,28 +141,28 @@ class Event_avatar(models.Model):
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(
         # upload_to=curry(helper.upload_to, prefix='avatar_event'),
-        upload_to=helper.upload_to,
+        upload_to=helper.ImageHelper.upload_to,
         default='avatar_event/default/img.jpg')
 
     class Meta:
-        verbose_name = ('Аватары')
-        verbose_name_plural = ('Аватары')
+        verbose_name = 'Аватары'
+        verbose_name_plural = 'Аватары'
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_mini_path(self):
-        return helper._add_mini(self.image.path, postfix='mini')
+        return helper.ImageHelper.add_mini(self.image.path, postfix='mini')
 
     # Добавляем к свойствам объектов модели урл миниатюры
     def _get_mini_url(self):
-        return helper._add_mini(self.image.url, postfix='mini')
+        return helper.ImageHelper.add_mini(self.image.url, postfix='mini')
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_reduced_path(self):
-        return helper._add_mini(self.image.path, postfix='reduced')
+        return helper.ImageHelper.add_mini(self.image.path, postfix='reduced')
 
     # Добавляем к свойствам объектов модели урл миниатюры
     def _get_reduced_url(self):
-        return helper._add_mini(self.image.url, postfix='reduced')
+        return helper.ImageHelper.add_mini(self.image.url, postfix='reduced')
 
     mini_path = property(_get_mini_path)
     mini_url = property(_get_mini_url)
@@ -163,11 +178,11 @@ class Event_avatar(models.Model):
         try:
             obj = Event_avatar.objects.get(id=self.id)
             if obj.image.path != self.image.path:
-                helper._del_mini(obj.image.path, postfix='mini')
-                helper._del_mini(obj.image.path, postfix='reduced')
+                helper.ImageHelper.del_mini(obj.image.path, postfix='mini')
+                helper.ImageHelper.del_mini(obj.image.path, postfix='reduced')
                 if 'default' not in obj.image:
                     obj.image.delete()
-        except:
+        except Event_avatar.DoesNotExist:
             pass
 
         super(Event_avatar, self).save()
@@ -185,8 +200,8 @@ class Event_avatar(models.Model):
     def delete(self, using=None):
         try:
             obj = Event_avatar.objects.get(id=self.id)
-            helper._del_mini(obj.image.path, postfix='mini')
-            helper._del_mini(obj.image.path, postfix='reduced')
+            helper.ImageHelper.del_mini(obj.image.path, postfix='mini')
+            helper.ImageHelper.del_mini(obj.image.path, postfix='reduced')
             obj.image.delete()
         except (Event_avatar.DoesNotExist, ValueError):
             pass
@@ -196,21 +211,21 @@ class Event_avatar(models.Model):
 class EventParty(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ManyToManyField(User)
-    event_id = models.ForeignKey(Event, on_delete = models.CASCADE)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
 
     @classmethod
     def subscr_to_event(cls, ev_id, u_id):
-        eventparty, created = cls.objects.get_or_create(
+        event_party, created = cls.objects.get_or_create(
             event_id=ev_id
         )
-        eventparty.user_id.add(u_id)
+        event_party.user_id.add(u_id)
 
     @classmethod
     def unsubscr_from_event(cls, ev_id, u_id):
-        eventparty, created = cls.objects.get_or_create(
+        event_party, created = cls.objects.get_or_create(
             event_id=ev_id
         )
-        eventparty.user_id.remove(u_id)
+        event_party.user_id.remove(u_id)
 
     def __str__(self):
         return self.event_id.name

@@ -97,6 +97,7 @@ def add_or_remove_friends(request):
 
 class Edit(FormView):
     @login_required(login_url='/accounts/login/')
+    @staticmethod
     def edit_view(request):
         user = request.user
         if request.method == 'POST':

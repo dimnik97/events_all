@@ -18,7 +18,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('last_update', models.DateField(blank=True, default=datetime.date.today, null=True)),
-                ('image', models.ImageField(default='avatar/default/img.jpg', upload_to=events_all.helper.upload_to)),
+                ('image', models.ImageField(default='avatar/default/img.jpg',
+                                            upload_to=events_all.helper.ImageHelper.upload_to)),
             ],
             options={
                 'verbose_name': 'Аватары группы',
@@ -28,7 +29,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='group',
             name='active',
-            field=models.CharField(choices=[('1', 'Активная'), ('2', 'Удаленная'), ('3', 'Заблокированная')], default=1, max_length=2),
+            field=models.CharField(choices=[('1', 'Активная'), ('2', 'Удаленная'), ('3', 'Заблокированная')],
+                                   default=1, max_length=2),
         ),
         migrations.AddField(
             model_name='groupavatar',

@@ -13,36 +13,38 @@ def convert_base(num):
     return res
 
 
-def _add_mini(s, postfix=''):
-    parts = s.split(".")
-    parts.insert(-1, postfix)
-    if parts[-1].lower() not in ['jpeg', 'jpg', 'png']:
-        parts[-1] = 'jpg'
-    return ".".join(parts)
+class ImageHelper:
+    @staticmethod
+    def add_mini(s, postfix=''):
+        parts = s.split(".")
+        parts.insert(-1, postfix)
+        if parts[-1].lower() not in ['jpeg', 'jpg', 'png']:
+            parts[-1] = 'jpg'
+        return ".".join(parts)
 
+    # Удаление миниатюры с физического носителя.
+    @classmethod
+    def del_mini(cls, p, postfix=''):
+        mini_path = cls.add_mini(p, postfix)
+        if 'default' not in mini_path:
+            if os.path.exists(mini_path):
+                os.remove(mini_path)
 
-# Удаление миниатюры с физического носителя.
-def _del_mini(p, postfix=''):
-    mini_path = _add_mini(p, postfix)
-    if 'default' not in mini_path:
-        if os.path.exists(mini_path):
-            os.remove(mini_path)
+    @staticmethod
+    def upload_to(instance, filename, prefix=None, unique=False):
+        ext = op.splitext(filename)[1]
+        name = str(instance.pk or '') + filename + (str(time()) if unique else '')
+        filename = md5(name.encode('utf8')).hexdigest() + ext
 
+        return op.join(prefix, filename[:2], filename[2:4], filename)
 
-def upload_to(instance, filename, prefix=None, unique=False):
-    ext = op.splitext(filename)[1]
-    name = str(instance.pk or '') + filename + (str(time()) if unique else '')
-    filename = md5(name.encode('utf8')).hexdigest() + ext
+    @staticmethod
+    def temporary_path(filename):
+        ext = op.splitext(filename)[1]
+        name = filename + str(time())
+        filename = md5(name.encode('utf8')).hexdigest() + ext
 
-    return op.join(prefix, filename[:2], filename[2:4], filename)
-
-
-def temporary_path(filename):
-    ext = op.splitext(filename)[1]
-    name = filename + str(time())
-    filename = md5(name.encode('utf8')).hexdigest() + ext
-
-    return op.join('temporary', filename[:2], filename[2:4], filename)
+        return op.join('temporary', filename[:2], filename[2:4], filename)
 
 
 def parse_from_error_to_json(request, form):

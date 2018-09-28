@@ -23,6 +23,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='event_avatar',
             name='image',
-            field=models.ImageField(default='avatar_event/default/img.jpg', upload_to=helper.upload_to),
+            field=models.ImageField(default='avatar_event/default/img.jpg', upload_to=helper.ImageHelper.upload_to),
         ),
     ]

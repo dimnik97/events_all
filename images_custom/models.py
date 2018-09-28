@@ -13,7 +13,8 @@ class PhotoEditor:
     # Берем с пользователя картинку и записываем во временную папку
     # return Урл на картинку, размеры, коэффициент соотношения сторон
     @login_required(login_url='/accounts/login/')
-    def load_image(request):
+    def load_image(self):
+        request = self
         if 'load_image' in request.FILES:
             image = request.FILES['load_image']
             status = 200
@@ -28,12 +29,12 @@ class PhotoEditor:
             if image.content_type not in image_types:
                 data = json.dumps({
                     'status': 405,
-                    'error': _('Bad image format.')
+                    'error': 'Bad image format.'
                 })
                 return HttpResponse(
                     data, content_type="application/json", status=405)
 
-            path = helper.temporary_path(image.name)
+            path = helper.ImageHelper.temporary_path(image.name)
             path = default_storage.save(path, ContentFile(image.read()))
             img_url = os.path.join(settings.MEDIA_URL, path)
 
@@ -55,10 +56,11 @@ class PhotoEditor:
                 'image_info': image_info
             })
             return HttpResponse(data, content_type='application/json')
-        return HttpResponse(_('Invalid request!'))
+        return HttpResponse('Invalid request!')
 
     # Снова берем с пользователя картинку, проверяем, так как на клиенте могли поменять
     # return сохранение в переданную модель
+    @staticmethod
     def save_image(request, model):
         if request.method == 'POST' and request.is_ajax():
             if 'load_image' in request.FILES:
@@ -75,7 +77,7 @@ class PhotoEditor:
                 if image.content_type not in image_types:
                     data = json.dumps({
                         'status': 405,
-                        'error': _('Bad image format.')
+                        'error': 'Bad image format.'
                     })
                     return HttpResponse(
                         data, content_type="application/json", status=405)
@@ -99,25 +101,25 @@ class PhotoEditor:
                     'status': 200,
                 })
                 return HttpResponse(data, content_type='application/json')
-            return HttpResponse(_('Invalid request!'))
+            return HttpResponse('Invalid request!')
 
-        return HttpResponse(_('Invalid request type!'))
+        return HttpResponse('Invalid request type!')
 
     # Добавляем:
     # - создание миниатюры
     # - удаление миниатюры и основного изображения (дефолтная не удаляется)
     #   при попытке записи поверх существующей записи
     #   Кроп + перевороты
-    def save_photo(self_cls, cls, admin_panel=True, image_type='avatar', force_insert=False, force_update=False,
-                   using=None, request=None):
+    @staticmethod
+    def save_photo(self_cls, cls, admin_panel=True, image_type='avatar', request=None):
         try:
             obj = cls.objects.get(id=self_cls.user.profileavatar.id)
             if obj.image.path != self_cls.image.path:
-                helper._del_mini(obj.image.path, postfix='mini')
-                helper._del_mini(obj.image.path, postfix='reduced')
+                helper.ImageHelper.del_mini(obj.image.path, postfix='mini')
+                helper.ImageHelper.del_mini(obj.image.path, postfix='reduced')
                 if str(obj.image).find('default') == -1:
                     obj.image.delete()
-        except:
+        except cls.DoesNotExist:
             pass
         super(cls, self_cls).save()
 
@@ -161,28 +163,33 @@ class PhotoEditor:
                 mini.save(self_cls.mini_path, optimize=True, progressive=True)
 
     # Получение размеров картинки для миниатюры
+    @staticmethod
     def get_image_size(path):
         reduced = Image.open(path)
         coefficient = reduced.width / reduced.height
-        max = 500
+        max_side_in_pixels = 500
+        margin_top = 0
+        margin_left = 0
+        width = 0
+        height = 0
         if coefficient < 1:
             width = 'auto'
-            height = str(max) + 'px'
-            width_crop_coef = reduced.height / max
-            margin_left = str((max - reduced.width / width_crop_coef) / 2) + 'px'
+            height = str(max_side_in_pixels) + 'px'
+            width_crop_coef = reduced.height / max_side_in_pixels
+            margin_left = str((max_side_in_pixels - reduced.width / width_crop_coef) / 2) + 'px'
             margin_top = 0
 
         elif coefficient == 1:
-            width = str(max) + 'px'
-            height = str(max) + 'px'
+            width = str(max_side_in_pixels) + 'px'
+            height = str(max_side_in_pixels) + 'px'
             margin_top = 0
             margin_left = 0
         elif coefficient > 1:
-            width = str(max) + 'px'
+            width = str(max_side_in_pixels) + 'px'
             height = 'auto'
-            height_crop_coef = reduced.width / max
+            height_crop_coef = reduced.width / max_side_in_pixels
             margin_left = 0
-            margin_top = str((max - reduced.height / height_crop_coef) / 2) + 'px'
+            margin_top = str((max_side_in_pixels - reduced.height / height_crop_coef) / 2) + 'px'
 
         image_attr = {
             'margin_top': margin_top,
@@ -195,12 +202,13 @@ class PhotoEditor:
         return image_attr
 
     # Делаем свою delete с учетом миниатюры
+    @staticmethod
     def delete_photo(self_cls, cls, using=None):
         try:
             obj = cls.objects.get(id=self_cls.id)
             path = obj.image.path
-            helper._del_mini(path, postfix='mini')
-            helper._del_mini(path, postfix='reduced')
+            helper.ImageHelper.del_mini(path, postfix='mini')
+            helper.ImageHelper.del_mini(path, postfix='reduced')
             if 'default' not in path:
                 obj.image.delete()
         except (cls.DoesNotExist, ValueError):
