@@ -10,6 +10,8 @@ from events_all import helper
 from groups.models import Group
 from django.db.models.signals import post_save
 
+from profiles.models import Profile
+
 
 class EventCategory(models.Model):
     name = models.CharField(max_length=30)
@@ -27,6 +29,8 @@ class EventStatus(models.Model):
         return str(self.id) + " " + str(self.name)
 
 
+
+
 class Event(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
@@ -39,6 +43,11 @@ class Event(models.Model):
     participants = models.IntegerField(null=True, blank=True)  # Это поле точно нужно?
     status = models.ForeignKey(EventStatus, on_delete=models.CASCADE, default=1)
     created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
+    members = models.ManyToManyField(
+        Profile,
+        through='Event_Membership',
+        through_fields=('event', 'person'),
+    )
     
     location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=None)
     location_name = models.CharField(max_length=100, null=True, blank=True)
@@ -95,14 +104,39 @@ def event_creating_post_save(sender, instance, created, **kwargs):
 post_save.connect(event_creating_post_save, sender=Event)
 
 
+
+class Event_Membership(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    person = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    date_joined = models.DateField(null=True, blank=True, default=datetime.date.today)
+
+    class Meta:
+        verbose_name = 'Подписчики события'
+        verbose_name_plural = 'Подписчики события'
+
+    def __str__(self):
+        return str(self.event.name) + ' подписчик ' + str(self.person)
+
+    # Подписка на пользователя
+    @classmethod
+    def subscribe(cls, user, event):
+        Event_Membership.objects.create(group=event,
+                                  person=user.profile)
+
+    # Отписка от пользователя
+    @classmethod
+    def unsubscribe(cls, user, event):
+        Event_Membership.objects.get(group=event, person=user.profile).delete()
+
+
 class EventNews(models.Model):
     text = models.TextField(null=True,blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
     news_creator = models.ForeignKey(User, on_delete=models.CASCADE)
     news_event = models.ForeignKey(Event, on_delete=models.CASCADE)
     news_image = models.ImageField(
-        upload_to=curry(helper.ImageHelper.upload_to, prefix='news_img'),
-        # upload_to=helper.upload_to,
+        # upload_to=curry(helper.ImageHelper.upload_to, prefix='news_img'),
+        upload_to=helper.ImageHelper.upload_to,
         default=None
     )
 

@@ -167,8 +167,8 @@ class GroupAvatar(models.Model):
     group = models.OneToOneField(Group, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(
-        upload_to=curry(helper.ImageHelper.upload_to, prefix='groups'),
-        # upload_to=helper.upload_to,
+        # upload_to=curry(helper.ImageHelper.upload_to, prefix='groups'),
+        upload_to=helper.ImageHelper.upload_to,
         default='avatar/default/img.jpg')
 
     class Meta:
