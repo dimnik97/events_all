@@ -21,6 +21,7 @@ class EventCategory(models.Model):
         return str(self.id) + " " + str(self.name)
 
 
+
 class EventStatus(models.Model):
     name = models.CharField(max_length=20)
     description = models.TextField(null=True, blank=True)
@@ -36,7 +37,7 @@ class Event(models.Model):
     name = models.CharField(max_length=20)
     description = models.TextField(null=True, blank=True)
     creator_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    category = models.ForeignKey(EventCategory, on_delete=models.CASCADE, default=1)
+    # category = models.ForeignKey(EventCategory, on_delete=models.CASCADE, default=1)
     create_time = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
@@ -47,6 +48,11 @@ class Event(models.Model):
         Profile,
         through='Event_Membership',
         through_fields=('event', 'person'),
+    )
+    category = models.ManyToManyField(
+        EventCategory,
+        through='EventCategoryRelatiom',
+        through_fields=('event', 'category'),
     )
     
     location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=None)
@@ -103,6 +109,9 @@ def event_creating_post_save(sender, instance, created, **kwargs):
 
 post_save.connect(event_creating_post_save, sender=Event)
 
+class EventCategoryRelatiom(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    category = models.ForeignKey(EventCategory, on_delete=models.CASCADE)
 
 
 class Event_Membership(models.Model):
