@@ -13,7 +13,6 @@
                 <label>Город</label>
                 <div id="location" class="custom_select">
                     <input type="text" placeholder="поиск" class="find_city" >
-                    {#  TODO: На релизе будет эта строка <option selected value="{{ user_city.city_id }}">{{ user_city.city}}</option>#}
                     <div class="custom_select_items">
                         <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
                         {% for city in city_list %}
@@ -36,7 +35,8 @@
             is_edit = true,
             is_view = false,
             geo_lat ='{{ geo_point.lat }}',
-            geo_lng ='{{ geo_point.lng }}'
+            geo_lng ='{{ geo_point.lng }}',
+            event_map = false;
     </script>
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 

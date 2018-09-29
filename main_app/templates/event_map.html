@@ -1,0 +1,36 @@
+{% extends "main_template.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+    <div id="map" style="width: 600px; height: 300px"></div>
+    <script>
+        var is_create = false,
+            is_edit = false,
+            is_view = false,
+            event_map = true;
+
+        var first_bounds = [];
+        {% for event in events %}
+            first_bounds[{{ forloop.counter0 }}] = {
+                'name': '{{ event.name }}',
+                'lat': '{{ event.geo_point.lat }}',
+                'lng': '{{ event.geo_point.lng }}',
+                'image': '{{ event.event_avatar.mini_url }}'
+            };
+        {% endfor %}
+    </script>
+
+    <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
+
+    <label>Город</label>
+    <div id="location" class="custom_select event_map">
+        <input type="text" placeholder="поиск" class="find_city" >
+        <div class="custom_select_items">
+            <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
+            {% for city in city_list %}
+                <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

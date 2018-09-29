@@ -1115,8 +1115,27 @@ $(document).ready(function() {
             if ($(this).hasClass('go_out'))
                 return;
             $(this).addClass('selected');
+
             try {
                 set_center_by_city_name($(this).html());
+
+                if ($('#location').hasClass('event_map')) {
+                    $.ajax({
+                        url: '/main_app/get_event_map',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'city_name': $(this).html(),
+                            'city_id': $(this).data('city_id')
+                        },
+                        success: function (data) {
+                            data.forEach(function(item, i, arr) {
+                                add_bounds(item);
+                            });
+                        }
+                    });
+                }
+
             } catch (err) {
             }
         })
@@ -1158,7 +1177,6 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(data) {
                 if (data.status === 200) {
-                    debugger;
                     window.location.replace('/events/' + data.url);
                 } else {
                     ajax_validate_form_data($form, data);

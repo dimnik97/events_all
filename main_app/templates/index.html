@@ -22,8 +22,7 @@
         <div>
             <label>Город</label>
             <div id="location" class="custom_select">
-                <input type="text" placeholder="поиск" class="find_city" >
-                {#  TODO: На релизе будет эта строка <option selected value="{{ user_city.city_id }}">{{ user_city.city}}</option>#}
+                <input type="text" placeholder="поиск" class="find_city">
                 <div class="custom_select_items">
                     <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
                     {% for city in city_list %}

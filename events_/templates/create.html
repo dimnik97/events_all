@@ -31,7 +31,12 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
-    <script> var is_create = true, is_edit = false, is_view = true </script>
+    <script>
+        var is_create = true,
+            is_edit = false,
+            is_view = true,
+            event_map = false;
+    </script>
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 
 {% endblock %}

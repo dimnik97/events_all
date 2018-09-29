@@ -7,6 +7,12 @@ function init() {
         zoom: 10
     });
 
+    if (event_map === true) {
+        set_center_by_city_name($('.custom_select_items').find('.selected').html());
+        for (var i = 0; i < first_bounds.length; i++) {
+            add_bounds(first_bounds[i]);
+        }
+    }
     if (is_create === true || (is_edit === true)) {
         if (is_edit === true) {
             var coords = [parseFloat(geo_lat.replace(',', '.')), parseFloat(geo_lng.replace(',', '.'))];
@@ -16,7 +22,6 @@ function init() {
             set_center_by_city_name($('.custom_select_items').find('.selected').html());
         }
 
-            debugger;
         myMap.events.add('click', function (e) {
             var coords = e.get('coords');
 
@@ -58,16 +63,7 @@ function init() {
         create_and_add_place_mark(coords, false);
     }
 
-    // Создание метки.
-    function createPlacemark(coords) {
-        return new ymaps.Placemark(coords, {
-            iconCaption: 'поиск...'
-        }, {
-            preset: 'islands#violetDotIconWithCaption',
-            draggable: true,
-            iconColor: 'red'
-        });
-    }
+
 
     function create_and_add_place_mark(coords, draggable) {
         myPlacemark = createPlacemark(coords);
@@ -84,7 +80,6 @@ function init() {
         });
         myMap.geoObjects.add(myPlacemark);
     }
-
 }
 function set_center_by_cords(cords) {
     myMap.setCenter(cords, 13);
@@ -97,6 +92,40 @@ function set_center_by_city_name(city_name) {
         var firstGeoObject = res.geoObjects.get(0),
             coords = firstGeoObject.geometry.getCoordinates();
         myMap.setCenter(coords, 10);
+    });
+}
+
+function add_bounds(bounds) {
+    var coords;
+    if (typeof bounds.lat !== 'number' && typeof bounds.lng !== 'number') {
+        coords = [parseFloat(bounds.lat.replace(',', '.')), parseFloat(bounds.lng.replace(',', '.'))];
+    } else {
+        coords = [bounds.lat, bounds.lng]
+    }
+    myPlacemark = createPlacemark_event_map(coords, bounds);
+    myPlacemark.geometry.setCoordinates(coords);
+    myMap.geoObjects.add(myPlacemark);
+}
+
+// Создание метки.
+function createPlacemark(coords) {
+    return new ymaps.Placemark(coords, {
+        iconCaption: 'поиск...'
+    }, {
+        preset: 'islands#violetDotIconWithCaption',
+        draggable: true,
+        iconColor: 'red'
+    });
+}
+
+function createPlacemark_event_map(coords, bounds) {
+    return new ymaps.Placemark(coords, {
+        iconCaption: bounds.name,
+        balloonContent: '<bounds>' + bounds.name + '</span><img src="' + bounds.image + '">',
+    }, {
+        preset: 'islands#violetDotIconWithCaption',
+        draggable: false,
+        iconColor: 'red'
     });
 }
 
