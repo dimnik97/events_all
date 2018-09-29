@@ -108,7 +108,9 @@ def edit(request, id, group_id=None):
         if request.method == 'POST':
             form = EventForm(request.POST, request.FILES)
             if form.is_valid():
-                form.save(request)
+                result = form.save(request)
+                if result['status'] == 200:
+                    return HttpResponse(json.dumps(result))
             else:
                 data = parse_from_error_to_json(request, form)
                 return HttpResponse(json.dumps(data))
@@ -131,7 +133,8 @@ def edit(request, id, group_id=None):
             "csrf_token": get_token(request),
             'avatar': avatar,
             'city_list': city_list,
-            'user_city': user_city
+            'user_city': user_city,
+            'geo_point': event.geo_point
         }
 
         return render_to_response('edit.html', context)
@@ -159,7 +162,7 @@ def create(request):
         'form': form,
         "csrf_token": get_token(request),
         'city_list': CityTable.all_city_exclude_user_city(user_city),
-        'user_city': user_city
+        'user_city': user_city,
     }
     return render_to_response('create.html', context)
 

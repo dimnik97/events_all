@@ -1132,7 +1132,7 @@ $(document).ready(function() {
      *
      */
     $('#event_form_create').on('submit', function(e){
-        custom_save_event_form($('#event_form'), e, '/events/create')
+        custom_save_event_form($('#event_form_create'), e, '/events/create')
     });
 
     /**
@@ -1140,7 +1140,7 @@ $(document).ready(function() {
      *
      */
     $('#event_form_edit').on('submit', function(e){
-        custom_save_event_form($('#event_form'), e, '/events/edit/' + $('#id_id').val())
+        custom_save_event_form($('#event_form_edit'), e, '/events/edit/' + $('#id_id').val())
     });
 
     /**
@@ -1158,6 +1158,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(data) {
                 if (data.status === 200) {
+                    debugger;
                     window.location.replace('/events/' + data.url);
                 } else {
                     ajax_validate_form_data($form, data);

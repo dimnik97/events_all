@@ -40,7 +40,7 @@ class EventGeo(models.Model):
 
 class Event(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     creator_id = models.ForeignKey(User, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True)
@@ -60,11 +60,8 @@ class Event(models.Model):
         through_fields=('event', 'category'),
     )
     geo_point = models.ForeignKey(EventGeo, on_delete=models.CASCADE, blank=True, null=True)
-
-    
     location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=None)
     location_name = models.CharField(max_length=100, null=True, blank=True)
-    creator_id = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # Получение эвентов с учетом фильтрации
     @staticmethod
@@ -97,7 +94,7 @@ class Event(models.Model):
             events = Event.objects.filter(q_objects). \
                 only('name', 'creator_id__first_name', 'description',
                      'creator_id__last_name', 'created_by_group', 'created_by_group__name',
-                     'start_time', 'end_time'). \
+                     'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name'). \
                 select_related('event_avatar', 'creator_id', 'creator_id__profileavatar',
                                'created_by_group__groupavatar'). \
                 order_by('-create_time')

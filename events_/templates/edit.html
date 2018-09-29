@@ -24,14 +24,20 @@
             </div>
             <div class="form-group">
                 <label>Выберите место</label>
-                <span class="select_bounds_yamaps"></span>
+                <span class="select_bounds_yamaps">{{ geo_point.name }}</span>
                 <div id="map" style="width: 600px; height: 300px"></div>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 
-    <script> var is_create = true, is_edit = false, is_view = true </script>
+    <script>
+        var is_create = false,
+            is_edit = true,
+            is_view = false,
+            geo_lat ='{{ geo_point.lat }}',
+            geo_lng ='{{ geo_point.lng }}'
+    </script>
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 
 {% endblock %}

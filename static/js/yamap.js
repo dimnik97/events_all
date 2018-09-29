@@ -4,16 +4,19 @@ var myMap, myPlacemark;
 function init() {
     myMap = new ymaps.Map('map', {
         center: [55.753994, 37.622093],
-        zoom: 7
+        zoom: 10
     });
 
     if (is_create === true || (is_edit === true)) {
         if (is_edit === true) {
-            myPlacemark = createPlacemark(coords);
-            // Установка маркера
+            var coords = [parseFloat(geo_lat.replace(',', '.')), parseFloat(geo_lng.replace(',', '.'))];
+            set_center_by_cords(coords);
+            create_and_add_place_mark(coords, true);
+        } else {
+            set_center_by_city_name($('.custom_select_items').find('.selected').html());
         }
-        set_center_by_city_name($('.custom_select_items').find('.selected').html());
 
+            debugger;
         myMap.events.add('click', function (e) {
             var coords = e.get('coords');
 
@@ -29,16 +32,6 @@ function init() {
             }
             getAddress(coords);
         });
-
-        // Создание метки.
-        function createPlacemark(coords) {
-            return new ymaps.Placemark(coords, {
-                iconCaption: 'поиск...'
-            }, {
-                preset: 'islands#violetDotIconWithCaption',
-                draggable: true
-            });
-        }
 
         // Определяем адрес по координатам (обратное геокодирование).
         function getAddress(coords) {
@@ -59,8 +52,42 @@ function init() {
                     });
             });
         }
+    } else if (is_view === true) {
+        var coords = [parseFloat(geo_lat.replace(',', '.')), parseFloat(geo_lng.replace(',', '.'))];
+        set_center_by_cords(coords);
+        create_and_add_place_mark(coords, false);
     }
 
+    // Создание метки.
+    function createPlacemark(coords) {
+        return new ymaps.Placemark(coords, {
+            iconCaption: 'поиск...'
+        }, {
+            preset: 'islands#violetDotIconWithCaption',
+            draggable: true,
+            iconColor: 'red'
+        });
+    }
+
+    function create_and_add_place_mark(coords, draggable) {
+        myPlacemark = createPlacemark(coords);
+        myPlacemark.geometry.setCoordinates(coords);
+
+        ymaps.geocode(coords).then(function (res) {
+            var firstGeoObject = res.geoObjects.get(0);
+            myPlacemark.properties
+                .set({
+                    iconCaption: $('.event_item').data('name'),
+                    balloonContent: $('.event_item').data('name'),
+                });
+            myPlacemark.options.set({draggable: draggable})
+        });
+        myMap.geoObjects.add(myPlacemark);
+    }
+
+}
+function set_center_by_cords(cords) {
+    myMap.setCenter(cords, 13);
 }
 
 function set_center_by_city_name(city_name) {
@@ -69,21 +96,7 @@ function set_center_by_city_name(city_name) {
     }).then(function (res) {
         var firstGeoObject = res.geoObjects.get(0),
             coords = firstGeoObject.geometry.getCoordinates();
-
-        myMap.setCenter(coords, 11);
-        /**
-         * Если нужно добавить по найденным геокодером координатам метку со своими стилями и контентом балуна, создаем новую метку по координатам найденной и добавляем ее на карту вместо найденной.
-         */
-        /**
-         var myPlacemark = new ymaps.Placemark(coords, {
-             iconContent: 'моя метка',
-             balloonContent: 'Содержимое балуна <strong>моей метки</strong>'
-             }, {
-             preset: 'islands#violetStretchyIcon'
-             });
-
-         myMap.geoObjects.add(myPlacemark);
-         */
+        myMap.setCenter(coords, 10);
     });
 }
 

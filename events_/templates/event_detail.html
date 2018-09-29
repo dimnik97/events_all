@@ -3,7 +3,7 @@
 
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
-    <div class="event_item" data-event_id="{{ event.id }}" id="event_{{ event.id }}">
+    <div class="event_item" data-event_id="{{ event.id }}" id="event_{{ event.id }}" data-name="{{ event.name }}">
         <h1>Событие: {{ event.name }}</h1>
         <p><img src="{{ event.event_avatar.image.url }}" width="200px" height="200px"></p>
         {% if event.created_by_group %}
@@ -46,9 +46,15 @@
     {# Вся работа с картой #}
     <div>
         <label>Место проведения</label>
-        <span class="select_bounds_yamaps"></span>
+        <span class="select_bounds_yamaps">{{ event.geo_point.name }}</span>
         <div id="map" style="width: 600px; height: 200px"></div>
-        <script> var is_create = false, is_edit = false, is_view = true </script>
+        <script>
+            var is_create = false,
+                is_edit = false,
+                is_view = true,
+                geo_lat ='{{ event.geo_point.lat }}',
+                geo_lng ='{{ event.geo_point.lng }}'
+        </script>
         <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
     </div>
     {# Вся работа с картой #}

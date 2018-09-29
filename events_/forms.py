@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 
 from cities_.models import CityTable
-from events_.models import Event, Event_avatar, EventCategory, EventNews, EventMembership
+from events_.models import Event, Event_avatar, EventCategory, EventNews, EventMembership, EventGeo
 from events_all.widgets import CustomDateTimePicker
 from groups.models import Group
 
@@ -25,14 +25,14 @@ class CreateEventNews(forms.Form):
 class EventForm(forms.Form):
     id = forms.CharField(required=False, widget=forms.HiddenInput(), max_length=30, label='id')
     # image = forms.ImageField(required=False, label='Фото')
-    name = forms.CharField(required=True, max_length=30, label='Название события')
+    name = forms.CharField(required=True, max_length=100, label='Название события')
     description = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Описание')
 
     CATEGORY_CH = []
     for item in EventCategory.objects.all():
         CATEGORY_CH.append((item.id, item.name))
 
-    category = forms.ChoiceField(required=False,
+    category = forms.ChoiceField(required=True,
                                  label='Категория', widget=forms.Select, choices=CATEGORY_CH)
 
     start_time = forms.CharField(required=False,
@@ -65,9 +65,10 @@ class EventForm(forms.Form):
                 event.description = request.POST['description']
 
             try:
-                geo_name = request.POST['geo_name']
-                lat = request.POST['lat']
-                lng = request.POST['lng']
+                event_geo = EventGeo.objects.create(name=request.POST['geo_name'],
+                                                    lat=float(request.POST['lat']),
+                                                    lng=float(request.POST['lng']))
+                event.geo_point = event_geo
             except KeyError:
                 pass
 
@@ -77,7 +78,11 @@ class EventForm(forms.Form):
             event.start_time = request.POST['start_time']
             event.end_time = request.POST['end_time']
             event.save()
-            Event_Membership.objects.create(event=event, person=request.user.profile)
+            if is_creation == 1:
+                EventMembership.objects.create(event=event, person=request.user.profile)
+                # Временное решение
+                Event_avatar.objects.create(event=event)
+                # Временное решение
             result['url'] = event.id
             return result
         except CityTable.DoesNotExist:
