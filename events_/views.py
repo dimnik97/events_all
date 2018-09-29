@@ -11,40 +11,39 @@ from events_.forms import EventForm, CreateEventNews
 from events_all.helper import parse_from_error_to_json
 from groups.models import Group
 from profiles.models import Users
-from .models import Event, EventParty, Event_avatar, EventNews
+from .models import Event, EventParty, Event_avatar, EventNews, EventMembership
 
 
 def index(request, id):
     event_id = id
-    event_detail = get_object_or_404(Event, id=event_id)
-    user_id = request.user.pk
-    user = User.objects.get(id=user_id)
-
-    avatar, created = Event_avatar.objects.get_or_create(event=event_detail)
-
-    is_creator = 0
-    if event_detail.creator_id == user:
-        is_creator = 1
-
-    party_flag = '',  # если пользователь уже подписан на выбранное событие
-    try:
-        if EventParty.objects.get(user_id=user, event_id=event_detail):
-            party_flag = 1
-    except EventParty.DoesNotExist:
-        party_flag = 0
-
+    event_detail = get_object_or_404(Event, id=event_id)  # Получение эвента
+    user = User.objects.get(id=request.user.id)  # Получение юезра
     # преобразовываем дату в нужный формат. При выводе на js будет вызвана функция
     #  пересчета времени относительно часового пояса пользователя
     event_detail.start_time = event_detail.start_time.strftime("%Y-%m-%d %H:%M")
 
-    ev_object, created = EventParty.objects.get_or_create(event_id=event_id)
-    subs = [friend for friend in ev_object.user_id.all()]
+    # Права на редактирование
+    is_creator = False
+    if event_detail.creator_id == user:
+        is_creator = True
+
+    is_editor = True
+    if event_detail.created_by_group:
+        if Group.is_editor(request, event_detail.created_by_group.id):
+            is_editor = False
+    # Права на редактирование
+
+    party_flag = '',  # если пользователь уже подписан на выбранное событие
+    if not is_creator:
+        try:
+            if EventMembership.objects.get(person=user.profile, event=event_detail):
+                party_flag = True
+        except EventParty.DoesNotExist:
+            party_flag = False
+
+    subscribers = EventMembership.objects.filter(event=event_detail)[:5]
 
     news = None
-
-    is_editor = 0
-    if Group.is_editor(request, event_detail.created_by_group.id):
-        is_editor = 1
 
     if request.method == 'POST':
         form = CreateEventNews(request.POST, request.FILES, request.GET)
@@ -70,9 +69,8 @@ def index(request, id):
         'title': 'Профиль',
         'user': user,
         'event': event_detail,
-        'subs': subs,
+        'subscribers': subscribers,
         'party_flag': party_flag,
-        'avatar': avatar,
         'is_creator': is_creator,
         'is_editor': is_editor,
         'event_news': event_news,
@@ -91,9 +89,9 @@ def subsc_unsubsc(request):
             user = request.user
 
             if action == "subscribe":
-                EventParty.subscr_to_event(event,user)
+                EventMembership.subscribe(event, user)
             else:
-                EventParty.unsubscr_from_event(event,user)
+                EventMembership.unsubscribe(event, user)
         except Event.DoesNotExist:
             return HttpResponse('Error')
         return HttpResponse(str(200))
@@ -102,10 +100,10 @@ def subsc_unsubsc(request):
 
 
 @login_required(login_url='/accounts/login/')
-def edit(request, event_id, group_id=None):
+def edit(request, id, group_id=None):
     user = request.user
     user_city = Users.get_user_locations(request)
-    event = get_object_or_404(Event, id=event_id)
+    event = get_object_or_404(Event, id=id)
     if event.creator_id == user:
         if request.method == 'POST':
             form = EventForm(request.POST, request.FILES)
@@ -121,6 +119,7 @@ def edit(request, event_id, group_id=None):
                               'description': event.description,
                               'start_time': event.start_time,
                               'end_time': event.end_time,
+                              # 'category': event.
                               })
 
         avatar = Event_avatar.objects.get(event=event)

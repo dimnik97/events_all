@@ -1,12 +1,12 @@
 {% extends "main_template.html" %}
+{% load staticfiles%}
 
 {% block signin %}
 {% endblock %}
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
-    <img class="product-image" src="{{ avatar.image.url }}" width="200px" height="200px" />
     <div class="content">
-        <form method="post" novalidate enctype="multipart/form-data" id="event_form">
+        <form method="post" enctype="multipart/form-data" id="event_form_edit" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <div class="form-group">
@@ -23,14 +23,15 @@
                 </div>
             </div>
             <div class="form-group">
+                <label>Выберите место</label>
                 <span class="select_bounds_yamaps"></span>
-                <div id="map" style="width: 600px; height: 400px"></div>
+                <div id="map" style="width: 600px; height: 300px"></div>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 
-    <script> var is_edit = true; </script>
+    <script> var is_create = true, is_edit = false, is_view = true </script>
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 
 {% endblock %}

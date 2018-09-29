@@ -30,7 +30,7 @@ def detail(request, id):
 
     subscribers_object = user.profile.subscribers
     profile = user.profile
-    # TODO выборка из 5 показываемых
+
     subscribers = [
         User.objects.get(id=subscriber.user_id)
         for subscriber in subscribers_object.all().select_related("user__profileavatar").only(
@@ -97,7 +97,6 @@ def add_or_remove_friends(request):
 
 class Edit(FormView):
     @login_required(login_url='/accounts/login/')
-    @staticmethod
     def edit_view(request):
         user = request.user
         if request.method == 'POST':

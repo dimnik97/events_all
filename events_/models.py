@@ -21,7 +21,6 @@ class EventCategory(models.Model):
         return str(self.id) + " " + str(self.name)
 
 
-
 class EventStatus(models.Model):
     name = models.CharField(max_length=20)
     description = models.TextField(null=True, blank=True)
@@ -65,6 +64,7 @@ class Event(models.Model):
     
     location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=None)
     location_name = models.CharField(max_length=100, null=True, blank=True)
+    creator_id = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # Получение эвентов с учетом фильтрации
     @staticmethod
@@ -152,8 +152,8 @@ class EventNews(models.Model):
     news_creator = models.ForeignKey(User, on_delete=models.CASCADE)
     news_event = models.ForeignKey(Event, on_delete=models.CASCADE)
     news_image = models.ImageField(
-        # upload_to=curry(helper.ImageHelper.upload_to, prefix='news_img'),
-        upload_to=helper.ImageHelper.upload_to,
+        upload_to=curry(helper.ImageHelper.upload_to, prefix='news_img'),
+        # upload_to=helper.ImageHelper.upload_to,
         default=None
     )
 
@@ -191,8 +191,8 @@ class Event_avatar(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(
-        # upload_to=curry(helper.upload_to, prefix='avatar_event'),
-        upload_to=helper.ImageHelper.upload_to,
+        upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar_event'),
+        # upload_to=helper.ImageHelper.upload_to,
         default='avatar_event/default/img.jpg')
 
     class Meta:

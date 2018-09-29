@@ -6,7 +6,7 @@
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
     <div class="content">
-        <form method="post" enctype="multipart/form-data" id="event_form" novalidate>
+        <form method="post" enctype="multipart/form-data" id="event_form_create" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <div class="form-group">
@@ -31,7 +31,7 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
-    <script> var is_create = true, is_edit = false; </script>
+    <script> var is_create = true, is_edit = false, is_view = true </script>
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 
 {% endblock %}

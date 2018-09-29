@@ -1,76 +1,94 @@
 {% extends "main_template.html" %}
+{% load staticfiles%}
 
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
     <div class="event_item" data-event_id="{{ event.id }}" id="event_{{ event.id }}">
-
-        <h1>Событие:</h1>
-        <p><img src="{{ avatar.image.url }}" width="200px" height="200px"></p>
-        Название: {{ event.name }}
-
+        <h1>Событие: {{ event.name }}</h1>
+        <p><img src="{{ event.event_avatar.image.url }}" width="200px" height="200px"></p>
         {% if event.created_by_group %}
             <p>Создано от группы: {{ event.created_by_group.name }}</p>
         {% endif %}
 
-        Создатель: {{ event.creator_id.first_name }}
-        ВРЕМЯ С СЕРВЕРА ---- {{  event.start_time }} ------
-        <p>Статус: {{ event.status }}</p>
-        <div class="event_time">
-            <script>
-                SetTimeToUser("{{ event.start_time }}", "event_{{ event.id }}");
-            </script>
+        Описание: {{  event.description }} <br>
+        Город: {{  event.location_name }} <br>
+
+        Местоположение: {{  event.GEO }} <br>
+        <br>
+{#        <div class="event_time">#}
+{#            <script>#}
+{#                SetTimeToUser("{{ event.start_time }}", "event_{{ event.id }}");#}
+{#            </script>#}
+{#        </div>#}
+
+        {% if is_editor == True or is_creator == True %}
+            <button data-action="editevent"><a href="/events/edit/{{ event.id }}">Настройки</a></button>
+        {% else %}
+            {% if party_flag == True %}
+                <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
+            {% else %}
+                <button class="subscribe_event" data-action="subscribe">Пойти</button>
+            {% endif %}
+        {% endif %}
+
+        <br>
+        Создатель:
+        <div>
+            <a href="/profile/{{ item.person.id }}">
+                <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
+            </a>
+            <br>
+            <a href="/profile/{{ item.person.id }}"> {{ event.creator_id.first_name }} {{ event.creator_id.last_name }} </a>
         </div>
 
-        {% if party_flag == 1 %}
-            <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
-        {% else %}
-            <button class="subscribe_event" data-action="subscribe">Пойти</button>
-        {% endif %}
-        {% if is_creator == 1 %}
-            <button data-action="editevent"><a href="/events/edit/{{ event.id }}">Настройки</a></button>
-        {% endif %}
+    </div>
 
-    </div>
+    {# Вся работа с картой #}
     <div>
-        Участники
-        <ul>
-            {% for item in subs %}
-                <li>
-                    <a href="/profile/{{ item.id }}">
-                        <img src="{{ item.profileavatar.mini_url }}" class="avatar_round">
-                    </a>
-                    <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
-                    <button class="add_to_friend"  data-user_id="{{ item.id }}" data-action="add">Подписаться</button>
-                    {% if not item.profile  %}
-                        !!!!
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
+        <label>Место проведения</label>
+        <span class="select_bounds_yamaps"></span>
+        <div id="map" style="width: 600px; height: 200px"></div>
+        <script> var is_create = false, is_edit = false, is_view = true </script>
+        <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
     </div>
-{#    ФОРМА ДЛЯ СОЗДАНИЯ НОВОСТИ#}
-    {% if is_editor == 1 or is_creator == 1 %}
+    {# Вся работа с картой #}
+
+
+    <div>
+        Подписчики события
+        {% for item in subscribers %}
+            <div>
+                <a href="/profile/{{ item.person.id }}">
+                    <img src="{{ item.person.user.profileavatar.mini_url }}" class="avatar_round">
+                </a>
+                <br>
+                <a href="/profile/{{ item.person.id }}"> {{ item.person.user.first_name }}  {{ item.person.user.last_name }} </a>
+            </div>
+        {% endfor %}
+    </div>
+
+
+    {# ФОРМА ДЛЯ СОЗДАНИЯ НОВОСТИ #}
+    {% if is_editor == True or is_creator == True %}
         <div class="news-form">
-            <form method="post" novalidate id="news_create_form" enctype="multipart/form-data">
+            <form method="post" novalidate id="news_create_form" enctype="multipart/form-data" action="/events/{{ event.id }}">
                 {% csrf_token %}
                 {% include 'includes/bootstrap4_form.html' with form=news_form %}
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>
     {% endif %}
-
+    {# ФОРМА ДЛЯ СОЗДАНИЯ НОВОСТИ #}
 
     <ul class="event_news">
         {% for item in event_news %}
             <li>
-
-                <a href="/profile/{{ item.news_creator.id }}"> {{ item.news_creator.name }}  {{ item.news_creator.last_name }} </a>
+                <a href="/profile/{{ item.news_creator.id }}"> {{ item.news_creator.first_name }}  {{ item.news_creator.last_name }} </a>
                 <p>{{ item.text }}</p>
                 {%  if item.news_image %}
                     <img src="{{ item.news_image.url }}" width="100px" height="100px">
                 {% endif %}
                 <p>Дата создания: {{ item.create_time }}</p>
-
             </li>
         {% endfor %}
     </ul>
