@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 21">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-Logo);
+      }
+
+      .cls-2 {
+        fill: #7971ea;
+        font-size: 20px;
+        font-family: Montserrat-Black, Montserrat;
+        font-weight: 800;
+        letter-spacing: -0.075em;
+      }
+    </style>
+    <clipPath id="clip-Logo">
+      <rect width="70" height="21"/>
+    </clipPath>
+  </defs>
+  <g id="Logo" class="cls-1">
+    <text id="JoinMe" class="cls-2" transform="translate(0 17)"><tspan x="0" y="0">JoinMe</tspan></text>
+  </g>
+</svg>

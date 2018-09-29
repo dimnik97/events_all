@@ -176,12 +176,23 @@ li.dialog_row {
     color: #cecece;
 }
 .navbar {
-    display: inline-flex;
     min-height: 25px;
     width: 100%;
     box-sizing: border-box;
     border-bottom: 1px solid #eeeeee;
 }
+.head_wrapper{
+    /*display: inline-flex;*/
+    width: 100%;
+    max-width: 1170px;
+    margin-left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.auth_block_header{
+    float: right;
+}
+
 .l_dialog_block {
     display: flex;
 }
