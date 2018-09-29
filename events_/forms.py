@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 
 from cities_.models import CityTable
-from events_.models import Event, Event_avatar, EventCategory, EventNews
+from events_.models import Event, Event_avatar, EventCategory, EventNews, EventMembership
 from events_all.widgets import CustomDateTimePicker
 from groups.models import Group
 
@@ -32,13 +32,13 @@ class EventForm(forms.Form):
     for item in EventCategory.objects.all():
         CATEGORY_CH.append((item.id, item.name))
 
-    category = forms.ChoiceField(required=True,
+    category = forms.ChoiceField(required=False,
                                  label='Категория', widget=forms.Select, choices=CATEGORY_CH)
 
-    start_time = forms.CharField(required=True,
+    start_time = forms.CharField(required=False,
                                  widget=CustomDateTimePicker(prams={'default_time': '1'}),
                                  label='Дата начала')
-    end_time = forms.CharField(required=True,
+    end_time = forms.CharField(required=False,
                                widget=CustomDateTimePicker(prams={'default_time_plus_delta': '1'}),
                                label='Дата окончания')
 
@@ -63,12 +63,21 @@ class EventForm(forms.Form):
             event.name = request.POST['name']
             if 'description' in request.POST:
                 event.description = request.POST['description']
+
+            try:
+                geo_name = request.POST['geo_name']
+                lat = request.POST['lat']
+                lng = request.POST['lng']
+            except KeyError:
+                pass
+
             event.creator_id = request.user
             event.location = cities
             event.location_name = cities.city
             event.start_time = request.POST['start_time']
             event.end_time = request.POST['end_time']
             event.save()
+            Event_Membership.objects.create(event=event, person=request.user.profile)
             result['url'] = event.id
             return result
         except CityTable.DoesNotExist:

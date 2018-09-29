@@ -322,8 +322,9 @@ $(document).ready(function() {
      */
     $('#news_create_form').on('submit', function(event){
         event.preventDefault();
-        frm = $('#news_create_form');
-        formData = new FormData(frm.get(0));
+        debugger;
+        var frm = $('#news_create_form'),
+            formData = new FormData(frm.get(0));
 
         $.ajax({
             contentType: false, // важно - убираем форматирование данных по умолчанию
@@ -945,7 +946,8 @@ $(document).ready(function() {
         $('.delete_from_chat_wrapper').show();
         $('.cancel', '.deleted_users').off('click').on('click', function () {
             $('.delete_from_chat_wrapper').hide();
-        })
+        });
+
         $('.delete', '.delete_from_chat_wrapper').off('click').on('click',function () {
             var room_id = $('.messages', '.messages_wrapper').data('room_id'),
                 peer_id = $(this).closest('span').data('id');
@@ -1089,7 +1091,7 @@ $(document).ready(function() {
             },
             success: function (data) {
                 $('.select_item', '.custom_select_items').remove();
-                if (data == false) {
+                if (data === false) {
                     $('.custom_select_items').append("<span  class='select_item go_out' >Ничего не найдено</span>");
                     return;
                 }
@@ -1126,23 +1128,32 @@ $(document).ready(function() {
 
 
     /**
-     * Ajax для формы EventForm
+     * Ajax для формы EventForm (Создание)
      *
      */
-    $('#event_form').on('submit', function(e){
-        custom_save_event_form($('#event_form'), e)
+    $('#event_form_create').on('submit', function(e){
+        custom_save_event_form($('#event_form'), e, '/events/create')
     });
+
+    /**
+     * Ajax для формы EventForm (Редактирование)
+     *
+     */
+    $('#event_form_edit').on('submit', function(e){
+        custom_save_event_form($('#event_form'), e, '/events/edit/' + $('#id_id').val())
+    });
+
     /**
      * Ajax для формы EventForm
      *
      */
-    function custom_save_event_form($form, e){
+    function custom_save_event_form($form, e, url){
         e.preventDefault();
-        var data = get_form_with_custom_modules($form);
+        let data = get_form_with_custom_modules($form);
 
         $.ajax({
             type: "POST",
-            url: "/events/create",
+            url: url,
             data: data,
             dataType: 'json',
             success: function(data) {
@@ -1163,15 +1174,29 @@ $(document).ready(function() {
         return parent_selector.find('.selected');
     }
     /**
+     * Получение отмеченного на карте маяка
+     *
+     */
+    function get_geo_values(indexed_array, selector) {
+        if (selector.html().length > 0) {
+            indexed_array['geo_name'] = selector.html();
+            indexed_array['lat'] = selector.data('lat');
+            indexed_array['lng'] = selector.data('lng');
+        }
+        return indexed_array;
+    }
+    /**
      * Получение формы с кастомными модулями, например селект по городам
      *
      */
     function get_form_with_custom_modules($form) {
-        var unindexed_array = $form.serializeArray(),
+        let unindexed_array = $form.serializeArray(),
             indexed_array = {};
 
-        var location = get_value_from_custom_select($('#location'));
+        let location = get_value_from_custom_select($('#location'));
         unindexed_array.push({name: 'location', value: location.data('city_id')});
+
+        indexed_array = get_geo_values(indexed_array, $('.select_bounds_yamaps'));
 
         $.map(unindexed_array, function(n, i){
             indexed_array[n['name']] = n['value'];
