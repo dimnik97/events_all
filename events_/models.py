@@ -138,12 +138,12 @@ class EventMembership(models.Model):
     # Подписка на пользователя
     @classmethod
     def subscribe(cls, user, event):
-        Event_Membership.objects.create(group=event, person=user.profile)
+        EventMembership.objects.create(group=event, person=user.profile)
 
     # Отписка от пользователя
     @classmethod
     def unsubscribe(cls, user, event):
-        Event_Membership.objects.get(group=event, person=user.profile).delete()
+        EventMembership.objects.get(group=event, person=user.profile).delete()
 
 
 class EventNews(models.Model):
