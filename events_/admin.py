@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, Event_avatar, EventCategory, EventStatus, EventNews, Event_Membership
+from .models import Event, Event_avatar, EventCategory, EventStatus, EventNews, EventMembership
 
 admin.site.register(Event)
 admin.site.register(EventMembership)
