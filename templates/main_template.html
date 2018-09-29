@@ -7,7 +7,7 @@
                 <!-- Главное меню -->
                 {% load menubuilder %}
                 {% menu main_menu %}
-                <span class="main_logo">logo</span>
+                <span class="main_logo"><img src="static/img/Logo.svg" alt=""></span>
                 {% for item in menuitems %}
                     <span class="main_menu" {% if item.current %}class="active"{% endif %}>
                         <a href="{{ item.url }}" title="{{ item.title|escape }}">{{ item.title }}</a>

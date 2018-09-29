@@ -30,13 +30,13 @@ class EventStatus(models.Model):
         return str(self.id) + " " + str(self.name)
 
 
-# class EventGeo(models.Model):
-#     lat = models.FloatField(null=True, blank=True)
-#     lng = models.FloatField(null=True, blank=True)
-#     name = models.TextField(null=True, blank=True, max_length=100)
-#
-#     def __str__(self):
-#         return str(self.lat) + " " + str(self.lng) + " " + str(self.name)
+class EventGeo(models.Model):
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    name = models.TextField(null=True, blank=True, max_length=100)
+
+    def __str__(self):
+        return str(self.lat) + " " + str(self.lng) + " " + str(self.name)
 
 
 class Event(models.Model):
@@ -52,14 +52,16 @@ class Event(models.Model):
     created_by_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
     members = models.ManyToManyField(
         Profile,
-        through='Event_Membership',
+        through='EventMembership',
         through_fields=('event', 'person'),
     )
     category = models.ManyToManyField(
         EventCategory,
-        through='EventCategoryRelatiom',
+        through='EventCategoryRelation',
         through_fields=('event', 'category'),
     )
+    geo_point = models.ForeignKey(EventGeo, on_delete=models.CASCADE, blank=True, null=True)
+
     
     location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=None)
     location_name = models.CharField(max_length=100, null=True, blank=True)
@@ -116,12 +118,12 @@ def event_creating_post_save(sender, instance, created, **kwargs):
 post_save.connect(event_creating_post_save, sender=Event)
 
 
-class EventCategoryRelatiom(models.Model):
+class EventCategoryRelation(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     category = models.ForeignKey(EventCategory, on_delete=models.CASCADE)
 
 
-class Event_Membership(models.Model):
+class EventMembership(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     person = models.ForeignKey(Profile, on_delete=models.CASCADE)
     date_joined = models.DateField(null=True, blank=True, default=datetime.date.today)
