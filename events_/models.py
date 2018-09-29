@@ -27,6 +27,15 @@ class EventStatus(models.Model):
         return str(self.id) + " " + str(self.name)
 
 
+# class EventGeo(models.Model):
+#     lat = models.FloatField(null=True, blank=True)
+#     lng = models.FloatField(null=True, blank=True)
+#     name = models.TextField(null=True, blank=True, max_length=100)
+#
+#     def __str__(self):
+#         return str(self.lat) + " " + str(self.lng) + " " + str(self.name)
+
+
 class Event(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)

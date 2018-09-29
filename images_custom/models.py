@@ -119,7 +119,7 @@ class PhotoEditor:
                 helper.ImageHelper.del_mini(obj.image.path, postfix='reduced')
                 if str(obj.image).find('default') == -1:
                     obj.image.delete()
-        except cls.DoesNotExist:
+        except:
             pass
         super(cls, self_cls).save()
 

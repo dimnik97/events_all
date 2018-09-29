@@ -278,8 +278,8 @@ def delete_group(request):
     group_id = request.POST['group_id']
     if Group.is_group_admin(request, group_id):
         try:
-            group_object = Group.objects.get(id=group_id)
-        except:
+            Group.objects.get(id=group_id).update(active=2)  # TODO Проверить
+        except Group.DoesNotExist:
             return HttpResponse('Error')
         return HttpResponse(str(200))
     return HttpResponse('Недостаточно прав для редактирования')

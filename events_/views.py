@@ -154,13 +154,12 @@ def create(request):
     else:
         form = EventForm()
 
-    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
     user_city = Users.get_user_locations(request)
     context = {
         'title': 'Создание события',
         'form': form,
         "csrf_token": get_token(request),
-        'city_list': city_list,
+        'city_list': CityTable.all_city_exclude_user_city(user_city),
         'user_city': user_city
     }
     return render_to_response('create.html', context)

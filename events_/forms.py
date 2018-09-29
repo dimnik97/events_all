@@ -24,7 +24,7 @@ class CreateEventNews(forms.Form):
 
 class EventForm(forms.Form):
     id = forms.CharField(required=False, widget=forms.HiddenInput(), max_length=30, label='id')
-    image = forms.ImageField(required=False, label='Фото')
+    # image = forms.ImageField(required=False, label='Фото')
     name = forms.CharField(required=True, max_length=30, label='Название события')
     description = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Описание')
 

@@ -1113,6 +1113,10 @@ $(document).ready(function() {
             if ($(this).hasClass('go_out'))
                 return;
             $(this).addClass('selected');
+            try {
+                set_center_by_city_name($(this).html());
+            } catch (err) {
+            }
         })
     }
 

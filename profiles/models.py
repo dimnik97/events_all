@@ -197,9 +197,6 @@ class ProfileAvatar(models.Model):
             cls=ProfileAvatar,
             admin_panel=admin_panel,
             image_type=image_type,
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
             request=request)
 
     def delete_photo(self, using=None):

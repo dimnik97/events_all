@@ -1,20 +1,14 @@
 import datetime
-
 from django.contrib.auth.models import User
 from django.db import models
-
-# Admin могут редактировать саму группу(название, фото, описание), добавлять и удалять редакторов, создавать посты
-# Editor могут добавлять посты
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, render_to_response
-from django.urls import reverse
 from django.utils.functional import curry
-
 from events_all import helper
 from images_custom.models import PhotoEditor
 from profiles.models import Profile
 
 
+# Admin могут редактировать саму группу(название, фото, описание), добавлять и удалять редакторов, создавать посты
+# Editor могут добавлять посты
 class AllRoles(models.Model):
     role = models.TextField(default=None)
     ru_role = models.TextField(default=None)

@@ -9,19 +9,28 @@
         <form method="post" novalidate enctype="multipart/form-data" id="event_form">
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
-            <label>Город</label>
-            <div id="location" class="custom_select">
-                <input type="text" placeholder="поиск" class="find_city" >
-                {#  TODO: На релизе будет эта строка <option selected value="{{ user_city.city_id }}">{{ user_city.city}}</option>#}
-                <div class="custom_select_items">
-                    <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
-                    {% for city in city_list %}
-                        <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
-                    {% endfor %}
+            <div class="form-group">
+                <label>Город</label>
+                <div id="location" class="custom_select">
+                    <input type="text" placeholder="поиск" class="find_city" >
+                    {#  TODO: На релизе будет эта строка <option selected value="{{ user_city.city_id }}">{{ user_city.city}}</option>#}
+                    <div class="custom_select_items">
+                        <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
+                        {% for city in city_list %}
+                            <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
+                        {% endfor %}
+                    </div>
                 </div>
+            </div>
+            <div class="form-group">
+                <span class="select_bounds_yamaps"></span>
+                <div id="map" style="width: 600px; height: 400px"></div>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
-    <hr>
+
+    <script> var is_edit = true; </script>
+    <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
+
 {% endblock %}

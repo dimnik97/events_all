@@ -27,3 +27,9 @@ class CityTable(models.Model):
         except KeyError:
             return HttpResponse('Error')
         return HttpResponse(serializers.serialize('json', list(cities)))
+
+    @staticmethod
+    def all_city_exclude_user_city(user_city):
+        return CityTable.objects.filter(city__isnull=False).\
+            values('city', 'city_id').order_by('city').exclude(city=user_city.city)
+
