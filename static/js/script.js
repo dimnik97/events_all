@@ -108,10 +108,10 @@ function GetCorrectNumber(Number, is_month=0, is_min = 0){
 
 
 $(document).ready(function() {
-    function draw_events(){
-        debugger;
-    }
-
+    /**
+     * Не используется
+     *
+     */
     $('button.last_events').on('click', function(){
         $.ajax({
             type: "POST",
@@ -126,12 +126,6 @@ $(document).ready(function() {
                 // как то обработать ошибку
             }
         });
-    });
-    $('button.friends_events').on('click', function(){
-
-    });
-    $('button.closest_events').on('click', function(){
-
     });
 
     /**
@@ -179,7 +173,7 @@ $(document).ready(function() {
      *
      */
     function validateForm() {
-        $form = $('#signup');
+        let $form = $('#signup');
         $('.invalid-feedback', $form).remove();
         $('input', $form).removeClass('is-invalid');
 
@@ -301,7 +295,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(data){
                 if (data) {
-                    if (atcion_type == 'subscribe') {
+                    if (atcion_type === 'subscribe') {
                         $this.text('Отписаться');
                         $this.data('action', 'unsubscribe');
                     }
@@ -309,8 +303,9 @@ $(document).ready(function() {
                         $this.text('Пойти');
                         $this.data('action', 'subscribe');
                     }
+                } else {
+                    window.location.replace('/accounts/login/?next=');
                 }
-
             }
         });
     });
@@ -322,22 +317,33 @@ $(document).ready(function() {
      */
     $('#news_create_form').on('submit', function(event){
         event.preventDefault();
-        debugger;
-        var frm = $('#news_create_form'),
+        $('.error_news').html();
+        $('#id_event_id').val($('.event_item').data('event_id'));
+        let frm = $('#news_create_form'),
             formData = new FormData(frm.get(0));
-
         $.ajax({
             contentType: false, // важно - убираем форматирование данных по умолчанию
             processData: false,
             type: frm.attr('method'),
             url: frm.attr('action'),
             data: formData,
+            dataType: 'json',
             success: function (data) {
-                updated_news = $('ul.event_news', data);
-                $('ul.event_news').replaceWith($(data).filter(".event_news"));
+                if (data.status === 201) {
+                    $('.event_news').prepend(data.text);
+                    $('#id_text', '.news-form').val('');
+                } else if (data.status === 100) {
+                    $('#id_news', '.news-form').val('');
+                    $('#id_text', '.news-form').val('');
+                    let $li = $('[data-id='+data.id+']');
+                    $li.find('.text').html(data.text);
+                } else {
+                    $('.error_news').html(data.text)
+                }
+
             },
             error: function(data) {
-                // как то обработать ошибку
+
             }
         });
     });
@@ -492,7 +498,7 @@ $(document).ready(function() {
 
 
     /**
-     * Смена аватара
+     * Смена аватара или миниатюры
      *
      */
     $('.change_avatar, .change_mini').on('click', function () {
@@ -853,7 +859,6 @@ $(document).ready(function() {
      * Обработчики на чекбоксы
      */
     $('body').on('click', '.add_to_chat', function () {
-        debugger;
         $('.add_chat_wrapper').show();
         $('.add_to_chat').hide();
         $.ajax({
@@ -1141,16 +1146,12 @@ $(document).ready(function() {
         })
     }
 
-
-
-
-
-
     /**
      * Ajax для формы EventForm (Создание)
      *
      */
     $('#event_form_create').on('submit', function(e){
+        debugger;
         custom_save_event_form($('#event_form_create'), e, '/events/create')
     });
 
@@ -1168,6 +1169,7 @@ $(document).ready(function() {
      */
     function custom_save_event_form($form, e, url){
         e.preventDefault();
+        debugger;
         let data = get_form_with_custom_modules($form);
 
         $.ajax({
@@ -1179,6 +1181,9 @@ $(document).ready(function() {
                 if (data.status === 200) {
                     window.location.replace('/events/' + data.url);
                 } else {
+                    if (data.status === 400) {
+                        $('#'+data.wrong_field).addClass('is-invalid');
+                    }
                     ajax_validate_form_data($form, data);
                 }
             }
@@ -1214,6 +1219,11 @@ $(document).ready(function() {
 
         let location = get_value_from_custom_select($('#location'));
         unindexed_array.push({name: 'location', value: location.data('city_id')});
+        let categories = '';
+        $('.custom_multiply_select').find('.remove_categories').each(function (key, value) {
+            categories += ($(this).data('categories_id')).toString() + ',';
+        });
+        indexed_array['categories'] = categories;
 
         indexed_array = get_geo_values(indexed_array, $('.select_bounds_yamaps'));
 
@@ -1221,6 +1231,324 @@ $(document).ready(function() {
             indexed_array[n['name']] = n['value'];
         });
 
+        let url = new URL(window.location.href),
+            group_id = url.searchParams.get("group_id");
+        if (group_id !== null || group_id !== '' ) {
+            indexed_array['group_id'] = group_id;
+        }
+
         return indexed_array;
     }
+
+    /**
+     * Кастомный мультиселект
+     *
+     */
+    $('.custom_multiply_select_items').on('click', '.multiply_select_item', function () {
+        if ($('.remove_categories').length < 3) {
+            $('.custom_multiply_select').append('<span class="remove_categories" data-categories_id="' +
+                $(this).data('categories_id') + '" data-categories_description="'+ $(this).data('categories_description') +'">'+ $(this).html() + ' </span>');
+            $(this).remove();
+
+            // Добавить проверку на редактирование
+            var categories = [];
+            $('.custom_multiply_select').find('.remove_categories').each(function (key, value) {
+                var $selector = $('.column_'+ (key + 1), '.recommend_image_block'), this_category;
+
+                if ($selector.attr('category_name') !== $(this).data('categories_description')) {
+                    var is_new = true;
+                    $selector.attr('category_name', $(this).data('categories_description'));
+                    $selector.css('display', 'block');
+                }
+
+                let category = $(this).data('categories_description');
+                if (category && category !== '') {
+                    categories += category + ',';
+                    this_category = category;
+                }
+                if (is_new) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/events/get_images_by_categories',
+                        data: {
+                            'categories': this_category
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            $selector.show();
+                            $('.category_name_column_'+ (key + 1), '.recommend_image_block').html(category);
+                            for (let i = 0; i < data.length; i ++) {
+                                $selector.append('<div class="rec_im"><img src="/' + data[i] + '"></div>');
+                            }
+                        }
+                    });
+                }
+            });
+            let category_array = categories.split(',');
+
+            set_default_image_to_event(category_array)
+        }
+    });
+
+    /**
+     * Удаление элементов из мультиселекта
+     *
+     */
+    $('.custom_multiply_select').on('click', '.remove_categories', function () {
+        $('.custom_multiply_select_items').append('<span class="multiply_select_item" data-categories_id="'+
+            $(this).data('categories_id') + '" data-categories_description="'+ $(this).data('categories_description') +'">'+ $(this).html()+'</span>');
+        $(this).remove();
+
+        // Добавить проверку на редактирование
+        let categories = [];
+        $('.custom_multiply_select').find('.remove_categories').each(function (key, value) {
+            let $selector = $('.column_'+ (key + 1), '.recommend_image_block'), this_category;
+            if ($selector.attr('category_name') !== $(this).data('categories_description')) {
+                var is_new = true;
+            }
+
+            let category = $(this).data('categories_description');
+            if (category && category !== '') {
+                categories += category + ',';
+                this_category = category;
+            }
+            if (is_new) {
+                let x = $('[category_name = ' + this_category + ']').html();
+                $('.column_'+ (key + 1), '.recommend_image_block').html(x);
+                $selector.attr('category_name', $(this).data('categories_description'));
+            }
+        });
+
+        if (categories.length === 0) {
+            $('.recommend_img', '.recommend_image_block').each(function () {
+                $(this).attr('category_name', '');
+                $(this).attr('image_name', '');
+                $(this).css('display', 'none');
+                $(this).find('.rec_im').remove();
+            });
+            $('.event_avatar').attr('src', '/media/avatar_event_default/default.png');
+            return
+        } else {
+            let category_array = categories.split(','), flag, i = 1, j = 0, category_array_ = category_array.slice();
+
+            for (i; i < 4; i++) {  // Нумерация с единицы
+                flag = false;
+                let $selector = $('.column_' + i, '.recommend_image_block');
+                for (j = 0; j < category_array.length; j++) {
+                    if ($selector.attr('category_name') === category_array[j]) {
+                        delete category_array[j];
+                        flag = true;
+                    }
+                }
+                if (flag === false) {
+                    $selector.attr('category_name', '');
+                    $selector.attr('image_name', '');
+                    $selector.css('display', 'none');
+                    $selector.find('.rec_im').remove();
+                }
+            }
+
+            set_default_image_to_event(category_array_)
+        }
+    });
+
+    function set_default_image_to_event(category_array) {
+        let json = {}, image_name = '';
+        for (let i = 0; i < category_array.length; i++) {
+            if (category_array[i] !== '') {
+                image_name = $('[category_name = ' + category_array[i] + ']').attr('category_name');
+                json[category_array[i]] = image_name;
+            }
+        }
+        $.ajax({
+            type: "POST",
+            url: '/events/change_default_image',
+            data: {
+                'json': JSON.stringify(json)
+            },
+            dataType: 'json',
+            success: function(data) {
+                $('.event_avatar').attr('src', '/media/avatar_event_default/'+ data.image);
+                $('.recommend_img', '.recommend_image_block').each(function (key, value) {
+                    $(this).attr('image_name', data.image_names[key]);
+                });
+            }
+        });
+    }
+
+
+    /**
+     * Подписчики события
+     *
+     */
+    $('.see_all_event_subscribers').on('click', function () {
+        $( "#dialog" ).dialog({
+            title: 'Подписчики события',
+            height: '700',
+            width: '500',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+        }).dialog('open');
+
+        var url = $(this).data('url');
+        $.ajax({
+            url: url,
+            success: function (data) {
+                $('.content_paginator').html(data);
+                var infinite = new Waypoint.Infinite({
+                    element: $('.infinite-container')[0],
+                    reverse: true
+                });
+            }
+        });
+    });
+
+
+    /**
+     * Диалоговое окно
+     *
+     */
+    function confirm_dialog(buttons) {
+        $( "#dialog_confirm" ).dialog({
+            title: 'Подтвердите действие',
+            height: '100',
+            width: '200',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            buttons: buttons,
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+
+        }).dialog('open');
+    }
+
+    /**
+     * удаление события
+     *
+     */
+    $('.restore_or_delete_event').off('click').on('click', function () {
+        var $this = $(this);
+        let buttons = [
+            {
+                text: "Да",
+                icon: "ui-icon-heart",
+                click: function() {
+                    delete_event($this);
+                }
+            },
+            {
+                text: "Нет",
+                icon: "ui-icon-heart",
+                click: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        ];
+        confirm_dialog(buttons);
+    });
+
+    /**
+     * Удаление события
+     *
+     */
+    function delete_event($button) {
+        $.ajax({
+            url: '/events/delete_event',
+            type: 'POST',
+            data: {
+                'event_id': $('#dialog_confirm').data('event_id'),
+                'is_restore':  $button.data('is_restore')
+            },
+            success: function (data) {
+                if (data === 200) {
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    }
+
+
+    /**
+     * удаление новости
+     *
+     */
+    $('.event_news').on('click', '.delete_news', function () {
+        let $this = $(this),
+            buttons = [
+                {
+                    text: "Да",
+                    icon: "ui-icon-heart",
+                    click: function() {
+                        delete_event_news($this);
+                        $( this ).dialog( "close" );
+                    }
+                },
+                {
+                    text: "Нет",
+                    icon: "ui-icon-heart",
+                    click: function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            ];
+        confirm_dialog(buttons);
+    });
+
+    /**
+     * Удаление новости (метод ajax)
+     * @$button - кнопка удаления на элементе
+     *
+     */
+    function delete_event_news($button) {
+        $.ajax({
+            url: '/events/delete_event_news',
+            type: 'POST',
+            data: {
+                'event_id': $('#dialog_confirm').data('event_id'),
+                'news_id':  $button.closest('li').data('id')
+            },
+            success: function (data) {
+                if (data === "200") {
+                    $('[data-id='+$button.closest('li').data('id')+']').remove();
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    }
+
+    /**
+     * Редактирование новости, обработчик кнопк
+     *
+     */
+    $('.event_news').on('click', '.edit_news', function () {
+        let $news = $(this).closest('li'), news_id = $news.data('id');
+        $('#id_text', '.news-form').val($('div.text', $news).text());
+        $('#id_news', '.news-form').val(news_id);
+    });
 });

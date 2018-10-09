@@ -13,9 +13,9 @@
         <div>
             <label>Категория</label>
             <select id="category" name="category">
-                <option value="">Все</option>
+                <option value="" selected>Все</option>
                 {% for category in category_list %}
-                    <option value="{{ category_id }}">{{ category.name }}</option>
+                    <option value="{{ category.id }}">{{ category.name }}</option>
                 {% endfor %}
             </select>
         </div>

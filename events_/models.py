@@ -1,6 +1,11 @@
+import json
+
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import models
 from PIL import Image
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.utils.functional import curry
 
 import datetime
@@ -8,7 +13,6 @@ import datetime
 from cities_.models import CityTable
 from events_all import helper
 from groups.models import Group
-from django.db.models.signals import post_save
 
 from profiles.models import Profile
 
@@ -20,6 +24,10 @@ class EventCategory(models.Model):
     def __str__(self):
         return str(self.id) + " " + str(self.name)
 
+    class Meta:
+        verbose_name = 'Категории событий'
+        verbose_name_plural = 'Категории событий'
+
 
 class EventStatus(models.Model):
     name = models.CharField(max_length=20)
@@ -27,6 +35,10 @@ class EventStatus(models.Model):
 
     def __str__(self):
         return str(self.id) + " " + str(self.name)
+
+    class Meta:
+        verbose_name = 'Статус события'
+        verbose_name_plural = 'Статус события'
 
 
 class EventGeo(models.Model):
@@ -36,6 +48,10 @@ class EventGeo(models.Model):
 
     def __str__(self):
         return str(self.lat) + " " + str(self.lng) + " " + str(self.name)
+
+    class Meta:
+        verbose_name = 'Гео меметки'
+        verbose_name_plural = 'Гео метки'
 
 
 class Event(models.Model):
@@ -62,6 +78,20 @@ class Event(models.Model):
     geo_point = models.ForeignKey(EventGeo, on_delete=models.CASCADE, blank=True, null=True)
     location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=None)
     location_name = models.CharField(max_length=100, null=True, blank=True)
+    CHOICES_ACTIVE = (('1', 'Активный'),
+                      ('2', 'Закрытый'),
+                      ('3', 'Удаленный'),
+                      ('4', 'Заблокированный'),)
+    active = models.CharField(  # для бана
+        max_length=2,
+        choices=CHOICES_ACTIVE,
+        default=1,
+    )
+    last_update = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'События'
+        verbose_name_plural = 'События'
 
     # Получение эвентов с учетом фильтрации
     @staticmethod
@@ -90,14 +120,16 @@ class Event(models.Model):
             end_time = datetime.utcfromtimestamp(int(request.POST['end_time']) / 1000)
             q_objects.add(Q(start_time__lte=str(end_time)), Q.AND)
 
+        q_objects.add(Q(active='1'), Q.AND)  # Не показывать в общей ленте закрытые события
         try:
             events = Event.objects.filter(q_objects). \
                 only('name', 'creator_id__first_name', 'description',
                      'creator_id__last_name', 'created_by_group', 'created_by_group__name',
-                     'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name'). \
+                     'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
+                     'category__name', 'active'). \
                 select_related('event_avatar', 'creator_id', 'creator_id__profileavatar',
                                'created_by_group__groupavatar'). \
-                order_by('-create_time')
+                order_by('-last_update')
         except Event.DoesNotExist:
             return None
         return events
@@ -106,18 +138,13 @@ class Event(models.Model):
         return str(self.id) + '  Событие: ' + self.name + ' Создатель: ' + self.creator_id.first_name
 
 
-# после создания события, создатель автоматически добавляется в участники этого события
-def event_creating_post_save(sender, instance, created, **kwargs):
-    if created:
-        EventParty.subscr_to_event(instance, instance.creator_id)
-
-
-post_save.connect(event_creating_post_save, sender=Event)
-
-
 class EventCategoryRelation(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     category = models.ForeignKey(EventCategory, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Связка Категории событий'
+        verbose_name_plural = 'Связка Категории событий'
 
 
 class EventMembership(models.Model):
@@ -134,13 +161,57 @@ class EventMembership(models.Model):
 
     # Подписка на пользователя
     @classmethod
-    def subscribe(cls, user, event):
-        EventMembership.objects.create(group=event, person=user.profile)
+    def subscribe(cls, event, user):
+        cls.objects.create(event=event, person=user.profile)
 
     # Отписка от пользователя
     @classmethod
-    def unsubscribe(cls, user, event):
-        EventMembership.objects.get(group=event, person=user.profile).delete()
+    def unsubscribe(cls, event, user):
+        cls.objects.get(event=event, person=user.profile).delete()
+
+    # Список подписанных на событие
+    @staticmethod
+    def get_subscribers(request):
+        if 'event' in request.GET:
+            event_id = request.GET.get('event', 1)
+
+            flag = False
+            action = ''  # Просмотр
+
+            event = Event.objects.get(id=event_id)
+            if 'value' in request.POST and 'search' in request.POST:
+                from django.db.models import Q
+                subscribers = EventMembership.objects.filter(Q(person__user__last_name__icontains=request.POST['value']) | Q(
+                    person__user__first_name__icontains=request.POST['value']), event=event)
+
+                subscribers_object = subscribers
+                subscribers = [
+                    subscriber.person for subscriber in subscribers_object.all()
+                ]
+                flag = True
+            else:
+                subscribers_object = event.members
+                subscribers = [
+                    subscriber for subscriber in subscribers_object.all()
+                ]
+
+            page = request.GET.get('page', 1)
+            paginator = Paginator(subscribers, 20)
+            try:
+                subscribers = paginator.page(page)
+            except PageNotAnInteger:
+                subscribers = paginator.page(1)
+            except EmptyPage:
+                subscribers = paginator.page(paginator.num_pages)
+
+            return {
+                'flag': flag,
+                'items': subscribers,
+                'user_id': event_id,
+                'action': action,
+                'type': 'subscribers',
+                'is_profile': False
+            }
 
 
 class EventNews(models.Model):
@@ -148,11 +219,54 @@ class EventNews(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     news_creator = models.ForeignKey(User, on_delete=models.CASCADE)
     news_event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    news_group = models.ForeignKey(Group, on_delete=models.CASCADE)
     news_image = models.ImageField(
         upload_to=curry(helper.ImageHelper.upload_to, prefix='news_img'),
         # upload_to=helper.ImageHelper.upload_to,
-        default=None
+        default='avatar_event/default/img.jpg'
     )
+
+    # Проверка прав на сохранение новости, проверка на количество новостей
+    @staticmethod
+    def check_rights_and_create_news(request, form):
+        result = {
+            'text': '',
+            'creator': '',
+            'status': 200,
+        }
+        if 'event_id' in request.POST:
+            event_detail = get_object_or_404(Event, id=request.POST['event_id'])  # Получение эвента
+            if event_detail.creator_id == request.user:  # Проверка на создателя
+                date_from = datetime.datetime.now() - datetime.timedelta(days=1)
+                if EventNews.objects.filter(news_event=event_detail, create_time__gte=date_from).count() < 5:
+                    result = form.save(request, event_detail)
+                    return HttpResponse(json.dumps(result))
+                else:
+                    result['status'] = 400
+                    result['text'] = 'Количество новостей за день превышает 5'
+                    return HttpResponse(json.dumps(result))
+            elif event_detail.created_by_group:  # Проверка на то, что создано от группы
+                is_editor = False
+                if event_detail.created_by_group:
+                    is_editor = Group.is_editor(request, event_detail.created_by_group.id)
+                if is_editor == 1:
+                    result = form.save(request, event_detail)
+                    return HttpResponse(json.dumps(result))
+                else:
+                    result['status'] = 400
+                    result['text'] = 'Вы не являетесь редактором от группы'
+            else:
+                result['status'] = 400
+                result['text'] = 'Вы не являетесь создателем и не редактором от группы'
+                return HttpResponse(json.dumps(result))
+        else:
+            result['status'] = 400
+            result['text'] = 'Ошибка'
+            return HttpResponse(json.dumps(result))
+
+    class Meta:
+        verbose_name = 'Новости событий'
+        verbose_name_plural = 'Новости событий'
 
     # Добавляем к свойствам объектов модели путь к миниатюре
     def _get_reduced_path(self):
@@ -182,6 +296,9 @@ class EventNews(models.Model):
 
         quality_val = 85
         reduced.save(self.reduced_path, quality=quality_val, optimize=True, progressive=True)
+
+    def get_absolute_url(self):
+        return "/groups/%i" % self.news_group.id
 
 
 class Event_avatar(models.Model):

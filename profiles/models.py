@@ -122,7 +122,6 @@ class Profile(models.Model):
         user = User.objects.get(id=user_id)
         if 'value' in request.POST and 'search' in request.POST:
             # TODO Тут ошибка, знаю, надо доделать, не работает паджинация
-            from django.db.models import Q
             subscribers = []
             subscribers_object = user.profile.subscribers
             for subscriber in subscribers_object.all():

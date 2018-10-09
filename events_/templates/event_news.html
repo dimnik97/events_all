@@ -1,0 +1,20 @@
+{% for item in news %}
+    <li data-id="{{ item.id }}">
+
+        {% if item.news_group %}
+            <a href="{{ item.news_group.get_absolute_url }}"> {{ item.news_group.name }}</a>
+        {% else %}
+            <a href="/profile/{{ item.news_creator.id }}"> {{ item.news_creator.first_name }}  {{ item.news_creator.last_name }} </a>
+        {% endif %}
+
+        <div class="text">{{ item.text|capfirst|linebreaksbr }} </div>
+{#        {%  if item.news_image %}#}
+{#            <img src="{{ item.news_image.url }}" width="100px" height="100px">#}
+{#        {% endif %}#}
+        <p>Дата создания: {{ item.create_time }}</p>
+        {% if can_change_news %}
+            <p style="color:red" class="delete_news">Удалить</p>
+            <p style="color:red" class="edit_news">Редактировать</p>
+        {% endif %}
+    </li>
+{% endfor %}

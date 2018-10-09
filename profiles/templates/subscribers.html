@@ -28,6 +28,7 @@
 {% endif %}
 
 <script>
+
     /**
      * Поиск подписчика
      *
@@ -36,14 +37,22 @@
         var url = '',
             user_id = $('.find_people').data('user_id'),
             $this = $(this);
+        {% if is_profile == False %}
+            if ($(this).hasClass('followers')) {
+                url = '/events/get_followers?event=' + user_id + '&action={{ action }}';
+            } else if ($(this).hasClass('subscribers')){
+                url = '/events/get_subscribers?event=' + user_id + '&action={{ action }}';
+            }
+        {% else %}
+            if ($(this).hasClass('followers')) {
+                url = '/profile/get_followers?user=' + user_id + '&action={{ action }}';
+            } else if ($(this).hasClass('subscribers')){
+                url = '/profile/get_subscribers?user=' + user_id + '&action={{ action }}';
+            }
+        {% endif %}
 
-        if ($(this).hasClass('followers')) {
-            url = 'get_followers?user=' + user_id + '&action={{ action }}';
-        } else if ($(this).hasClass('subscribers')){
-            url = 'get_subscribers?user=' + user_id + '&action={{ action }}';
-        }
         $.ajax({
-            url: '/profile/'+ url,
+            url: url,
             type: 'POST',
             data: {
                 'search': true,

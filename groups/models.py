@@ -190,22 +190,17 @@ class GroupAvatar(models.Model):
     reduced_path = property(_get_reduced_path)
     reduced_url = property(_get_reduced_url)
 
-    @classmethod
-    def save(cls, admin_panel=True, image_type='avatar', force_insert=False, force_update=False, using=None, request=None):
+    def save(self, admin_panel=True, image_type='avatar', force_insert=False, force_update=False, using=None, request=None):
         PhotoEditor.save_photo(
-            self_cls=cls,
+            self_cls=self,
             cls=GroupAvatar,
             admin_panel=admin_panel,
             image_type=image_type,
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
             request=request)
 
-    @classmethod
-    def delete_photo(cls, using=None):
+    def delete_photo(self, using=None):
         PhotoEditor.delete_photo(
-            self_cls=cls,
+            self_cls=self,
             using=using,
             cls=GroupAvatar
         )

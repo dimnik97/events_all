@@ -10,6 +10,21 @@
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <div class="form-group">
+                <label>Категории</label>
+                <span id="categories" class="custom_multiply_select">
+                    {% for category in selected_categories %}
+                        <span class="remove_categories" data-categories_id="{{ category.id }}"
+                              data-categories_description="{{ category.description }}">{{ category.name }}</span>
+                    {% endfor %}
+                </span>
+                <div class="custom_multiply_select_items" style="display: inline-grid;">
+                    {% for category in categories %}
+                        <span class="multiply_select_item" data-categories_id="{{ category.id }}"
+                              data-categories_description="{{ category.description }}">{{ category.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
                 <label>Город</label>
                 <div id="location" class="custom_select">
                     <input type="text" placeholder="поиск" class="find_city" >
@@ -28,6 +43,12 @@
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
+
+        {% if active == '3' %}
+            <button class="restore_or_delete_event" data-is_restore="true">Восстановить событие</button>
+        {% else %}
+            <button class="restore_or_delete_event" data-is_restore="false">Удалить событие</button>
+        {% endif %}
     </div>
 
     <script>
@@ -40,4 +61,5 @@
     </script>
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 
+    <div id="dialog_confirm" data-event_id="{{ id }}"></div>
 {% endblock %}

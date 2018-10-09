@@ -3,6 +3,7 @@
 {% block signin %}
 {% endblock %}
 {% block content %}
+
     <div class="row">
         <div class="col-3 profile_left">
             {% if account and account != user.id %}
@@ -43,7 +44,6 @@
                     {% for item in users %}
                         <li>
                             <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
-                            <button class="add_to_friend"  data-user_id="{{ item.id }}" data-action="add">Подписаться</button>
                         </li>
                     {% endfor %}
                 </ul>

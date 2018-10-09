@@ -3,7 +3,11 @@
     {% for event in events %}
         <hr style="border-top: 1px solid #000;">
         <div class="event_item infinite-item" data-event_id="{{event.id}}" >
-
+            Категории:
+            {% for item in event.category.all %}
+                {{ item.name }}
+            {%  endfor %}
+            <br>
             <a href="/events/{{ event.id }}">
                 <img src="{{ event.event_avatar.reduced_url }}" class="avatar_round">
             </a>
@@ -13,16 +17,18 @@
 
             Местоположение эвента: <span>{{ event.geo_point.name }}</span><br>
             Количество участников: <span>{{ event.members|count }}</span>
-        <br><br>
-        <div>
-            <a href="/profile/{{ event.creator_id_id }}">
-                <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
-            </a>
-        <br>
-            Информация о создателе: <br>
-            FIRST name: {{ event.creator_id.first_name }} <br>
-            LAST name: {{ event.creator_id.last_name }} <br>
-        </div>
+            <br><br>
+            {% if event %}
+            {% endif %}
+            <div>
+                <a href="/profile/{{ event.creator_id_id }}">
+                    <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
+                </a>
+                <br>
+                Информация о создателе: <br>
+                FIRST name: {{ event.creator_id.first_name }} <br>
+                LAST name: {{ event.creator_id.last_name }} <br>
+            </div>
 
             {% if event.party_flag == 1 %}
                 <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
