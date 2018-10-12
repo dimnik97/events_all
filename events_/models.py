@@ -7,7 +7,7 @@ from PIL import Image
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.functional import curry
-
+from django.db.models import Q
 import datetime
 
 from cities_.models import CityTable
@@ -93,10 +93,38 @@ class Event(models.Model):
         verbose_name = 'События'
         verbose_name_plural = 'События'
 
-    # Получение эвентов с учетом фильтрации
+    # Прошедшие события пользователя
+    # status - ended / active
+    @staticmethod
+    def get_ended_or_active_user_events(request, user, status):
+        q_objects = Q()
+        q_objects.add(Q(eventmembership__person=user.profile), Q.AND)
+        q_objects.add(Q(status__name=status), Q.AND)
+        if request.user != user:
+            q_objects.add(Q(active='1'),
+                          Q.AND)  # Не включать в выборку закрытые, удаленные и заблокированные события
+        else:
+            q_objects.add(Q(active__in=['1', '2', '4']), Q.AND)  # Не включать в выборку удаленные события
+
+        events = Event.event_query(q_objects)
+        return events
+
+    # События, где пользователь - создатель
+    @staticmethod
+    def get_user_events(request, user):
+        q_objects = Q()
+        q_objects.add(Q(creator_id=user), Q.AND)
+        if request.user != user:
+            q_objects.add(Q(active='1'), Q.AND)  # Не включать в выборку закрытые, удаленные и заблокированные события
+        else:
+            q_objects.add(Q(active__in=['1', '2', '4']), Q.AND)  # Не включать в выборку удаленные события
+
+        events = Event.event_query(q_objects)
+        return events
+
+    # Получение эвентов с учетом фильтрации, для главной ленты
     @staticmethod
     def get_events(request):
-        from django.db.models import Q
         q_objects = Q()
 
         if 'category' in request.POST and request.POST['category'] != '':
@@ -122,17 +150,35 @@ class Event(models.Model):
 
         q_objects.add(Q(active='1'), Q.AND)  # Не показывать в общей ленте закрытые события
         try:
-            events = Event.objects.filter(q_objects). \
-                only('name', 'creator_id__first_name', 'description',
-                     'creator_id__last_name', 'created_by_group', 'created_by_group__name',
-                     'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
-                     'category__name', 'active'). \
-                select_related('event_avatar', 'creator_id', 'creator_id__profileavatar',
-                               'created_by_group__groupavatar'). \
-                order_by('-last_update')
+            events = Event.event_query(q_objects)
         except Event.DoesNotExist:
             return None
         return events
+
+    # Основной запрос на получение ленты и связных данных
+    @staticmethod
+    def event_query(q_objects):
+        return Event.objects.filter(q_objects). \
+            only('name', 'creator_id__first_name', 'description',
+                 'creator_id__last_name', 'created_by_group', 'created_by_group__name',
+                 'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
+                 'category__name', 'active'). \
+            select_related('event_avatar', 'creator_id', 'creator_id__profileavatar',
+                           'created_by_group__groupavatar'). \
+            order_by('-last_update')
+
+    @staticmethod
+    def paginator(request, events):
+        page = request.GET.get('page', 1)
+        paginator = Paginator(events, 3)
+        try:
+            events = paginator.page(page)
+        except PageNotAnInteger:
+            events = paginator.page(1)
+        except EmptyPage:
+            events = paginator.page(paginator.num_pages)
+
+        return {'events': events, 'action': False}
 
     def __str__(self):
         return str(self.id) + '  Событие: ' + self.name + ' Создатель: ' + self.creator_id.first_name
@@ -246,10 +292,8 @@ class EventNews(models.Model):
                     result['text'] = 'Количество новостей за день превышает 5'
                     return HttpResponse(json.dumps(result))
             elif event_detail.created_by_group:  # Проверка на то, что создано от группы
-                is_editor = False
-                if event_detail.created_by_group:
-                    is_editor = Group.is_editor(request, event_detail.created_by_group.id)
-                if is_editor == 1:
+                is_editor = Group.is_editor(request, event_detail.created_by_group.id)
+                if is_editor is True:
                     result = form.save(request, event_detail)
                     return HttpResponse(json.dumps(result))
                 else:

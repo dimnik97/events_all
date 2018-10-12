@@ -1,8 +1,9 @@
 import json
 
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response, render, get_object_or_404
 
 from cities_.models import CityTable
 from events_.models import Event, EventCategory
@@ -56,7 +57,6 @@ def get_event_map(request):
         events = Event.objects.filter(location=city_id).only('name', 'geo_point__lng',
                                                              'geo_point__lat', 'geo_point__name',
                                                              'id').select_related('event_avatar')
-        from django.core import serializers
         result = []
         for event in events:
             result.append({
@@ -71,15 +71,35 @@ def get_event_map(request):
 # Паджинация основной ленты
 def get_infinite_events(request):
     events = Event.get_events(request)
+    context = Event.paginator(request, events)
+    return render(request, 'event_item.html', context)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(events, 20)
-    try:
-        events = paginator.page(page)
-    except PageNotAnInteger:
-        events = paginator.page(1)
-    except EmptyPage:
-        events = paginator.page(paginator.num_pages)
 
-    context = {'events': events, 'action': False}
+# На три  метода, для возможного изменения лент
+def active_user_events(request):
+    # Получение ленты активных событий
+    id = request.GET['id']
+    user = get_object_or_404(User, id=id)
+    events = Event.get_ended_or_active_user_events(request, user, 'active')
+    context = Event.paginator(request, events)
+    context.update({'get_page_url': 'active', 'id': id})
+    return render(request, 'event_item.html', context)
+
+
+def ended_user_events(request, id):
+    # Получение ленты неактивных событий
+    user = get_object_or_404(User, id=id)
+    events = Event.get_ended_or_active_user_events(request, user, 'ended')
+    Event.get_user_events(request, user)
+    context = Event.paginator(request, events)
+    context.update({'get_page_url': 'ended'})
+    return render(request, 'event_item.html', context)
+
+
+def user_events(request, id):
+    # Получение ленты событий созданных пользователем
+    user = get_object_or_404(User, id=id)
+    events = Event.get_user_events(request, user)
+    context = Event.paginator(request, events)
+    context.update({'get_page_url': 'user_events'})
     return render(request, 'event_item.html', context)

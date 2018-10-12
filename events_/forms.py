@@ -26,7 +26,7 @@ class CreateEventNews(forms.Form):
                 news.news_creator = request.user
                 if 'image' in request.FILES:
                     news.news_image = ''
-                event.save()
+                news.save()
                 return {'status': 100, 'text': request.POST['text'], 'id': news.id}
             else:
                 news = EventNews()
@@ -86,9 +86,13 @@ class EventForm(forms.Form):
 
             if is_creation == 1:  # Если создание
                 event = Event()
-                if 'group_id' in request.POST:   # Создано ли от группы?
-                    group = Group.objects.get(pk=int(request.POST['group_id']))
-                    event.created_by_group = group
+                if 'group_id' in request.POST and request.POST['group_id']:   # Создано ли от группы?
+                    is_editor = Group.is_editor(request, event.created_by_group.id)
+                    if is_editor is True:
+                        group = Group.objects.get(pk=int(request.POST['group_id']))
+                        event.created_by_group = group
+                    else:
+                        return
 
             else:  # Если редактирование
                 event = Event.objects.get(id=request.POST['id'])

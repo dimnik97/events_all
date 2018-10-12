@@ -37,12 +37,26 @@
             {% endif %}
         </div>
     {% empty %}
-        <p>There are no athletes. Only computer programmers.</p>
+        <p>Событий по заданному фильтру не найдено</p>
     {% endfor %}
 </div>
 
 {% if events.has_next %}
-    <a class="infinite-more-link"
-       href="/main_app/get_infinite_events?page={{ events.next_page_number }}">More
-    </a>
+    {% if get_page_url == 'active' %}
+        <a class="infinite-more-link_active"
+           href="/main_app/active_user_events?page={{ events.next_page_number }}&id={{ id }}">More
+        </a>
+    {% elif get_page_url == 'ended' %}
+        <a class="infinite-more-link_ended"
+           href="/main_app/ended_user_events?page={{ events.next_page_number }}&id={{ id }}">More
+        </a>
+    {% elif get_page_url == 'user_events' %}
+        <a class="infinite-more-link_user"
+           href="/main_app/user_events?page={{ events.next_page_number }}&id={{ id }}">More
+        </a>
+    {% else  %}
+        <a class="infinite-more-link"
+           href="/main_app/get_infinite_events?page={{ events.next_page_number }}">More
+        </a>
+    {% endif %}
 {% endif %}

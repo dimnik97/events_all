@@ -129,34 +129,6 @@ $(document).ready(function() {
     });
 
     /**
-     * Проброс токена CSRF во все запросы ajax
-     *
-     */
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            function getCookie(name) {
-                var cookieValue = null;
-                if (document.cookie && document.cookie != '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = jQuery.trim(cookies[i]);
-                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-
-            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                // Only send the token to relative URLs i.e. locally.
-                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-            }
-        }
-    });
-
-    /**
      * Отправка данных
      *
      */
@@ -336,11 +308,10 @@ $(document).ready(function() {
                     $('#id_news', '.news-form').val('');
                     $('#id_text', '.news-form').val('');
                     let $li = $('[data-id='+data.id+']');
-                    $li.find('.text').html(data.text);
+                    $li.find('.text').html(data.text.replace(/\n/g, "<br />"));
                 } else {
                     $('.error_news').html(data.text)
                 }
-
             },
             error: function(data) {
 
@@ -1548,7 +1519,7 @@ $(document).ready(function() {
      */
     $('.event_news').on('click', '.edit_news', function () {
         let $news = $(this).closest('li'), news_id = $news.data('id');
-        $('#id_text', '.news-form').val($('div.text', $news).text());
+        $('#id_text', '.news-form').val($('div.text', $news).html().replace(/<br\s*[\/]?>/gi, "\n")); // выставляем \n вместо br
         $('#id_news', '.news-form').val(news_id);
     });
 });

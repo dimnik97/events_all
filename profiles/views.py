@@ -6,6 +6,7 @@ from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.views.generic import FormView
 
+from events_.models import Event
 from groups.models import Group
 from images_custom.models import PhotoEditor
 from profiles.forms import EditProfile, EditUserSettings, ImageUploadForm
@@ -41,9 +42,7 @@ def detail(request, id):
 
     if Profile.objects.filter(user=account, subscribers=profile).exists():
         friend_flag = 'remove'
-        is_friend = 'subscribe'
     else:
-        is_friend = 'subscribe'
         friend_flag = 'add'
 
     followers = Profile.objects.filter(subscribers=profile.id).select_related("user__profileavatar").only(

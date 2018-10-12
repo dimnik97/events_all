@@ -1,5 +1,5 @@
 {% extends "main_template.html" %}
-
+{% load staticfiles %}
 {% block signin %}
 {% endblock %}
 {% block content %}
@@ -106,6 +106,37 @@
         </div>
     </div>
     <div id="dialog_img" class="d_none">
-
     </div>
+
+    <style>
+        .tab-pane {
+            height: 200px;
+            overflow: scroll;
+        }
+    </style>
+
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#panel1">Активные</a></li>
+        <li><a data-toggle="tab" href="#panel2">Мои</a></li>
+        <li><a data-toggle="tab" href="#panel3">Завершенные</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="panel1" class="tab-pane fade in active">
+            <div class="content_paginator_active">
+            </div>
+        </div>
+        <div id="panel2" class="tab-pane fade">
+            <div class="content_paginator_ended">
+            </div>
+        </div>
+        <div id="panel3" class="tab-pane fade">
+            <div class="content_paginator_user_events">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var id ={{ user.id }}
+    </script>
+    <script type="text/javascript" src="{% static 'js/profile_events.js' %}"></script>
 {% endblock %}
