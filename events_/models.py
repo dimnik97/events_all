@@ -154,8 +154,11 @@ class Event(models.Model):
             if not last_update:
                 events = Event.event_query(q_objects)
             else:
-                last_update = (last_update).strftime('%Y-%m-%d %H:%M:%S')
-                q_objects.add(Q(last_update__gte=str(last_update)), Q.AND)
+                import datetime
+                last_update = datetime.datetime.strptime(last_update, '%Y-%m-%d %H:%M:%S') + \
+                              datetime.timedelta(minutes=1)
+
+                q_objects.add(Q(last_update__gte=last_update), Q.AND)
                 events = Event.event_query(q_objects)
         except Event.DoesNotExist:
             return None
@@ -168,7 +171,7 @@ class Event(models.Model):
             only('name', 'creator_id__first_name', 'description', 'last_update',
                  'creator_id__last_name', 'created_by_group', 'created_by_group__name',
                  'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
-                 'category__name', 'active'). \
+                 'category__name', 'category__id', 'category__description', 'active'). \
             select_related('event_avatar', 'creator_id', 'creator_id__profileavatar',
                            'created_by_group__groupavatar'). \
             order_by('-last_update')

@@ -4,7 +4,7 @@
     {% for event in events %}
         <hr style="border-top: 1px solid #000;">
         <div class="event_item infinite-item" data-event_id="{{event.id}}"
-             data-last_update="{{ event.last_update|date:"c" }}">
+             data-last_update="{{ event.last_update|date:"Y-m-d H:i:s" }}">
 
             Время:
             <div class="event_time">

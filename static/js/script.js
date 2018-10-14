@@ -110,26 +110,6 @@ function GetCorrectNumber(Number, is_month=0, is_min = 0){
 
 $(document).ready(function() {
     /**
-     * Не используется
-     *
-     */
-    $('button.last_events').on('click', function(){
-        $.ajax({
-            type: "POST",
-            url: "get_events/",
-            data: {
-                "last_events":1
-            },
-            success: function (data) {
-                draw_events(data);
-            },
-            error: function(data) {
-                // как то обработать ошибку
-            }
-        });
-    });
-
-    /**
      * Отправка данных
      *
      */
@@ -1525,7 +1505,6 @@ $(document).ready(function() {
     $('.load_events', '.load_events_container').on('click', function () {
         let url = '/main_app/get_new_events/',
             last_update = $('.event_item:first', '.infinite-container').data('last_update');
-        debugger;
         $.ajax({
             url: url,
             type: 'POST',
@@ -1534,8 +1513,13 @@ $(document).ready(function() {
             },
             success: function (data) {
                 if (data) {
-                    $('.content_paginator_active').html(data);
-                    let element = $('.infinite-container', '.content_paginator_active')[0], more = '.infinite-more-link_active';
+                    let parent = $('.content_paginator_events');
+                    $(data).find('.event_item').each(function (key, value) {
+                        let id  = $(this).data('event_id');
+                        $('[data-event_id = "'+id+'"]', parent).remove();
+                        $('.infinite-container', parent).prepend($(this))
+
+                    });
                 } else {
                     // TODO заполнить error
                 }
