@@ -1,8 +1,22 @@
 {% load custom_filters %}
+{% load tz %}
 <div class="infinite-container">
     {% for event in events %}
         <hr style="border-top: 1px solid #000;">
-        <div class="event_item infinite-item" data-event_id="{{event.id}}" >
+        <div class="event_item infinite-item" data-event_id="{{event.id}}"
+             data-last_update="{{ event.last_update|date:"c" }}">
+
+            Время:
+            <div class="event_time">
+            </div>
+            Дата:
+            <div class="event_date">
+            </div>
+            <script>
+                transform_event_date_start_end("{{ event.start_time|date:"c" }}", "{{ event.end_time|date:"c" }}", "{{event.id}}");
+            </script>
+            <br>
+            <br>
             Категории:
             {% for item in event.category.all %}
                 {{ item.name }}
@@ -51,7 +65,7 @@
            href="/main_app/ended_user_events?page={{ events.next_page_number }}&id={{ id }}">More
         </a>
     {% elif get_page_url == 'user_events' %}
-        <a class="infinite-more-link_user"
+        <a class="infinite-more-link_user_events"
            href="/main_app/user_events?page={{ events.next_page_number }}&id={{ id }}">More
         </a>
     {% else  %}

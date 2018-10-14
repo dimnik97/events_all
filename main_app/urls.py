@@ -17,5 +17,6 @@ urlpatterns = [
      url(r'^ended_user_events$', views.ended_user_events, name='ended_user_events'),
      url(r'^user_events$', views.user_events, name='user_events'),
      url(r'^get_events/$', Event.get_events, name='get_events'),
+     url(r'^get_new_events/$', views.get_new_events, name='get_new_events'),
      # Ленты
 ]

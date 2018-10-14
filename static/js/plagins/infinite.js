@@ -33,7 +33,6 @@ https://github.com/imakewebthings/waypoints/blob/master/licenses.txt
             this.options.onBeforePageLoad()
             this.destroy()
             this.$container.addClass(this.options.loadingClass)
-
             if (this.options.post) {
                 $.ajax({
                     type: "POST",

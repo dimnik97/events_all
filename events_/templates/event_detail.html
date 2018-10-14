@@ -7,6 +7,19 @@
         <script type="text/javascript" src="https://vk.com/js/api/share.js?95" charset="windows-1251"></script>
         <div class="event_item" data-event_id="{{ event.id }}" id="event_{{ event.id }}" data-name="{{ event.name }}">
             <h1>Событие: {{ event.name }}</h1>
+
+            Время:
+            <div class="event_time">
+            </div>
+            Дата:
+            <div class="event_date">
+            </div>
+            <script>
+                transform_event_date_start_end("{{ event.start_time|date:"c" }}", "{{ event.end_time|date:"c" }}", "{{event.id}}");
+            </script>
+            <br>
+            <br>
+
             <p><img src="{{ event.event_avatar.image.url }}" width="200px" height="200px"></p>
             {% if event.created_by_group %}
                 <p>Создано от группы: {{ event.created_by_group.name }}</p>
@@ -101,7 +114,7 @@
             </div>
         {% endif %}
         {# ФОРМА ДЛЯ СОЗДАНИЯ НОВОСТИ #}
-</div>
+
 
         <div class="hidden templates_to_news">
             <a class="user" href="/profile/{{ user.id }}"> {{ user.first_name }}  {{ user.first_name }} </a>

@@ -39,9 +39,6 @@ def index(request, id):
         }
         return render_to_response('event_detail.html', context)
 
-    # преобразовываем дату в нужный формат. При выводе на js будет вызвана функция
-    #  пересчета времени относительно часового пояса пользователя
-    event_detail.start_time = event_detail.start_time.strftime("%Y-%m-%d %H:%M")
     categories = event_detail.category.all()
 
     # Права на редактирование

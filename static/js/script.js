@@ -31,12 +31,13 @@ function time_(DateStr) {
             'Июля',
             'Августа',
             'Сентября',
+            'Октября',
             'Ноября',
             'Декабря',
         ];
 
     var curr_date = x.getDate(),
-        curr_month = arr[x.getMonth()],
+        curr_month = arr[x.getMonth() ],
         curr_year = x.getFullYear(),
         curr_hours = x.getHours(),
         curr_minutes = x.getMinutes();
@@ -1122,7 +1123,6 @@ $(document).ready(function() {
      *
      */
     $('#event_form_create').on('submit', function(e){
-        debugger;
         custom_save_event_form($('#event_form_create'), e, '/events/create')
     });
 
@@ -1140,7 +1140,6 @@ $(document).ready(function() {
      */
     function custom_save_event_form($form, e, url){
         e.preventDefault();
-        debugger;
         let data = get_form_with_custom_modules($form);
 
         $.ajax({
@@ -1522,4 +1521,25 @@ $(document).ready(function() {
         $('#id_text', '.news-form').val($('div.text', $news).html().replace(/<br\s*[\/]?>/gi, "\n")); // выставляем \n вместо br
         $('#id_news', '.news-form').val(news_id);
     });
+
+    $('.load_events', '.load_events_container').on('click', function () {
+        let url = '/main_app/get_new_events/',
+            last_update = $('.event_item:first', '.infinite-container').data('last_update');
+        debugger;
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+                'last_update': last_update
+            },
+            success: function (data) {
+                if (data) {
+                    $('.content_paginator_active').html(data);
+                    let element = $('.infinite-container', '.content_paginator_active')[0], more = '.infinite-more-link_active';
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    })
 });

@@ -1,7 +1,6 @@
 import json
 
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, render, get_object_or_404
 
@@ -75,6 +74,14 @@ def get_infinite_events(request):
     return render(request, 'event_item.html', context)
 
 
+# Подгрузка новых событий
+def get_new_events(request):
+    if 'last_update' in request.POST and request.POST['last_update'] != '':
+        events = Event.get_events(request, request.POST['last_update'])
+        context = Event.paginator(request, events)
+        return render(request, 'event_item.html', context)
+
+
 # На три  метода, для возможного изменения лент
 def active_user_events(request):
     # Получение ленты активных событий
@@ -86,20 +93,20 @@ def active_user_events(request):
     return render(request, 'event_item.html', context)
 
 
-def ended_user_events(request, id):
+def ended_user_events(request):
     # Получение ленты неактивных событий
+    id = request.GET['id']
     user = get_object_or_404(User, id=id)
     events = Event.get_ended_or_active_user_events(request, user, 'ended')
-    Event.get_user_events(request, user)
     context = Event.paginator(request, events)
-    context.update({'get_page_url': 'ended'})
+    context.update({'get_page_url': 'ended', 'id': id})
     return render(request, 'event_item.html', context)
 
 
-def user_events(request, id):
+def user_events(request):
     # Получение ленты событий созданных пользователем
-    user = get_object_or_404(User, id=id)
-    events = Event.get_user_events(request, user)
+    id = request.GET['id']
+    events = Event.get_user_events(request, id)
     context = Event.paginator(request, events)
-    context.update({'get_page_url': 'user_events'})
+    context.update({'get_page_url': 'user_events', 'id': id})
     return render(request, 'event_item.html', context)

@@ -114,6 +114,7 @@ class Event(models.Model):
     def get_user_events(request, user):
         q_objects = Q()
         q_objects.add(Q(creator_id=user), Q.AND)
+        q_objects.add(Q(status__name='active'), Q.AND)
         if request.user != user:
             q_objects.add(Q(active='1'), Q.AND)  # Не включать в выборку закрытые, удаленные и заблокированные события
         else:
@@ -124,7 +125,7 @@ class Event(models.Model):
 
     # Получение эвентов с учетом фильтрации, для главной ленты
     @staticmethod
-    def get_events(request):
+    def get_events(request, last_update=None):
         q_objects = Q()
 
         if 'category' in request.POST and request.POST['category'] != '':
@@ -150,7 +151,12 @@ class Event(models.Model):
 
         q_objects.add(Q(active='1'), Q.AND)  # Не показывать в общей ленте закрытые события
         try:
-            events = Event.event_query(q_objects)
+            if not last_update:
+                events = Event.event_query(q_objects)
+            else:
+                last_update = (last_update).strftime('%Y-%m-%d %H:%M:%S')
+                q_objects.add(Q(last_update__gte=str(last_update)), Q.AND)
+                events = Event.event_query(q_objects)
         except Event.DoesNotExist:
             return None
         return events
@@ -159,7 +165,7 @@ class Event(models.Model):
     @staticmethod
     def event_query(q_objects):
         return Event.objects.filter(q_objects). \
-            only('name', 'creator_id__first_name', 'description',
+            only('name', 'creator_id__first_name', 'description', 'last_update',
                  'creator_id__last_name', 'created_by_group', 'created_by_group__name',
                  'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
                  'category__name', 'active'). \
@@ -170,7 +176,7 @@ class Event(models.Model):
     @staticmethod
     def paginator(request, events):
         page = request.GET.get('page', 1)
-        paginator = Paginator(events, 3)
+        paginator = Paginator(events, 5)
         try:
             events = paginator.page(page)
         except PageNotAnInteger:
