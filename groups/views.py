@@ -17,8 +17,8 @@ def detail(request, id):
     if context['status']:
         group = get_object_or_404(Group, id=id)
 
-        members_object = group.members.select_related()
-        members = [member for member in members_object.all()]
+        members = Membership.objects.filter(group=group, role__role__in=['admin', 'editor', 'subscribers'])\
+            .only('role')
 
         try:
             roles = Membership.objects.get(person=request.user.profile, group=id).role
@@ -64,7 +64,8 @@ def get_groups(request):
         name = ''
 
     if 'all' in request.POST:
-        groups = Group.objects.filter(name__icontains=name).exclude(type=exclude_access_to_closed_groups)
+        groups = Group.objects.filter(name__icontains=name).exclude(type=exclude_access_to_closed_groups)\
+            .only('id', 'name', 'status', ).select_related('groupavatar')
     else:
         if 'id' in request.GET:  # Если нет id, то ошибка
             user = User.objects.get(id=request.GET['id'])
@@ -76,7 +77,7 @@ def get_groups(request):
             is_my = True
 
         groups = Group.objects.filter(membership__person=user.profile, name__icontains=name).exclude(
-            type=exclude_access_to_closed_groups)
+            type=exclude_access_to_closed_groups).only('id', 'name', 'status', ).select_related('groupavatar')
     # Параметры приходящие постом
 
     page = request.GET.get('page', 1)
@@ -126,14 +127,29 @@ def edit(request, id=None):
     except Membership.DoesNotExist:
         roles = ''
 
-    editors_object = Membership.objects.filter(group=group, role=AllRoles.objects.get(role='editor'))
-    editors = [editor for editor in editors_object.all()]
+    #  TODO оптимизировать
+    members = Membership.objects.filter(group=group).only('role', 'person').\
+        select_related('person__user__profileavatar', 'person__user')
 
-    members_object = Membership.objects.filter(group=group, role=AllRoles.objects.get(role='subscribers'))
-    members = [member for member in members_object.all()]
+    editors = set()
+    subscribers = set()
+    invited = set()
+    sends = set()
+    for member in members:
+        if member.role.role == 'editor':
+            editors.add(member)
+        if member.role.role == 'subscribers':
+            subscribers.add(member)
+        if member.role.role == 'invite':
+            invited.add(member)
+        if member.role.role == 'send':
+            sends.add(member)
 
     left_side = editors
-    right_side = members
+    right_side = subscribers
+
+    invited = invited
+    sends = sends
 
     context = {
         'id': id,
@@ -142,6 +158,8 @@ def edit(request, id=None):
         "csrf_token": get_token(request),
         'left_side': left_side,
         'right_side': right_side,
+        'invited': invited,
+        'sends': sends,
         'group': group
     }
     return render_to_response('edit_group.html', context)
@@ -255,8 +273,42 @@ def add_to_subscribers(request):
     return HttpResponse('Недостаточно прав для редактирования')
 
 
-def invite_group(request):
-    group_id = request.POST['group_id']
+def send_an_application(request):
+    if 'group_id' in request.POST:
+        group_id = request.POST['group_id']
+        if Membership.send_an_application(request.user, group_id):
+            return HttpResponse(str(200))
+    return HttpResponse(str(400))
+
+
+def invite(request):
+    if 'group_id' in request.POST:
+        group_id = request.POST['group_id']
+        if 'user_id' in request.POST:
+            user_id = request.POST['user_id']
+            if Membership.invite(user_id, group_id):
+                return HttpResponse(str(200))
+    return HttpResponse(str(400))
+
+
+def cancel(request):
+    if 'group_id' in request.POST:
+        group_id = request.POST['group_id']
+        if 'user_id' in request.POST:
+            user_id = request.POST['user_id']
+            if Membership.cancel(user_id, group_id):
+                return HttpResponse(str(200))
+    return HttpResponse(str(400))
+
+
+def accept(request):
+    if 'group_id' in request.POST:
+        group_id = request.POST['group_id']
+        if 'user_id' in request.POST:
+            user_id = request.POST['user_id']
+            if Membership.accept(user_id, group_id):
+                return HttpResponse(str(200))
+    return HttpResponse(str(400))
 
 
 # Удаление подписчика
@@ -267,7 +319,7 @@ def delete_subscribers(request):
             users_object = Membership.objects.get(group_id=group_id,
                                                   person=request.POST['user'])
             users_object.delete()
-        except:
+        except Membership.DoesNotExist:
             return HttpResponse('Error')
         return HttpResponse(str(200))
     return HttpResponse('Недостаточно прав для редактирования')

@@ -11,9 +11,8 @@ from django.db.models import Q
 
 from cities_.models import CityTable
 from events_all import helper
-from groups.models import Group
+from groups.models import Group, Membership
 import datetime
-from pytz import timezone
 
 from profiles.models import Profile
 
@@ -128,6 +127,7 @@ class Event(models.Model):
     @staticmethod
     def get_events(request, last_update=None):
         q_objects = Q()
+        q_objects_2 = Q()
 
         if 'category' in request.POST and request.POST['category'] != '':
             q_objects.add(Q(category=request.POST['category']), Q.AND)
@@ -148,7 +148,20 @@ class Event(models.Model):
                 # TODO переделать
                 q_objects.add(Q(end_time__gte=start_time), Q.AND)  # Для того, чтобы показывать незавершенные события
 
-        q_objects.add(Q(active='1'), Q.AND)  # Не показывать в общей ленте закрытые события
+        if request.user.is_authenticated: # инача будет ошибка
+            members = Membership.objects.filter(person=request.user.profile, group__type=2)
+            groups_name = list()
+            for member in members:
+                groups_name.append(str(member.group.id))
+
+            q_objects.add(Q(active__in=['1', '2']), Q.AND)
+            q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)
+            q_objects_2.add(Q(created_by_group__isnull=True), Q.OR)
+            q_objects_2.add(Q(created_by_group__type='1'), Q.OR)
+            q_objects.add(q_objects_2, Q.AND)
+        else:
+            q_objects.add(Q(active='1'), Q.AND)
+
         try:
             if last_update:
                 last_update = datetime.datetime.strptime(last_update, '%Y-%m-%d %H:%M:%S') + \
@@ -176,7 +189,7 @@ class Event(models.Model):
                  'creator_id__last_name', 'created_by_group', 'created_by_group__name',
                  'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
                  'category__name', 'category__id', 'category__description', 'active'). \
-            select_related('event_avatar', 'creator_id', 'creator_id__profileavatar',
+            select_related('event_avatar', 'creator_id', 'creator_id__profileavatar', 'created_by_group',
                            'created_by_group__groupavatar'). \
             order_by('-last_update')
 

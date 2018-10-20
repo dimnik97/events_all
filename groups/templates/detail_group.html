@@ -37,19 +37,21 @@
             <ul>
                 {% for item in members %}
                     <div>
-                        <a href="/profile/{{ item.user.id }}">
-                            <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
+                        <a href="/profile/{{ item.person.user.id }}">
+                            <img src="{{ item.person.user.profileavatar.mini_url }}" class="avatar_round">
                         </a>
-                        <a href="/profile/{{ item.user.id }}">
-                            {{ item.user.first_name }}  {{ item.user.last_name }} {{ item.role }}
+                        <a href="/profile/{{ item.person.user.id }}">
+                            {{ item.person.user.first_name }}  {{ item.person.user.last_name }}
                         </a>
+                        {{ item.role }}
                     </div>
                 {% endfor %}
             </ul>
         </div>
 
         <script>
-            var id ={{ group.id }}
+            var id ={{ group.id }}, type ='detail'
+
         </script>
         <script type="text/javascript" src="{% static 'js/group_events.js' %}"></script>
         <div class="content_paginator">

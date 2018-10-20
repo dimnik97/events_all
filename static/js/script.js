@@ -209,7 +209,7 @@ $(document).ready(function() {
                 console.log(xhr.status + ": " + xhr.responseText);
             }
         });
-    };
+    }
 
     /**
      * Возврат на первый шаг
@@ -379,7 +379,7 @@ $(document).ready(function() {
      */
     function ajax_validate_form($form, e){
         e.preventDefault();
-        var data = $form.serialize();
+        let data = $form.serialize();
 
         $.ajax({
             type: "POST",
@@ -390,7 +390,7 @@ $(document).ready(function() {
                 ajax_validate_form_data($form, data);
             }
         });
-    };
+    }
 
     /**
      * Обработка данных валидации
@@ -435,12 +435,12 @@ $(document).ready(function() {
             },
         }).dialog('open');
 
-        var url = $(this).data('url');
+        let url = $(this).data('url');
         $.ajax({
             url: url,
             success: function (data) {
                 $('.content_paginator').html(data);
-                var infinite = new Waypoint.Infinite({
+                let infinite = new Waypoint.Infinite({
                     element: $('.infinite-container')[0],
                     reverse: true
                 });
@@ -448,13 +448,12 @@ $(document).ready(function() {
         });
     });
 
-
     /**
      * Смена аватара или миниатюры
      *
      */
     $('.change_avatar, .change_mini').on('click', function () {
-        var url = $(this).data('url'),
+        let url = $(this).data('url'),
             title = $(this).html();
 
         $( "#dialog_img" ).dialog({
@@ -478,7 +477,7 @@ $(document).ready(function() {
                 at: 'center',
                 collision: 'fit',
                 using: function(pos) {
-                    var topOffset = $(this).css(pos).offset().top;
+                    let topOffset = $(this).css(pos).offset().top;
                     if (topOffset < 0) {
                         $(this).css('top', pos.top - topOffset);
                     }
@@ -509,7 +508,7 @@ $(document).ready(function() {
             },
             success: function (data) {
                 if (data) {
-                    var r_side = $('.right_side_select_roles', '.select_roles').empty();
+                    let r_side = $('.right_side_select_roles', '.select_roles').empty();
                     r_side.append(data);
                 } else {
                     // TODO заполнить error
@@ -523,57 +522,51 @@ $(document).ready(function() {
      * Перевод из подписчика в редактора
      *
      */
-    function add_to_editor() {
-        $('.add_to_editor').off('click').on('click', function () {
-            var $this = $(this);
-            $.ajax({
-                url: '/groups/add_to_editor',
-                type: 'POST',
-                data: {
-                    'user': $(this).parent('li').data('id'),
-                    'group_id': $('.select_roles').data('group_id'),
-                },
-                success: function (data) {
-                    if (data == 200) {
-                        $this.text('Разжаловать');
-                        $this.addClass('add_to_subscriber').removeClass('add_to_editor');
-                        $('.left_side_select_roles').append($this.closest('li'));
-                        add_to_subscriber();
-                    } else {
-                        // TODO заполнить error
-                    }
+    $('.select_roles').on('click', '.add_to_editor',  function () {
+        let $this = $(this);
+        $.ajax({
+            url: '/groups/add_to_editor',
+            type: 'POST',
+            data: {
+                'user': $(this).parent('li').data('id'),
+                'group_id': $('.select_roles').data('group_id'),
+            },
+            success: function (data) {
+                if (data == 200) {
+                    $this.text('Разжаловать');
+                    $this.addClass('add_to_subscriber').removeClass('add_to_editor');
+                    $('.left_side_select_roles').append($this.closest('li'));
+                } else {
+                    // TODO заполнить error
                 }
-            });
+            }
         });
-    }
+    });
 
     /**
      * Перевод из редактора в подписчика
      *
      */
-    function add_to_subscriber() {
-        $('.add_to_subscriber').off('click').on('click', function () {
-            var $this = $(this);
-            $.ajax({
-                url: '/groups/add_to_subscribers',
-                type: 'POST',
-                data: {
-                    'user': $(this).parent('li').data('id'),
-                    'group_id': $('.select_roles').data('group_id'),
-                },
-                success: function (data) {
-                    if (data == 200) {
-                        $this.text('Добавить редактора');
-                        $this.addClass('add_to_editor').removeClass('add_to_subscriber');
-                        $('.right_side_select_roles').append($this.closest('li'));
-                        add_to_editor();
-                    } else {
-                        // TODO заполнить error
-                    }
+    $('.select_roles').on('click', '.add_to_subscriber', function () {
+        let $this = $(this);
+        $.ajax({
+            url: '/groups/add_to_subscribers',
+            type: 'POST',
+            data: {
+                'user': $(this).parent('li').data('id'),
+                'group_id': $('.select_roles').data('group_id'),
+            },
+            success: function (data) {
+                if (data == 200) {
+                    $this.text('Добавить редактора');
+                    $this.addClass('add_to_editor').removeClass('add_to_subscriber');
+                    $('.right_side_select_roles').append($this.closest('li'));
+                } else {
+                    // TODO заполнить error
                 }
-            });
+            }
         });
-    }
+    });
 
     /**
      * Удаление из подписчиков
@@ -582,7 +575,7 @@ $(document).ready(function() {
      *
      */
     $('.delete', '.select_roles').on('click', function () {
-        var $this = $(this);
+        let $this = $(this);
         $.ajax({
             url: '/groups/delete_subscribers',
             type: 'POST',
@@ -600,8 +593,6 @@ $(document).ready(function() {
         });
     });
 
-    add_to_editor();
-    add_to_subscriber();
 
 
     /**
@@ -638,7 +629,7 @@ $(document).ready(function() {
                 at: 'center',
                 collision: 'fit',
                 using: function(pos) {
-                    var topOffset = $(this).css(pos).offset().top;
+                    let topOffset = $(this).css(pos).offset().top;
                     if (topOffset < 0) {
                         $(this).css('top', pos.top - topOffset);
                     }
@@ -666,7 +657,7 @@ $(document).ready(function() {
                 }
             }
         });
-    };
+    }
 
 
     /**
@@ -696,8 +687,9 @@ $(document).ready(function() {
      *
      */
     $('body').on('click', '.message_block', function () {
-        $('.message_block').removeClass('selected_message');
-        $('.message_block').find('.additional_block').hide();
+        let $message_block = $('.message_block');
+        $message_block.removeClass('selected_message');
+        $message_block.find('.additional_block').hide();
         if ($(this).hasClass('is_my')) {
             if ($(this).hasClass('selected_message')) {
                 $(this).removeClass('selected_message');
@@ -715,12 +707,13 @@ $(document).ready(function() {
      *
      */
     $('body').on('click', '.edit_message', function () {
-        var $message_block = $(this).closest('.message_block'),
+        let $message_block = $(this).closest('.message_block'),
             id_message = $message_block.attr('message_id'),
-            message_text = $message_block.find('.message').text();
-        $('#chat-message-input').val(message_text);
-        $('#chat-message-input').addClass('edited_message');
-        $('#chat-message-input').attr('message_id', id_message);
+            message_text = $message_block.find('.message').text(),
+            $input = $('#chat-message-input');
+        $input.val(message_text);
+        $input.addClass('edited_message');
+        $input.attr('message_id', id_message);
     });
 
 
@@ -729,7 +722,7 @@ $(document).ready(function() {
      *
      */
     $('body').on('click', '.delete_message', function () {
-        var message_id = $(this).closest('.message_block').attr('message_id');
+        let message_id = $(this).closest('.message_block').attr('message_id');
         $.ajax({
             url: '/chats/delete_message',
             type: 'POST',
@@ -756,7 +749,7 @@ $(document).ready(function() {
         if ($(this).find('.chat_status').hasClass('blocked')) {
             return;
         }
-        var url = '';
+        let url = '';
         if ($(this).data('chat_id'))
             url = 'dlg?peer=' + $(this).data('chat_id');
         else
@@ -785,7 +778,7 @@ $(document).ready(function() {
      */
     function add_to_chat($this) {
         if ($this.is(':checked')) {
-            var username = $this.parent().find('.username').html(),
+            let username = $this.parent().find('.username').html(),
                 user_id = '"' + $this.val() + '"',
                 user_item = '<span class="inside_mark" data-id='+user_id+'>'+ username +'</span>',
                 user = '<div class="user">'+ user_item +'<span data-id=' + user_id + ' class="delete_user">x</span></div>';
@@ -797,11 +790,10 @@ $(document).ready(function() {
                 $(this).closest('.user').remove();
             });
         } else {
-            var id = $this.val();
+            let id = $this.val();
             $('*[data-id='+ id +']', '.added_users').closest('.user').remove();
         }
     }
-
 
     /**
      * Добавить пользователей в чат, включает в себя:
@@ -822,7 +814,7 @@ $(document).ready(function() {
                 $(':checkbox', '.add_chat_wrapper').off('click').on('click', function () {
                     add_to_chat($(this));
                 });
-                var obj = $('input[type=checkbox]', '.add_chat_form_subscribers'), iter = '', added_users = [];
+                let obj = $('input[type=checkbox]', '.add_chat_form_subscribers'), iter = '', added_users = [];
                 $('.message_block', '.form_to_messages').each(function (key, value) {
                     added_users.push(($(this).data('user_id')).toString());
                 });
@@ -841,7 +833,7 @@ $(document).ready(function() {
         });
 
         $('.submite', '.add_chat_wrapper').off('click').on('click', function () {
-            var obj = $('.user', '.add_chat_wrapper'),
+            let obj = $('.user', '.add_chat_wrapper'),
                 added_users = '',
                 room_id = $('.messages').data('room_id');
 
@@ -923,7 +915,6 @@ $(document).ready(function() {
                 }
             });
         });
-
     });
 
 
@@ -951,6 +942,7 @@ $(document).ready(function() {
                 });
             }
         });
+
         $('.cancel', '.create_chat_wrapper').off('click').on('click', function () {
             $('.find_dialogs').show();
             $('.content_paginator_chat').show();
@@ -959,7 +951,7 @@ $(document).ready(function() {
         });
 
         $('.submite', '.create_chat_wrapper').off('click').on('click', function () {
-            var dialog_name = $('[name=dialog_name]').val(),
+            let dialog_name = $('[name=dialog_name]').val(),
                 obj = $('.user', '.added_users'),
                 added_users = '';
             obj.each(function (key, value) {
@@ -990,7 +982,7 @@ $(document).ready(function() {
      *
      */
     $('.content_paginator_chat').on('click', '.accept', function () {
-        var room_id = $(this).closest('.dialog_last_info').data('room_id');
+        let room_id = $(this).closest('.dialog_last_info').data('room_id');
         $.ajax({
             url: '/chats/join_room',
             type: 'POST',
@@ -1014,7 +1006,7 @@ $(document).ready(function() {
      *
      */
     $('.content_paginator_chat').on('click', '.decline', function () {
-        var room_id = $(this).closest('.dialog_last_info').data('room_id');
+        let room_id = $(this).closest('.dialog_last_info').data('room_id');
         $.ajax({
             url: '/chats/decline_room',
             type: 'POST',
@@ -1030,15 +1022,14 @@ $(document).ready(function() {
                 }
             }
         });
-    })
+    });
 
     /**
      * Поиск города в кастомном селекте
      *
      */
     $('.find_city', '.custom_select').on('input', function () {
-        var city_name = $(this).val(),
-            $this = $(this);
+        let city_name = $(this).val();
         $.ajax({
             url: '/cities_/find_city',
             type: 'POST',
@@ -1052,7 +1043,7 @@ $(document).ready(function() {
                     $('.custom_select_items').append("<span  class='select_item go_out' >Ничего не найдено</span>");
                     return;
                 }
-                data.forEach(function(data, i, arr) {
+                data.forEach(function(data) {
                     $('.custom_select_items').append("<span  class='select_item' data-city_id="+ data.pk +">" + data.fields.city + "</span>");
                 });
 
@@ -1092,7 +1083,6 @@ $(document).ready(function() {
                         }
                     });
                 }
-
             } catch (err) {
             }
         })
@@ -1138,7 +1128,7 @@ $(document).ready(function() {
                 }
             }
         });
-    };
+    }
 
     /**
      * Получение выбранного в кастомном селекте

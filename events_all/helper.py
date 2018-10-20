@@ -90,7 +90,6 @@ def create_medium_image(img):
 
 
 # Приведение курсора в dict для RAW Запросов
-@staticmethod
 def dictfetchall(cursor):
     desc = cursor.description
     return [

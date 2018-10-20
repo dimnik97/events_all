@@ -9,6 +9,7 @@ from profiles.models import Profile
 
 # Admin могут редактировать саму группу(название, фото, описание), добавлять и удалять редакторов, создавать посты
 # Editor могут добавлять посты
+# not_added - недобавленные пользователи
 class AllRoles(models.Model):
     role = models.TextField(default=None)
     ru_role = models.TextField(default=None)
@@ -84,7 +85,7 @@ class Group(models.Model):
             return True
         return False
 
-    # Проверка группы на
+    # Проверка на права доступа
     @classmethod
     def verification_of_rights(cls, request, group_id):
         group = Group.objects.get(id=group_id)
@@ -113,13 +114,21 @@ class Group(models.Model):
                 'status': False,
                 'is_admin': is_admin
             }
-        if str(group.type) == '2':
-            user = Membership.objects.filter(group=group.id, person=request.user.profile)
-            if user.exists():
+        if str(group.type) == '2':  # Группа закрытая
+            try:
+                user = Membership.objects.get(group=group.id, person=request.user.profile)
                 context = {
                     'status': True
                 }
-            else:
+                if user.role.role == 'send' or user.role.role == 'invite':
+                    context = {
+                        'group': group,
+                        'text': 'Заявка отправлена',
+                        'invite': False,
+                        'status': False,
+                        'is_admin': is_admin
+                    }
+            except Membership.DoesNotExist:
                 context = {
                     'group': group,
                     'text': 'Отправить заявку',
@@ -154,6 +163,48 @@ class Membership(models.Model):
     @classmethod
     def unsubscribe(cls, user, group):
         Membership.objects.get(group=group, person=user.profile).delete()
+
+    # Приглашение в группу (только для закрытых)
+    @staticmethod
+    def invite(user_id, group_id):
+        try:
+            group = Group.objects.get(id=group_id)
+            user = User.objects.get(id=user_id)
+            Membership.objects.create(group=group, person=user.profile, role=AllRoles.objects.get(role='invite'))
+        except:
+            return False
+
+    # Отправить заявку (только для закрытых)
+    @staticmethod
+    def send_an_application(user, group_id):
+        try:
+            group = Group.objects.get(id=group_id)
+            Membership.objects.create(group=group, person=user.profile, role=AllRoles.objects.get(role='send'))
+            return True
+        except:
+            return False
+
+    # Принять в группу
+    @staticmethod
+    def accept(user_id, group_id):
+        try:
+            profile = Profile.objects.get(id=user_id)
+            member = Membership.objects.get(group_id=group_id, person=profile)
+            member.role = AllRoles.objects.get(role='subscribers')
+            member.save()
+            return True
+        except:
+            return False
+
+    # Отклонить заявку
+    @staticmethod
+    def cancel(user_id, group_id):
+        try:
+            profile = Profile.objects.get(id=user_id)
+            Membership.objects.get(group_id=group_id, person=profile).delete()
+            return True
+        except:
+            return False
 
 
 # Аватарки и миниатюры пользователей

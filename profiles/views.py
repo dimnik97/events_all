@@ -6,7 +6,6 @@ from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.views.generic import FormView
 
-from events_.models import Event
 from groups.models import Group
 from images_custom.models import PhotoEditor
 from profiles.forms import EditProfile, EditUserSettings, ImageUploadForm

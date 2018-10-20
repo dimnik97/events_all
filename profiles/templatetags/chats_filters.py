@@ -1,6 +1,7 @@
 from django import template
 import datetime
 
+from events_all import helper
 from events_all.helper import convert_base
 from groups.models import Membership
 
@@ -103,6 +104,14 @@ def print_timestamp(timestamp):
 
 
 @register.filter
-def all_related_members(group):
-    from django.db.models import Q
-    return Membership.objects.filter(Q(role__role='admin') | Q(role__role='editor'), group=group.id)
+def ru_role(group, profile_id):
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute("""SELECT r.ru_role FROM groups_membership m
+                        left join groups_allroles r on m.role_id = r.id
+                        where group_id = %s 
+                        and ( r.role = 'admin' or r.role = 'editor' ) 
+                        and m.person_id = %s""", [group.id, profile_id])
+
+    row = helper.dictfetchall(cursor)
+    return row[0]['ru_role']
