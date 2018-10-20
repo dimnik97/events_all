@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 from os import path as op
@@ -60,13 +59,10 @@ def index(request, id):
             party_flag = False
 
     if int(event_detail.active) == 2 and party_flag is False:
-        try:
-            context = {
-                'error': 'Зыкрытое событие, нет доступа'
-            }
-            return render_to_response('event_detail.html', context)
-        except EventMembership.DoesNotExist:
-            pass
+        context = {
+            'error': 'Зыкрытое событие, нет доступа'
+        }
+        return render_to_response('event_detail.html', context)
 
     subscribers = EventMembership.objects.filter(event=event_detail)[:5]
 
@@ -113,7 +109,7 @@ def subsc_unsubsc(request):
         else:
             raise Http404
     else:
-        return redirect('/accounts/login/?next=')
+        return HttpResponse(str(401))  # Не авторизован
 
 
 @login_required(login_url='/accounts/login/')

@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response, render, get_object_or_404
 
 from cities_.models import CityTable
 from events_.models import Event, EventCategory
+from groups.models import Group, Membership
 from profiles.models import Users
 
 
@@ -82,7 +83,15 @@ def get_new_events(request):
         return render(request, 'event_item.html', context)
 
 
-# На три  метода, для возможного изменения лент
+def get_new_events_count(request):
+    events_count = 0
+    try:
+        if 'last_update' in request.POST and request.POST['last_update'] != '':
+            events_count = Event.get_events(request, request.POST['last_update']).count()
+    finally:
+        return HttpResponse(events_count)
+
+
 def active_user_events(request):
     # Получение ленты активных событий
     id = request.GET['id']
@@ -109,4 +118,19 @@ def user_events(request):
     events = Event.get_user_events(request, id)
     context = Event.paginator(request, events)
     context.update({'get_page_url': 'user_events', 'id': id})
+    return render(request, 'event_item.html', context)
+
+
+def get_group_events(request):
+    # Получение ленты неактивных событий
+    id = request.GET['id']
+    group = get_object_or_404(Group, id=id)
+    if group.active != '1':  # Если группа закрыта или заблокирована
+        try:
+            Membership.objects.get(group_id=id, person=request.user.profile)  # Если подписчик
+        except Membership.DoesNotExist:
+            return False
+    events = Event.get_group_events(request, group)
+    context = Event.paginator(request, events)
+    context.update({'get_page_url': 'groups', 'id': id})
     return render(request, 'event_item.html', context)

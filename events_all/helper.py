@@ -98,6 +98,8 @@ def dictfetchall(cursor):
         for row in cursor.fetchall()
     ]
 
+
+
 # from django.db import connection
 # cursor = connection.cursor()
 #

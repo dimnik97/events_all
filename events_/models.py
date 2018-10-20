@@ -8,11 +8,12 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.functional import curry
 from django.db.models import Q
-import datetime
 
 from cities_.models import CityTable
 from events_all import helper
 from groups.models import Group
+import datetime
+from pytz import timezone
 
 from profiles.models import Profile
 
@@ -114,7 +115,7 @@ class Event(models.Model):
     def get_user_events(request, user):
         q_objects = Q()
         q_objects.add(Q(creator_id=user), Q.AND)
-        q_objects.add(Q(status__name='active'), Q.AND)
+        # q_objects.add(Q(status__name='active'), Q.AND)
         if request.user != user:
             q_objects.add(Q(active='1'), Q.AND)  # Не включать в выборку закрытые, удаленные и заблокированные события
         else:
@@ -138,30 +139,33 @@ class Event(models.Model):
         if 'name' in request.POST and request.POST['name'] != '':
             q_objects.add(Q(name__icontains=request.POST['name']), Q.AND)
 
-        from datetime import datetime
-        if 'start_time' in request.POST and request.POST['start_time'] != '':
-            start_time = datetime.utcfromtimestamp(int(request.POST['start_time'])/1000)
-            q_objects.add(Q(start_time__gte=str(start_time)), Q.AND)
-            # q_objects.add(Q(end_time__lte=datetime.strptime(request.POST['start_time'],
-            # "%a, %d %b %Y %H:%M:%S %Z")), Q.OR)
+        if 'time_code' in request.POST:
+            if int(request.POST['time_code']) > 0:
+                start_time, end_time = Event.get_filter_time(request)
+                q_objects.add(Q(start_time__gte=start_time), Q.AND)
+                q_objects.add(Q(start_time__lte=end_time), Q.AND)
 
-        if 'end_time' in request.POST and request.POST['end_time'] != '':
-            end_time = datetime.utcfromtimestamp(int(request.POST['end_time']) / 1000)
-            q_objects.add(Q(start_time__lte=str(end_time)), Q.AND)
+                # TODO переделать
+                q_objects.add(Q(end_time__gte=start_time), Q.AND)  # Для того, чтобы показывать незавершенные события
 
         q_objects.add(Q(active='1'), Q.AND)  # Не показывать в общей ленте закрытые события
         try:
-            if not last_update:
-                events = Event.event_query(q_objects)
-            else:
-                import datetime
+            if last_update:
                 last_update = datetime.datetime.strptime(last_update, '%Y-%m-%d %H:%M:%S') + \
                               datetime.timedelta(minutes=1)
-
                 q_objects.add(Q(last_update__gte=last_update), Q.AND)
-                events = Event.event_query(q_objects)
+            events = Event.event_query(q_objects)
         except Event.DoesNotExist:
             return None
+        return events
+
+    # События группы
+    @staticmethod
+    def get_group_events(request, group):
+        q_objects = Q()
+        q_objects.add(Q(created_by_group=group), Q.AND)
+        q_objects.add(Q(active__in=['1', '2', '4']), Q.AND)  # Не включать в выборку удаленные события
+        events = Event.event_query(q_objects)
         return events
 
     # Основной запрос на получение ленты и связных данных
@@ -191,6 +195,53 @@ class Event(models.Model):
 
     def __str__(self):
         return str(self.id) + '  Событие: ' + self.name + ' Создатель: ' + self.creator_id.first_name
+
+    # Обработка фильтра даты
+    @staticmethod
+    def get_filter_time(request):
+        if 'time_code' in request.POST:
+            time_code = request.POST['time_code']
+        else:
+            return '', ''
+        from datetime import timedelta
+        start_time = ''
+        end_time = ''
+        time_code = int(time_code)
+        if time_code == 1:  # Сегодня
+            start_time = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            end_time = (datetime.datetime.now() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        elif time_code == 2:  # Завтра
+            start_time = (datetime.datetime.now() + timedelta(days=1)).replace(hour=0, minute=0, second=0,
+                                                                               microsecond=0)
+            end_time = (datetime.datetime.now() + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+        elif time_code == 3:  # На этой неделе
+            start_time_weekday = datetime.datetime.today().weekday()
+            start_time = (datetime.datetime.now() + timedelta(days=-start_time_weekday)).replace(hour=0, minute=0,
+                                                                                                 second=0, microsecond=0)
+            end_time = (datetime.datetime.now() + timedelta(days=8-start_time_weekday)).replace(hour=0, minute=0,
+                                                                                                second=0, microsecond=0)
+        elif time_code == 4:  # В этом месяце
+            start_time_day = datetime.datetime.today().day - 1
+            start_time = (datetime.datetime.now() + timedelta(days=-start_time_day)).replace(hour=0, minute=0,
+                                                                                             second=0, microsecond=0)
+            next_month = datetime.datetime.now().replace(day=28) + datetime.timedelta(days=4)
+            end_time = (next_month - datetime.timedelta(days=next_month.day)).replace(hour=0, minute=0,
+                                                                                      second=0, microsecond=0)
+        elif time_code == 5:  # В следующем месяце
+            start_time = (datetime.datetime.now().replace(day=28) + datetime.timedelta(days=4)).replace(hour=0, minute=0,
+                                                                                                second=0, microsecond=0)
+
+            end_time = ((datetime.datetime.now().replace(day=28) + datetime.timedelta(days=4)).replace(day=28) + \
+                         datetime.timedelta(days=3)).replace(hour=0, minute=0, second=0, microsecond=0)
+        elif time_code == 6:
+            if 'date_filter' in request.POST:
+                start_time = datetime.datetime.strptime(request.POST['date_filter'], '%Y-%m-%d').\
+                    replace(hour=0, minute=0, second=0, microsecond=0)
+                end_time = (datetime.datetime.strptime(request.POST['date_filter'], '%Y-%m-%d') + timedelta(days=1)).\
+                    replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            pass
+        return start_time, end_time
 
 
 class EventCategoryRelation(models.Model):

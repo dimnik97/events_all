@@ -216,7 +216,7 @@ $(document).ready(function() {
      *
      */
     $('.prev_step').on('click', function () {
-        $form = $('#signup');
+        var $form = $('#signup');
         $('.form-group', $form).addClass('field_d_none').removeClass('form-group');
         $('.next_step, .first_step', $form).show();
         $('.signup, .second_step, .prev_step', $form).hide();
@@ -234,7 +234,7 @@ $(document).ready(function() {
      * функция для подписки/отписки на событие
      *
      */
-    $('.subscribe_event').on('click', function(){
+    $('body').on('click', '.subscribe_event',  function(){
         var event_id = $(this).closest("div.event_item").data('event_id'),
             atcion_type = $(this).data('action'),
             $this = $(this);
@@ -247,7 +247,7 @@ $(document).ready(function() {
             },
             dataType: 'json',
             success: function(data){
-                if (data) {
+                if (parseInt(data) === 200) {
                     if (atcion_type === 'subscribe') {
                         $this.text('Отписаться');
                         $this.data('action', 'unsubscribe');
@@ -256,7 +256,7 @@ $(document).ready(function() {
                         $this.text('Пойти');
                         $this.data('action', 'subscribe');
                     }
-                } else {
+                } else if (parseInt(data) === 401) {
                     window.location.replace('/accounts/login/?next=');
                 }
             }
@@ -1508,9 +1508,7 @@ $(document).ready(function() {
         $.ajax({
             url: url,
             type: 'POST',
-            data: {
-                'last_update': last_update
-            },
+            data: get_event_filter('event_filter_block', last_update),
             success: function (data) {
                 if (data) {
                     let parent = $('.content_paginator_events');
@@ -1525,5 +1523,18 @@ $(document).ready(function() {
                 }
             }
         });
-    })
+    });
+
+    $('#date', '.event_filter_block').on('change', function () {
+        if (parseInt($(this).val()) === 6) {
+            $('#date').closest('div').append('<input class="date_filter" name="date_filter">')
+            $('.date_filter').datetimepicker({
+                timepicker:false,
+                format:'Y-m-d'
+            });
+        } else {
+            $('.date_filter').remove();
+        }
+
+    });
 });

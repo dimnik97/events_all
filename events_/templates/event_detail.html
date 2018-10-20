@@ -39,11 +39,6 @@
 
             Местоположение: {{  event.GEO }} <br>
             <br>
-            {#        <div class="event_time">#}
-            {#            <script>#}
-            {#                SetTimeToUser("{{ event.start_time }}", "event_{{ event.id }}");#}
-            {#            </script>#}
-            {#        </div>#}
 
             {% if is_editor == True and user != False or is_creator == True and user != False %}
                 <button data-action="editevent"><a href="/events/edit/{{ event.id }}">Настройки</a></button>
@@ -57,13 +52,22 @@
 
             <br>
             Создатель:
-            <div>
-                <a href="/profile/{{ item.person.id }}">
-                    <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
-                </a>
-                <br>
-                <a href="/profile/{{ item.person.id }}"> {{ event.creator_id.first_name }} {{ event.creator_id.last_name }} </a>
-            </div>
+            {% if event.created_by_group %}
+                <div>
+                    <a href="/groups/{{ event.created_by_group_id }}">
+                        <img src="{{ event.created_by_group.groupavatar.mini_url }}" class="avatar_round">
+                    </a>
+                    <a class="username" href="/groups/{{ event.created_by_group_id }}">{{ event.created_by_group.name }}</a>
+                </div>
+            {% else %}
+                <div>
+                    <a href="/profile/{{ item.person.id }}">
+                        <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
+                    </a>
+                    <br>
+                    <a href="/profile/{{ item.person.id }}"> {{ event.creator_id.first_name }} {{ event.creator_id.last_name }} </a>
+                </div>
+            {% endif %}
 
         </div>
 

@@ -2,7 +2,7 @@
 {% load tz %}
 <div class="infinite-container">
     {% for event in events %}
-        <hr style="border-top: 1px solid #000;">
+        <hr>
         <div class="event_item infinite-item" data-event_id="{{event.id}}"
              data-last_update="{{ event.last_update|date:"Y-m-d H:i:s" }}">
 
@@ -32,21 +32,29 @@
             Местоположение эвента: <span>{{ event.geo_point.name }}</span><br>
             Количество участников: <span>{{ event.members|count }}</span>
             <br><br>
-            {% if event %}
-            {% endif %}
-            <div>
-                <a href="/profile/{{ event.creator_id_id }}">
-                    <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
-                </a>
-                <br>
-                Информация о создателе: <br>
-                FIRST name: {{ event.creator_id.first_name }} <br>
-                LAST name: {{ event.creator_id.last_name }} <br>
-            </div>
 
-            {% if event.party_flag == 1 %}
+            {% if event.created_by_group %}
+                <div>
+                    <a href="/groups/{{ event.created_by_group_id }}">
+                        <img src="{{ event.created_by_group.groupavatar.mini_url }}" class="avatar_round">
+                    </a>
+                    <a class="username" href="/groups/{{ event.created_by_group_id }}">{{ event.created_by_group.name }}</a>
+                </div>
+            {% else %}
+                <div>
+                    <a href="/profile/{{ event.creator_id_id }}">
+                        <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
+                    </a>
+                    <br>
+                    Информация о создателе: <br>
+                    FIRST name: {{ event.creator_id.first_name }} <br>
+                    LAST name: {{ event.creator_id.last_name }} <br>
+                </div>
+            {% endif %}
+
+            {% if event.id|is_subscribe:request.user %}
                 <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
-            {% elif event.party_flag == 0 %}
+            {% else %}
                 <button class="subscribe_event" data-action="subscribe">Пойти</button>
             {% endif %}
         </div>
@@ -67,6 +75,10 @@
     {% elif get_page_url == 'user_events' %}
         <a class="infinite-more-link_user_events"
            href="/main_app/user_events?page={{ events.next_page_number }}&id={{ id }}">More
+        </a>
+    {% elif get_page_url == 'groups' %}
+        <a class="infinite-more-link"
+           href="/main_app/get_group_events?page={{ events.next_page_number }}&id={{ id }}">More
         </a>
     {% else  %}
         <a class="infinite-more-link"
