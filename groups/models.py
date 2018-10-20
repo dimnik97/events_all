@@ -168,9 +168,9 @@ class Membership(models.Model):
     @staticmethod
     def invite(user_id, group_id):
         try:
-            group = Group.objects.get(id=group_id)
-            user = User.objects.get(id=user_id)
-            Membership.objects.create(group=group, person=user.profile, role=AllRoles.objects.get(role='invite'))
+            profile = Profile.objects.get(user_id=user_id)
+            Membership.objects.create(group_id=group_id, person=profile, role=AllRoles.objects.get(role='invite'))
+            return True
         except:
             return False
 
@@ -178,10 +178,9 @@ class Membership(models.Model):
     @staticmethod
     def send_an_application(user, group_id):
         try:
-            group = Group.objects.get(id=group_id)
-            Membership.objects.create(group=group, person=user.profile, role=AllRoles.objects.get(role='send'))
+            Membership.objects.create(group_id=group_id, person=user.profile, role=AllRoles.objects.get(role='send'))
             return True
-        except:
+        except Membership.DoesNotExist:
             return False
 
     # Принять в группу
@@ -241,7 +240,8 @@ class GroupAvatar(models.Model):
     reduced_path = property(_get_reduced_path)
     reduced_url = property(_get_reduced_url)
 
-    def save(self, admin_panel=True, image_type='avatar', force_insert=False, force_update=False, using=None, request=None):
+    def save(self, admin_panel=True, image_type='avatar', force_insert=False,
+             force_update=False, using=None, request=None):
         PhotoEditor.save_photo(
             self_cls=self,
             cls=GroupAvatar,
@@ -258,5 +258,3 @@ class GroupAvatar(models.Model):
 
     def get_absolute_url(self):
         return 'photo_detail', None, {'object_id': self.id}
-
-

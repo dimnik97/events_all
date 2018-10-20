@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -282,13 +284,31 @@ def send_an_application(request):
 
 
 def invite(request):
+    result = {
+        'status': 200,
+        'text': '',
+        'invalide_name': '',
+        'added_array': ''
+    }
     if 'group_id' in request.POST:
         group_id = request.POST['group_id']
-        if 'user_id' in request.POST:
-            user_id = request.POST['user_id']
-            if Membership.invite(user_id, group_id):
-                return HttpResponse(str(200))
-    return HttpResponse(str(400))
+        if 'added_users' in request.POST:
+            added_users = request.POST['added_users']
+            added_users = added_users.split(' ')
+            added_users.pop()
+            for user in added_users:
+                if not Membership.invite(user, group_id):
+                    result['status'] = '400'
+                    result['text'] = 'Внезапная ошибка'
+                    return HttpResponse(result)
+
+            result['added_array'] = request.POST['added_users']
+            return HttpResponse(json.dumps(result))
+        else:
+            result['status'] = '400'
+            result['text'] = 'Не добавлено ни одного пользователя'
+            result['invalide_name'] = 'added_users'
+    return HttpResponse(json.dumps(result))
 
 
 def cancel(request):

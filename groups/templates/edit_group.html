@@ -64,6 +64,14 @@
                             </li>
                         {% endfor %}
                     </ul>
+
+                    Добавить в группу
+                    <div class="add_users_autocomplete" style="border: solid black 2px"
+                         data-id="{{ group.id }}" data-is_group="true">
+                        <div class="added_users"></div>
+                        <div class="subscribers"></div>
+                        <button class="send_invitation">Отправить приглашения</button>
+                    </div>
                 </div>
             </div>
         </div>

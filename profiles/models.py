@@ -104,8 +104,10 @@ class Profile(models.Model):
     def remove_friend(cls, request, new_friend):
         request.user.profile.subscribers.remove(new_friend.profile)
 
+    # TODO ПЕРЕДЕЛАТЬ
     @staticmethod
     def get_subscribers(request):
+        # TODO ПЕРЕДЕЛАТЬ
         if 'user' in request.GET:
             user_id = request.GET.get('user', 1)
         else:
@@ -118,6 +120,11 @@ class Profile(models.Model):
         else:
             if str(request.user.id) == user_id or request.user.id == user_id:
                 action = 'context_menu'  # Тип - контекстное меню
+
+        if 'group_id' in request.GET:
+            group_id = request.GET.get('group_id')  # Исключаем подписчиков из выборки
+        else:
+            pass
 
         user = User.objects.get(id=user_id)
         if 'value' in request.POST and 'search' in request.POST:

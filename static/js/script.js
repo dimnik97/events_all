@@ -1525,6 +1525,28 @@ $(document).ready(function() {
         } else {
             $('.date_filter').remove();
         }
-
     });
+
+    get_subscribers_to_autocomplete();
+    function get_subscribers_to_autocomplete() {
+        let $add_users_autocomplete = $('.add_users_autocomplete'), url='';
+
+        if ($add_users_autocomplete.data('is_group') === true) {
+            url = '&group_id=' +  $add_users_autocomplete.data('id');
+        } else if ($add_users_autocomplete.data('is_event') === true) {
+            url = '&event=' +  $add_users_autocomplete.data('id');
+        }
+
+        $.ajax({
+            url: '/profile/get_subscribers?action=checkbox' + url,
+            type: 'GET',
+            success: function (data) {
+                $('.subscribers', $add_users_autocomplete).html(data);
+                $('.added_users').empty();
+                $(':checkbox', $add_users_autocomplete).off('click').on('click', function () {
+                    add_to_chat($(this));
+                });
+            }
+        });
+    }
 });

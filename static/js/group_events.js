@@ -15,7 +15,7 @@ if (type === 'detail') {
                     $('.content_paginator').html(data);
                     let element = $('.infinite-container', '.content_paginator')[0], more = '.infinite-more-link';
 
-                    let infinite1 = new Waypoint.Infinite({
+                    new Waypoint.Infinite({
                         element: element,
                         more: more,
                         items: '.event_item',
@@ -52,7 +52,7 @@ if (type === 'detail') {
         let unindexed_array = $('.'+selector).serializeArray(),
             indexed_array = {};
 
-        $.map(unindexed_array, function(n, i){
+        $.map(unindexed_array, function(n){
             indexed_array[n['name']] = n['value'];
         });
         return indexed_array;
@@ -66,7 +66,7 @@ if (type === 'detail') {
      *
      */
     function waypoints_init(filter) {
-        let infinite_ = new Waypoint.Infinite({
+        new Waypoint.Infinite({
             element: $('.infinite-container_groups')[0],
             more: '.infinite-more-link_groups',
             items: '.infinite-item_groups',
@@ -74,7 +74,6 @@ if (type === 'detail') {
             post: true,
             filter: filter
         });
-        return;
     }
 
     /**
@@ -122,8 +121,9 @@ if (type === 'detail') {
             success: function (data) {
                 if (data) {
                     $('.content_paginator_user_events').html(data);
-                    let element = $('.infinite-container', '.content_paginator_user_events')[0], more = '.infinite-more-link_user_events';
-                    let infinite3 = new Waypoint.Infinite({
+                    let element = $('.infinite-container', '.content_paginator_user_events')[0],
+                        more = '.infinite-more-link_user_events';
+                    new Waypoint.Infinite({
                         element: element,
                         more: more,
                         items: '.event_item',
@@ -217,12 +217,15 @@ $('.accept', '.sends').on('click', function () {
  * Отменить заявку
  *
  */
-$('.cancel', '.sends').on('click', function () {
-    let group_id = $('.select_roles').data('group_id'),
-        user_id = $(this).closest('li').data('id'),
-        url = 'cancel';
-    ajax_to_cancel_or_accept_subscribers(group_id, user_id, url, $(this));
-});
+f();
+function f() {
+    $('.cancel', '.sends, .invited').off('click').on('click', function () {
+        let group_id = $('.select_roles').data('group_id'),
+            user_id = $(this).closest('li').data('id'),
+            url = 'cancel';
+        ajax_to_cancel_or_accept_subscribers(group_id, user_id, url, $(this));
+    });
+}
 
 /**
  * Ajax для всего этого
@@ -246,8 +249,6 @@ function ajax_to_cancel_or_accept_subscribers(group_id, user_id, url, button) {
                     li.append('<button class="add_to_editor">Добавить редактора</button> ' +
                         '<button class="delete">Удалить из группы</button>');
                     button.closest('li').remove();
-
-
                 } else if (url === 'cancel') {
                     button.closest('li').remove();
                 }
@@ -257,3 +258,45 @@ function ajax_to_cancel_or_accept_subscribers(group_id, user_id, url, button) {
         }
     });
 }
+
+
+/**
+ * Сбор данных и отправка ajax-ом запросов на добавление в группу
+ *
+ */
+$('.send_invitation', '.add_users_autocomplete').off('click').on('click', function () {
+    let obj = $('.user', '.added_users'),
+        added_users = '',
+        group_id = $('.select_roles').data('group_id');
+
+    obj.each(function () {
+        added_users += ($(this).find('span').data('id')).toString() + ' ';
+    });
+
+    $.ajax({
+        url: '/groups/invite',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            'added_users': added_users,
+            'group_id': group_id
+        },
+        success: function (data) {
+            if (data.status === 200) {
+                let arr = data.added_array.split(' ');
+                arr.pop();
+                let user_id = '', user_name = '';
+                for (let i = 0; i < arr.length; i++) {
+                    user_id = arr[i];
+                    user_name = $('[data-id='+user_id+']', '.added_users').html()
+                    $('.invited').append('<li data-id="'+user_id+'"> ' + user_name +
+                        ' <button class="cancel">Отменить приглашение</button>' +
+                        '</li>')
+                }
+                f();
+            } else {
+                // TODO заполнить error
+            }
+        }
+    });
+});
