@@ -365,11 +365,13 @@ $(document).ready(function() {
         });
     });
 
-    $('#edit_profile_form').on('submit', function(e){
+    $('#edit_profile_form').on('click', function(e){
+        e.preventDefault();
         ajax_validate_form($('#main_info'), e)
     });
 
-    $('#settings').on('submit', function(e){
+    $('#settings').on('click', function(e){
+        e.preventDefault();
         ajax_validate_form($('#settings'), e)
     });
 
@@ -378,7 +380,6 @@ $(document).ready(function() {
      *
      */
     function ajax_validate_form($form, e){
-        e.preventDefault();
         let data = $form.serialize();
 
         $.ajax({
@@ -399,12 +400,12 @@ $(document).ready(function() {
     function ajax_validate_form_data($form, data) {
         $('input').removeClass('is-invalid');
         $('.invalid-feedback').remove();
-        if (data != '200') {
-            var errors = data;
-            for (var i = 0; i < errors.length; i++) {
-                var $field = $form.find(errors[i].key);
+        if (data !== '200') {
+            let errors = data;
+            for (let i = 0; i < errors.length; i++) {
+                let $field = $form.find(errors[i].key);
                 $field.addClass('is-invalid');
-                $field.after('<div class="invalid-feedback"> ' + errors[i].desc + '</div>');
+                $field.after('<div class="invalid-feedback">' + errors[i].desc + '</div>');
             }
         }
     }
@@ -427,7 +428,7 @@ $(document).ready(function() {
                 at: 'center',
                 collision: 'fit',
                 using: function(pos) {
-                    var topOffset = $(this).css(pos).offset().top;
+                    let topOffset = $(this).css(pos).offset().top;
                     if (topOffset < 0) {
                         $(this).css('top', pos.top - topOffset);
                     }
@@ -440,7 +441,7 @@ $(document).ready(function() {
             url: url,
             success: function (data) {
                 $('.content_paginator').html(data);
-                let infinite = new Waypoint.Infinite({
+                new Waypoint.Infinite({
                     element: $('.infinite-container')[0],
                     reverse: true
                 });
@@ -499,16 +500,17 @@ $(document).ready(function() {
      *
      */
     $('.find_subscribers').on('input', function () {
+        let $select_roles = $('.select_roles');
         $.ajax({
             url: '/groups/find_subscribers',
             type: 'POST',
             data: {
                 'value': $(this).val(),
-                'group_id': $('.select_roles').data('group_id'),
+                'group_id': $select_roles.data('group_id'),
             },
             success: function (data) {
                 if (data) {
-                    let r_side = $('.right_side_select_roles', '.select_roles').empty();
+                    let r_side = $('.right_side_select_roles', $select_roles).empty();
                     r_side.append(data);
                 } else {
                     // TODO заполнить error
@@ -532,7 +534,7 @@ $(document).ready(function() {
                 'group_id': $('.select_roles').data('group_id'),
             },
             success: function (data) {
-                if (data == 200) {
+                if (data === 200) {
                     $this.text('Разжаловать');
                     $this.addClass('add_to_subscriber').removeClass('add_to_editor');
                     $('.left_side_select_roles').append($this.closest('li'));
@@ -557,7 +559,7 @@ $(document).ready(function() {
                 'group_id': $('.select_roles').data('group_id'),
             },
             success: function (data) {
-                if (data == 200) {
+                if (data === 200) {
                     $this.text('Добавить редактора');
                     $this.addClass('add_to_editor').removeClass('add_to_subscriber');
                     $('.right_side_select_roles').append($this.closest('li'));
@@ -584,7 +586,7 @@ $(document).ready(function() {
                 'group_id': $('.select_roles').data('group_id'),
             },
             success: function (data) {
-                if (data == 200) {
+                if (data === 200) {
                     $this.closest('li').remove();
                 } else {
                     // TODO заполнить error
@@ -651,7 +653,7 @@ $(document).ready(function() {
                 'group_id': $('.tab-content').data('group_id'),
             },
             success: function (data) {
-                if (data == 200) {
+                if (data === 200) {
                 } else {
                     // TODO заполнить error
                 }
@@ -672,7 +674,7 @@ $(document).ready(function() {
                 'group_id': $(this).data('group_id'),
             },
             success: function (data) {
-                if (data == 200) {
+                if (data === 200) {
 
                 } else {
                     // TODO заполнить error
@@ -877,7 +879,7 @@ $(document).ready(function() {
                 'room_id': room_id
             },
             success: function (data) {
-                if (data['status'] == 200) {
+                if (data['status'] === 200) {
                     window.location.replace('/chats');
                 }
             }
@@ -898,7 +900,7 @@ $(document).ready(function() {
         });
 
         $('.delete', '.delete_from_chat_wrapper').off('click').on('click',function () {
-            var room_id = $('.messages', '.messages_wrapper').data('room_id'),
+            let room_id = $('.messages', '.messages_wrapper').data('room_id'),
                 peer_id = $(this).closest('span').data('id');
             $.ajax({
                 url: '/chats/remove_user_from_room',
@@ -1245,7 +1247,7 @@ $(document).ready(function() {
     });
 
     /**
-     * Удаление элементов из мультиселекта
+     * Динамическая подгрузка дефолтных картинок для событий
      *
      */
     $('.custom_multiply_select').on('click', '.remove_categories', function () {
@@ -1349,7 +1351,7 @@ $(document).ready(function() {
                 at: 'center',
                 collision: 'fit',
                 using: function(pos) {
-                    var topOffset = $(this).css(pos).offset().top;
+                    let topOffset = $(this).css(pos).offset().top;
                     if (topOffset < 0) {
                         $(this).css('top', pos.top - topOffset);
                     }
@@ -1357,12 +1359,12 @@ $(document).ready(function() {
             },
         }).dialog('open');
 
-        var url = $(this).data('url');
+        let url = $(this).data('url');
         $.ajax({
             url: url,
             success: function (data) {
                 $('.content_paginator').html(data);
-                var infinite = new Waypoint.Infinite({
+                new Waypoint.Infinite({
                     element: $('.infinite-container')[0],
                     reverse: true
                 });
@@ -1390,7 +1392,7 @@ $(document).ready(function() {
                 at: 'center',
                 collision: 'fit',
                 using: function(pos) {
-                    var topOffset = $(this).css(pos).offset().top;
+                    let topOffset = $(this).css(pos).offset().top;
                     if (topOffset < 0) {
                         $(this).css('top', pos.top - topOffset);
                     }
@@ -1405,7 +1407,7 @@ $(document).ready(function() {
      *
      */
     $('.restore_or_delete_event').off('click').on('click', function () {
-        var $this = $(this);
+        let $this = $(this);
         let buttons = [
             {
                 text: "Да",
