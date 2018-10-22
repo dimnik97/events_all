@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 10 10">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-chevronup);
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+
+      .cls-3 {
+        fill: #fff;
+      }
+    </style>
+    <clipPath id="clip-chevronup">
+      <rect width="10" height="10"/>
+    </clipPath>
+  </defs>
+  <g id="chevronup" class="cls-1">
+    <rect class="cls-3" width="10" height="10"/>
+    <g id="baseline-keyboard_arrow_down-24px" transform="translate(-2 -3)">
+      <path id="Path_325" data-name="Path 325" d="M6.822,9.408,9.5,12.08l2.677-2.672.823,0-3.5,3.5L6,9.412Z" transform="translate(16.5 18.742) rotate(180)"/>
+      <path id="Path_326" data-name="Path 326" class="cls-2" d="M0,0H14V14H0Z"/>
+    </g>
+  </g>
+</svg>

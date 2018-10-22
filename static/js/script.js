@@ -1204,4 +1204,18 @@ $(document).ready(function() {
 
         return indexed_array;
     }
+
+    $('.popup_header_menu_down').on('click', function(){
+        $(this).hide();
+        $('.popup_header_menu_up').show();
+        $('.popup_menu_block').show();
+
+    });
+
+    $('.popup_header_menu_up').on('click', function(){
+        $(this).hide();
+        $('.popup_header_menu_down').show();
+        $('.popup_menu_block').hide();
+    });
+
 });

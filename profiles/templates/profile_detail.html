@@ -1,10 +1,15 @@
 {% extends "main_template.html" %}
 
-{% block signin %}
-{% endblock %}
+
 {% block content %}
-    <div class="row">
-        <div class="col-3 profile_left">
+    <div class="row main_content_block">
+        <div class="profile_info_block">
+            <div class="avatar_image">
+                {% if account and account == user.id %}
+                    <img class="change_avatar" data-url="/profile/change_avatar" src="/static/img/editing.svg">
+                {% endif %}
+                <img class="profile_main_avatar" src="{{ avatar.reduced_url }}">
+            </div>
             {% if account and account != user.id %}
                 {# TODO Посмотреть, написать как-нибудь по другому #}
                 <button class="add_to_friend" data-user_id="{{ user.id }}" data-action="{{ is_friend }}">
@@ -16,87 +21,160 @@
                 </button>
                 <a href="/chats/?peer={{ user.id }}">Отправить сообщение</a>
             {% endif %}
-            <div class="avatar_image">
-                <p>
-                    <img src="{{ avatar.reduced_url }}" width="300px" height="200px">
-                </p>
-            </div>
-            Активность: {{ is_online }} <br>
 
-            {% if account and account == user.id %}
-                <button class="change_avatar" data-url="/profile/change_avatar">Смена аватара</button>
-                <button class="change_mini" data-url="/profile/change_mini">Смена миниатюры</button>
-                <a href="edit" class="btn btn-default">Настройки</a> <br>
-            {% endif %}
-            <a href="/groups/create">Создать группу</a> <br>
+            <div class="block_info">
+                <div class="name_block"><span class="name_text">{{ user.first_name }} {{ user.last_name }}</span> {{ is_online }}</div>
+                <div class="city_settings_block"><span class="city_text">Город заглушка</span> <span class="settings_link">Редактировать профиль</span></div>
+                <div class="subscrbers_groups_events fs16">
+                    <span class="groups_count"><p class="header">Группы</p><p class="count">10</p></span>
+                    <span class="subscribe_count ta-l"><p class="header">Друзья</p><p class="count">10</p></span>
+                    <span class="subscribe_count"><p class="header">Подписчики</p><p class="count">10</p></span >
+                    <span class="events_count"><p class="header">Встреч</p><p class="count">10</p></span >
+                </div>
 
-            Полное имя {{ user.first_name }} {{ user.last_name }} <br>
-            Email {{ user.email }} <br>
-            Дата рождения {{ user.profile.birth_date }} <br>
-            Описание {{ user.profile.description }} НЕОБЯЗАТЕЛЬНОЕ<br>
-            Телефон {{ user.profile.phone }}  МБ ЕГО НЕОБЯЗАТЕЛЬНЫМ?<br>
-            Гендерная принадлежность {{ user.profile.gender }} <br>
-            <hr>
-            <div>
-                <span>Список всех пользователей</span>
-                <ul>
-                    {% for item in users %}
-                        <li>
-                            <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
-                            <button class="add_to_friend"  data-user_id="{{ item.id }}" data-action="add">Подписаться</button>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <div class="birthday_info right_info_user_block">
+                    <p class="header">Дата рождения:</p>
+                    <p class="fs16">16 сентября 1990 г.</p>
+                </div>
+
+                <div class="contact_info right_info_user_block">
+                    <p class="header">Контактные данные:</p>
+                    <p class="fs16">8 (900) 000 - 00 - 00</p>
+                    <p class="fs16">stas@gmail.com</p>
+                </div>
+
+                <div class="about_info right_info_user_block">
+                    <p class="header">О себе:</p>
+                    <p class="fs16">Дружелюбен, бородат. Иногда пишу код, катаю на сноуборде, люблю путешествовать, собак и ps4. </p>
+                </div>
             </div>
 
-            <div>
-                <span><a href="/groups/view?id={{ user.id }}">Мои группы</a></span>
-                <ul>
-                    {% for item in groups %}
-                        <li>
-                            <a href="/groups/{{ item.id }}">
-                                <img src="{{ item.groupavatar.mini_url }}" class="avatar_round">
-                            </a>
-                            <a href="/groups/{{ item.id }}"> {{ item.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
+
+
+
+
+        </div>
+        <div class="user_events_block">
+            <div class="user_events_header">
+                <span class="active_events">Активные</span>
+                <span class="user_events">Мои</span>
+                <span class="previous_events">Завершенные</span>
             </div>
-            <hr>
-            <div>
+
+            <div class="event_item_block">
+
+                <div class="event_info">
+                    <div class="header_event_info">
+                        <span class="event_time">c 9:30 до 10:00</span>
+                        <span class="event_date">13 Сентября</span>
+                    </div>
+                    <div class="event_name">
+                        Нам с арчи нужна компания для прогулки
+                    </div>
+                    <div class="event_description">Каждый день этот одинокий пес смотрит на дверь и грызет поводок у самой входной двери. Мне безумно жаль этого сорванца и хочется пойти выгулить. Однако есть одно но, безумно скучно нам продить туда обратно, когда можно...</div>
+                    <div class="event_location"><span class="location_icon"><img src="/static/img/map.svg" class="location_img" alt=""></span><span class="location_nameг">г. Москва, ул. Новая Братиславская, д.27</span></div>
+                    <div class="creator_info"><span class="creator_avatar"><img src="/static/img/map.svg" class="creator_avatar_img" alt=""></span><span class="location_nameг">Создатель События</span></div>
+                    <div class="subscribe_info_block">
+                        <span class="button_block">
+                            <button class="subscribe_event_btn">Присоединиться!</button>
+                        </span>
+                        <span class="stat_block">
+                            <span class="event_stat_item">
+                                <img src="/static/img/map.svg" class="event_stat_icon" alt="">55
+                            </span>
+                            <span class="event_stat_item">
+                                <img src="/static/img/map.svg" class="event_stat_icon" alt="">55
+                            </span>
+                            <span class="event_stat_item">
+                                <img src="/static/img/map.svg" class="event_stat_icon" alt="">55
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="event_avatar"></div>
+            </div>
+        </div>
+
+
+        <br><br><br><br><br>
+
+
+
+
+
+{#        {% if account and account == user.id %}#}
+{#            <button class="change_avatar" data-url="/profile/change_avatar">Смена аватара</button>#}
+{#            <button class="change_mini" data-url="/profile/change_mini">Смена миниатюры</button>#}
+{#            <a href="edit" class="btn btn-default">Настройки</a> <br>#}
+{#        {% endif %}#}
+{#        <a href="/groups/create">Создать группу</a> <br>#}
+
+        Полное имя {{ user.first_name }} {{ user.last_name }} <br>
+        Email {{ user.email }} <br>
+        Дата рождения {{ user.profile.birth_date }} <br>
+        Описание {{ user.profile.description }} НЕОБЯЗАТЕЛЬНОЕ<br>
+        Телефон {{ user.profile.phone }}  МБ ЕГО НЕОБЯЗАТЕЛЬНЫМ?<br>
+        Гендерная принадлежность {{ user.profile.gender }} <br>
+        <hr>
+        <div>
+            <span>Список всех пользователей</span>
+            <ul>
+                {% for item in users %}
+                    <li>
+                        <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+                        <button class="add_to_friend"  data-user_id="{{ item.id }}" data-action="add">Подписаться</button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div>
+            <span><a href="/groups/view?id={{ user.id }}">Мои группы</a></span>
+            <ul>
+                {% for item in groups %}
+                    <li>
+                        <a href="/groups/{{ item.id }}">
+                            <img src="{{ item.groupavatar.mini_url }}" class="avatar_round">
+                        </a>
+                        <a href="/groups/{{ item.id }}"> {{ item.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <hr>
+        <div>
                 <span data-url="/profile/get_subscribers?user={{ user.id }}"
                       class="all_subscribers">Подписки {{ subscribers|length }}</span>
-                <ul>
-                    {% for item in subscribers %}
-                        <div>
-                            <a href="/profile/{{ item.id }}">
-                                <img src="{{ item.profileavatar.mini_url }}" class="avatar_round">
-                            </a>
-                            <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
-                            {% if account and account == user.id %}
-                                <button class="add_to_friend" data-user_id="{{ item.id }}" data-action="remove">Отписаться</button>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div>
+            <ul>
+                {% for item in subscribers %}
+                    <div>
+                        <a href="/profile/{{ item.id }}">
+                            <img src="{{ item.profileavatar.mini_url }}" class="avatar_round">
+                        </a>
+                        <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
+                        {% if account and account == user.id %}
+                            <button class="add_to_friend" data-user_id="{{ item.id }}" data-action="remove">Отписаться</button>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </ul>
+        </div>
+        <div>
                 <span data-url="/profile/get_followers?user={{ user.id }}"
                       class="all_followers">Подписчики {{ followers|length }}</span>
-                <ul>
-                    {% for item in followers %}
-                        <div>
-                            <a href="/profile/{{ item.user.id }}">
-                                <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
-                            </a>
-                            <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
-                            {% if account and account == user.user.id %}
-                                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </ul>
-            </div>
+            <ul>
+                {% for item in followers %}
+                    <div>
+                        <a href="/profile/{{ item.user.id }}">
+                            <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
+                        </a>
+                        <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+                        {% if account and account == user.user.id %}
+                            <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </ul>
         </div>
         <div class="col-9">Тут будут выводится события</div>
     </div>
