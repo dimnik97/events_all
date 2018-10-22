@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 21 16">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-eye);
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+
+      .cls-3 {
+        fill: #3e4e88;
+      }
+    </style>
+    <clipPath id="clip-eye">
+      <rect width="21" height="16"/>
+    </clipPath>
+  </defs>
+  <g id="eye" class="cls-1">
+    <g id="baseline-remove_red_eye-24px" transform="translate(0 -3)">
+      <path id="Path_318" data-name="Path 318" class="cls-2" d="M0,0H21.051V22H0Z"/>
+      <path id="Path_319" data-name="Path 319" class="cls-3" d="M10.648,4.5A10.394,10.394,0,0,0,1,11.375a10.394,10.394,0,0,0,9.648,6.875A10.394,10.394,0,0,0,20.3,11.375,10.394,10.394,0,0,0,10.648,4.5Zm0,11.458a4.489,4.489,0,0,1-4.386-4.583,4.489,4.489,0,0,1,4.386-4.583,4.489,4.489,0,0,1,4.386,4.583A4.489,4.489,0,0,1,10.648,15.958Zm0-7.333a2.689,2.689,0,0,0-2.631,2.75,2.689,2.689,0,0,0,2.631,2.75,2.689,2.689,0,0,0,2.631-2.75A2.689,2.689,0,0,0,10.648,8.625Z" transform="translate(-0.123 -0.375)"/>
+    </g>
+  </g>
+</svg>

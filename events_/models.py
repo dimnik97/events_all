@@ -13,6 +13,7 @@ from cities_.models import CityTable
 from events_all import helper
 from groups.models import Group, Membership
 import datetime
+from django.utils.timezone import utc
 
 from profiles.models import Profile
 
@@ -87,7 +88,7 @@ class Event(models.Model):
         choices=CHOICES_ACTIVE,
         default=1,
     )
-    last_update = models.DateTimeField(auto_now_add=True)
+    last_update = models.DateTimeField(default=datetime.datetime.utcnow().replace(tzinfo=utc), blank=True)
 
     class Meta:
         verbose_name = 'События'
@@ -336,9 +337,9 @@ class EventMembership(models.Model):
 class EventNews(models.Model):
     text = models.TextField(null=True, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
-    news_creator = models.ForeignKey(User, on_delete=models.CASCADE)
-    news_event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    news_group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    news_creator = models.ForeignKey(User, on_delete=models.CASCADE,  blank=True)
+    news_event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True)
+    news_group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, default=None,  blank=True)
     news_image = models.ImageField(
         upload_to=curry(helper.ImageHelper.upload_to, prefix='news_img'),
         # upload_to=helper.ImageHelper.upload_to,

@@ -169,7 +169,9 @@ class Profile(models.Model):
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
+    image = models.ImageField(
+        upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
+        # upload_to=helper.ImageHelper.upload_to,
                               default='avatar/default/img.jpg')
 
     class Meta:

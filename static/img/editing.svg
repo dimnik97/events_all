@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-editing);
+      }
+
+      .cls-2 {
+        fill: #f4f4f4;
+      }
+
+      .cls-3 {
+        fill: #1a2c5b;
+      }
+
+      .cls-4 {
+        fill: #fff;
+      }
+    </style>
+    <clipPath id="clip-editing">
+      <rect width="24" height="24"/>
+    </clipPath>
+  </defs>
+  <g id="editing" class="cls-1">
+    <rect class="cls-4" width="24" height="24"/>
+    <g id="Group_572" data-name="Group 572" transform="translate(-325 -256)">
+      <circle id="Ellipse_4" data-name="Ellipse 4" class="cls-2" cx="12" cy="12" r="12" transform="translate(325 256)"/>
+      <g id="pencil-edit-button" transform="translate(332.173 261.622)">
+        <path id="Path_320" data-name="Path 320" class="cls-3" d="M6.562,3.041,8.708,5.187,3.275,10.62,1.13,8.474Zm3.775-.518-.957-.957a.95.95,0,0,0-1.342,0l-.917.917L9.267,4.629,10.337,3.56A.732.732,0,0,0,10.337,2.523ZM.007,11.491a.244.244,0,0,0,.3.291l2.392-.58L.549,9.055Z" transform="translate(0)"/>
+      </g>
+    </g>
+  </g>
+</svg>
