@@ -44,12 +44,16 @@ def detail(request, id):
 # Список всех групп
 @login_required(login_url='/accounts/login/')
 def view(request):
+    is_my = False
     if 'id' in request.GET:  # Если нет id, то ошибка
         user = User.objects.get(id=request.GET['id'])
+        if user == request.user:
+            is_my = True
     else:
         return  # TODO Придумать как обрабатывать ошибки
     context = {
-        'user': user
+        'user': user,
+        'is_my': is_my
     }
     return render_to_response('view_group.html', context)
 
@@ -98,6 +102,20 @@ def get_groups(request):
         'groups': groups
     }
     return render_to_response('groups_template.html', context)
+
+
+def get_invite(request):
+    if 'id' in request.GET:
+        user_id = request.GET['id']
+        if int(user_id) == request.user.id:
+            Membership.objects.filter(person=request.user.profile)
+            members = Membership.objects.filter(person=request.user.profile, role__role__in=['invite', 'send']).order_by(
+                'date_joined').select_related('group')
+            context = Group.paginator(request, members)
+            context.update({'user': request.user})
+            return render_to_response('invite_template.html', context)
+    else:
+        return
 
 
 @login_required(login_url='/accounts/login/')

@@ -1,5 +1,6 @@
 import datetime
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import models
 from django.utils.functional import curry
 from events_all import helper
@@ -137,6 +138,19 @@ class Group(models.Model):
                     'is_admin': is_admin
                 }
         return context
+
+    @staticmethod
+    def paginator(request, groups):
+        page = request.GET.get('page', 1)
+        paginator = Paginator(groups, 10)
+        try:
+            groups = paginator.page(page)
+        except PageNotAnInteger:
+            groups = paginator.page(1)
+        except EmptyPage:
+            groups = paginator.page(paginator.num_pages)
+
+        return {'groups': groups, 'action': False}
 
 
 class Membership(models.Model):

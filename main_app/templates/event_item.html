@@ -26,7 +26,11 @@
                 <img src="{{ event.event_avatar.reduced_url }}" class="avatar_round">
             </a>
             id:{{ event.id }}    <br>
-            Название эвента: {{ event.name }}    <br>
+            Название эвента: {{ event.name }}
+            {% if event.active == '2' %}
+                (Закрытое)
+            {% endif %}
+            <br>
             Описание эвента, оно пока без ограничений, режь на клиенте: {{ event.description }} <br>
 
             Местоположение эвента: <span>{{ event.geo_point.name }}</span><br>

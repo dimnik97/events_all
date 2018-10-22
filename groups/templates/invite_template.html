@@ -1,0 +1,26 @@
+{% load chats_filters %}
+
+{% for item in groups %}
+    <div class="infinite-item_invite">
+        <a href="/groups/{{ item.group.id }}">
+            <img src="{{ item.group.groupavatar.mini_url }}" class="avatar_round">
+        </a>
+        <a class="username" href="/groups/{{ item.group.id }}">{{ item.group.name }}</a>
+        <span>{{ item.group.status }} </span>
+    <br>
+        {% if item.role.role == 'send' %}
+            <button class="123" data-action="unsubscribe">Отменить запрос</button>
+        {% elif item.role.role == 'invite' %}
+            <button class="123" data-action="unsubscribe">Вступить</button>
+        {% endif  %}
+    </div>
+{% empty %}
+    <div>У вас нет активных приглашений и заявок</div>
+{% endfor %}
+
+{% if groups.has_next %}
+    <a class="infinite-more-link_invite"
+       href="/groups/get_groups?page={{ groups.next_page_number }}&id={{ user.id }}"
+       data_next_page_number="{{ groups.number }}">More
+    </a>
+{% endif %}

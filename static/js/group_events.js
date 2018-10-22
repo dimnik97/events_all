@@ -114,19 +114,19 @@ if (type === 'detail') {
      *
      */
     $('.activate_panel2_groups', '.nav-tabs').on('click', function () {
-        let url = '/main_app/user_events?id=' + id;
+        let url = $('.content_paginator_invite', '#panel2').data('url');
         $.ajax({
             url: url,
             type: 'POST',
             success: function (data) {
                 if (data) {
-                    $('.content_paginator_user_events').html(data);
-                    let element = $('.infinite-container', '.content_paginator_user_events')[0],
-                        more = '.infinite-more-link_user_events';
+                    $('.content_paginator_invite').html(data);
+                    let element = $('.infinite-container_invite', '.content_paginator_invite')[0],
+                        more = '.infinite-more-link_invite';
                     new Waypoint.Infinite({
                         element: element,
                         more: more,
-                        items: '.event_item',
+                        items: '.infinite-item_invite',
                         reverse: false,
                         post: true
                     });
@@ -300,3 +300,6 @@ $('.send_invitation', '.add_users_autocomplete').off('click').on('click', functi
         }
     });
 });
+
+
+

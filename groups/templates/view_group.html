@@ -5,7 +5,9 @@
     <div class="main_block">
         <ul class="nav nav-tabs">
             <li class="active"><a data-toggle="tab" href="#panel1">Список групп</a></li>
-            <li class="activate_panel2_groups"><a data-toggle="tab" href="#panel2">Приглашения и заявки</a></li>
+            {% if is_my %}
+                <li class="activate_panel2_groups"><a data-toggle="tab" href="#panel2">Приглашения и заявки</a></li>
+            {% endif %}
         </ul>
         <div class="tab-content">
             <div id="panel1" class="tab-pane fade in active">
@@ -20,10 +22,14 @@
                     </div>
                 </div>
             </div>
-            <div id="panel2" class="tab-pane fade">
-                <div class="content_paginator">
+            {% if is_my %}
+                <div id="panel2" class="tab-pane fade">
+                    <div class="content_paginator_invite" data-url="/groups/get_invite?id={{ user.id }}">
+                        <div class="infinite-container_invite">
+                        </div>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
 
     </div>

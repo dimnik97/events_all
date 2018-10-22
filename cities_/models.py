@@ -22,7 +22,7 @@ class CityTable(models.Model):
     def find_city(request):
         cities = ''
         try:
-            if 'city_name' in request.POST and request.POST['city_name'] != '':
+            if 'city_name' in request.POST:
                 cities = CityTable.objects.filter(city__istartswith=request.POST['city_name'])
         except KeyError:
             return HttpResponse('Error')

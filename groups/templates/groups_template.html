@@ -1,6 +1,5 @@
 {% load chats_filters %}
 
-
 {% for item in groups %}
     <div class="infinite-item_groups">
         <a href="/groups/{{ item.id }}">
@@ -14,6 +13,8 @@
             {{ item|ru_role:user.profile.id }}
         {% endif %}
     </div>
+{% empty %}
+    <div>У этого пользователя нет групп</div>
 {% endfor %}
 
 {% if groups.has_next %}
