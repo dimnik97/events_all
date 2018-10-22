@@ -87,3 +87,23 @@ def create_medium_image(img):
             Image.ANTIALIAS
         )
     return img
+
+
+# Приведение курсора в dict для RAW Запросов
+def dictfetchall(cursor):
+    desc = cursor.description
+    return [
+        dict(zip([col[0] for col in desc], row))
+        for row in cursor.fetchall()
+    ]
+
+
+
+# from django.db import connection
+# cursor = connection.cursor()
+#
+# cursor.execute("""Select * from events__eventmembership ms
+#             left join events__event ev on ms.event_id = ev.id
+#             where (select id from profiles_profile where user_id = 34) = ms.person_id""")
+#
+# row = Event.dictfetchall(cursor)

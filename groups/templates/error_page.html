@@ -1,19 +1,27 @@
 {% extends "main_template.html" %}
+{% load staticfiles %}
 
 {% block content %}
     <div class="content">
-    {% if is_not_admin %}
-        Вы не являетесь администратором данного сообщества
-    {% else %}
-        Group name: {{ group.name }} <br>
-        {{ text }} <br>
-        {% if invite %}
-            <button type="button" class="invite_group" data-group_id="{{ group.id }}">Отправить заявку</button>
+        {% if is_not_admin %}
+            Вы не являетесь администратором данного сообщества
+        {% else %}
+            Название группы: {{ group.name }} <br>
+            {{ text }} <br>
+            {% if invite %}
+                <button type="button" class="send_an_application" data-group_id="{{ group.id }}">Отправить заявку</button>
+            {% endif %}
         {% endif %}
-    {% endif %}
 
-    {% if error %}
-        Упс, видимо, вы ошиблись адресом
-    {% endif %}
+        {% if error %}
+            Упс, видимо, вы ошиблись адресом
+        {% endif %}
     </div>
+
+    <div id="dialog_confirm" class="d_none">
+    </div>
+    <script>
+        var type = ''
+    </script>
+    <script type="text/javascript" src="{% static 'js/group_events.js' %}"></script>
 {% endblock %}

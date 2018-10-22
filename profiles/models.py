@@ -104,8 +104,10 @@ class Profile(models.Model):
     def remove_friend(cls, request, new_friend):
         request.user.profile.subscribers.remove(new_friend.profile)
 
+    # TODO ПЕРЕДЕЛАТЬ
     @staticmethod
     def get_subscribers(request):
+        # TODO ПЕРЕДЕЛАТЬ
         if 'user' in request.GET:
             user_id = request.GET.get('user', 1)
         else:
@@ -119,10 +121,14 @@ class Profile(models.Model):
             if str(request.user.id) == user_id or request.user.id == user_id:
                 action = 'context_menu'  # Тип - контекстное меню
 
+        if 'group_id' in request.GET:
+            group_id = request.GET.get('group_id')  # Исключаем подписчиков из выборки
+        else:
+            pass
+
         user = User.objects.get(id=user_id)
         if 'value' in request.POST and 'search' in request.POST:
             # TODO Тут ошибка, знаю, надо доделать, не работает паджинация
-            from django.db.models import Q
             subscribers = []
             subscribers_object = user.profile.subscribers
             for subscriber in subscribers_object.all():
@@ -163,7 +169,9 @@ class Profile(models.Model):
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
-    image = models.ImageField(upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
+    image = models.ImageField(
+        upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
+        # upload_to=helper.ImageHelper.upload_to,
                               default='avatar/default/img.jpg')
 
     class Meta:

@@ -31,12 +31,13 @@ function time_(DateStr) {
             'Июля',
             'Августа',
             'Сентября',
+            'Октября',
             'Ноября',
             'Декабря',
         ];
 
     var curr_date = x.getDate(),
-        curr_month = arr[x.getMonth()],
+        curr_month = arr[x.getMonth() ],
         curr_year = x.getFullYear(),
         curr_hours = x.getHours(),
         curr_minutes = x.getMinutes();
@@ -108,60 +109,6 @@ function GetCorrectNumber(Number, is_month=0, is_min = 0){
 
 
 $(document).ready(function() {
-    function draw_events(){
-        debugger;
-    }
-
-    $('button.last_events').on('click', function(){
-        $.ajax({
-            type: "POST",
-            url: "get_events/",
-            data: {
-                "last_events":1
-            },
-            success: function (data) {
-                draw_events(data);
-            },
-            error: function(data) {
-                // как то обработать ошибку
-            }
-        });
-    });
-    $('button.friends_events').on('click', function(){
-
-    });
-    $('button.closest_events').on('click', function(){
-
-    });
-
-    /**
-     * Проброс токена CSRF во все запросы ajax
-     *
-     */
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            function getCookie(name) {
-                var cookieValue = null;
-                if (document.cookie && document.cookie != '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = jQuery.trim(cookies[i]);
-                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-
-            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                // Only send the token to relative URLs i.e. locally.
-                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-            }
-        }
-    });
-
     /**
      * Отправка данных
      *
@@ -179,7 +126,7 @@ $(document).ready(function() {
      *
      */
     function validateForm() {
-        $form = $('#signup');
+        let $form = $('#signup');
         $('.invalid-feedback', $form).remove();
         $('input', $form).removeClass('is-invalid');
 
@@ -262,14 +209,14 @@ $(document).ready(function() {
                 console.log(xhr.status + ": " + xhr.responseText);
             }
         });
-    };
+    }
 
     /**
      * Возврат на первый шаг
      *
      */
     $('.prev_step').on('click', function () {
-        $form = $('#signup');
+        var $form = $('#signup');
         $('.form-group', $form).addClass('field_d_none').removeClass('form-group');
         $('.next_step, .first_step', $form).show();
         $('.signup, .second_step, .prev_step', $form).hide();
@@ -287,7 +234,7 @@ $(document).ready(function() {
      * функция для подписки/отписки на событие
      *
      */
-    $('.subscribe_event').on('click', function(){
+    $('body').on('click', '.subscribe_event',  function(){
         var event_id = $(this).closest("div.event_item").data('event_id'),
             atcion_type = $(this).data('action'),
             $this = $(this);
@@ -300,8 +247,8 @@ $(document).ready(function() {
             },
             dataType: 'json',
             success: function(data){
-                if (data) {
-                    if (atcion_type == 'subscribe') {
+                if (parseInt(data) === 200) {
+                    if (atcion_type === 'subscribe') {
                         $this.text('Отписаться');
                         $this.data('action', 'unsubscribe');
                     }
@@ -309,8 +256,9 @@ $(document).ready(function() {
                         $this.text('Пойти');
                         $this.data('action', 'subscribe');
                     }
+                } else if (parseInt(data) === 401) {
+                    window.location.replace('/accounts/login/?next=');
                 }
-
             }
         });
     });
@@ -322,22 +270,32 @@ $(document).ready(function() {
      */
     $('#news_create_form').on('submit', function(event){
         event.preventDefault();
-        debugger;
-        var frm = $('#news_create_form'),
+        $('.error_news').html();
+        $('#id_event_id').val($('.event_item').data('event_id'));
+        let frm = $('#news_create_form'),
             formData = new FormData(frm.get(0));
-
         $.ajax({
             contentType: false, // важно - убираем форматирование данных по умолчанию
             processData: false,
             type: frm.attr('method'),
             url: frm.attr('action'),
             data: formData,
+            dataType: 'json',
             success: function (data) {
-                updated_news = $('ul.event_news', data);
-                $('ul.event_news').replaceWith($(data).filter(".event_news"));
+                if (data.status === 201) {
+                    $('.event_news').prepend(data.text);
+                    $('#id_text', '.news-form').val('');
+                } else if (data.status === 100) {
+                    $('#id_news', '.news-form').val('');
+                    $('#id_text', '.news-form').val('');
+                    let $li = $('[data-id='+data.id+']');
+                    $li.find('.text').html(data.text.replace(/\n/g, "<br />"));
+                } else {
+                    $('.error_news').html(data.text)
+                }
             },
             error: function(data) {
-                // как то обработать ошибку
+
             }
         });
     });
@@ -421,7 +379,7 @@ $(document).ready(function() {
      */
     function ajax_validate_form($form, e){
         e.preventDefault();
-        var data = $form.serialize();
+        let data = $form.serialize();
 
         $.ajax({
             type: "POST",
@@ -432,7 +390,7 @@ $(document).ready(function() {
                 ajax_validate_form_data($form, data);
             }
         });
-    };
+    }
 
     /**
      * Обработка данных валидации
@@ -477,12 +435,12 @@ $(document).ready(function() {
             },
         }).dialog('open');
 
-        var url = $(this).data('url');
+        let url = $(this).data('url');
         $.ajax({
             url: url,
             success: function (data) {
                 $('.content_paginator').html(data);
-                var infinite = new Waypoint.Infinite({
+                let infinite = new Waypoint.Infinite({
                     element: $('.infinite-container')[0],
                     reverse: true
                 });
@@ -490,13 +448,12 @@ $(document).ready(function() {
         });
     });
 
-
     /**
-     * Смена аватара
+     * Смена аватара или миниатюры
      *
      */
     $('.change_avatar, .change_mini').on('click', function () {
-        var url = $(this).data('url'),
+        let url = $(this).data('url'),
             title = $(this).html();
 
         $( "#dialog_img" ).dialog({
@@ -520,7 +477,7 @@ $(document).ready(function() {
                 at: 'center',
                 collision: 'fit',
                 using: function(pos) {
-                    var topOffset = $(this).css(pos).offset().top;
+                    let topOffset = $(this).css(pos).offset().top;
                     if (topOffset < 0) {
                         $(this).css('top', pos.top - topOffset);
                     }
@@ -551,7 +508,7 @@ $(document).ready(function() {
             },
             success: function (data) {
                 if (data) {
-                    var r_side = $('.right_side_select_roles', '.select_roles').empty();
+                    let r_side = $('.right_side_select_roles', '.select_roles').empty();
                     r_side.append(data);
                 } else {
                     // TODO заполнить error
@@ -565,57 +522,51 @@ $(document).ready(function() {
      * Перевод из подписчика в редактора
      *
      */
-    function add_to_editor() {
-        $('.add_to_editor').off('click').on('click', function () {
-            var $this = $(this);
-            $.ajax({
-                url: '/groups/add_to_editor',
-                type: 'POST',
-                data: {
-                    'user': $(this).parent('li').data('id'),
-                    'group_id': $('.select_roles').data('group_id'),
-                },
-                success: function (data) {
-                    if (data == 200) {
-                        $this.text('Разжаловать');
-                        $this.addClass('add_to_subscriber').removeClass('add_to_editor');
-                        $('.left_side_select_roles').append($this.closest('li'));
-                        add_to_subscriber();
-                    } else {
-                        // TODO заполнить error
-                    }
+    $('.select_roles').on('click', '.add_to_editor',  function () {
+        let $this = $(this);
+        $.ajax({
+            url: '/groups/add_to_editor',
+            type: 'POST',
+            data: {
+                'user': $(this).parent('li').data('id'),
+                'group_id': $('.select_roles').data('group_id'),
+            },
+            success: function (data) {
+                if (data == 200) {
+                    $this.text('Разжаловать');
+                    $this.addClass('add_to_subscriber').removeClass('add_to_editor');
+                    $('.left_side_select_roles').append($this.closest('li'));
+                } else {
+                    // TODO заполнить error
                 }
-            });
+            }
         });
-    }
+    });
 
     /**
      * Перевод из редактора в подписчика
      *
      */
-    function add_to_subscriber() {
-        $('.add_to_subscriber').off('click').on('click', function () {
-            var $this = $(this);
-            $.ajax({
-                url: '/groups/add_to_subscribers',
-                type: 'POST',
-                data: {
-                    'user': $(this).parent('li').data('id'),
-                    'group_id': $('.select_roles').data('group_id'),
-                },
-                success: function (data) {
-                    if (data == 200) {
-                        $this.text('Добавить редактора');
-                        $this.addClass('add_to_editor').removeClass('add_to_subscriber');
-                        $('.right_side_select_roles').append($this.closest('li'));
-                        add_to_editor();
-                    } else {
-                        // TODO заполнить error
-                    }
+    $('.select_roles').on('click', '.add_to_subscriber', function () {
+        let $this = $(this);
+        $.ajax({
+            url: '/groups/add_to_subscribers',
+            type: 'POST',
+            data: {
+                'user': $(this).parent('li').data('id'),
+                'group_id': $('.select_roles').data('group_id'),
+            },
+            success: function (data) {
+                if (data == 200) {
+                    $this.text('Добавить редактора');
+                    $this.addClass('add_to_editor').removeClass('add_to_subscriber');
+                    $('.right_side_select_roles').append($this.closest('li'));
+                } else {
+                    // TODO заполнить error
                 }
-            });
+            }
         });
-    }
+    });
 
     /**
      * Удаление из подписчиков
@@ -624,7 +575,7 @@ $(document).ready(function() {
      *
      */
     $('.delete', '.select_roles').on('click', function () {
-        var $this = $(this);
+        let $this = $(this);
         $.ajax({
             url: '/groups/delete_subscribers',
             type: 'POST',
@@ -642,8 +593,6 @@ $(document).ready(function() {
         });
     });
 
-    add_to_editor();
-    add_to_subscriber();
 
 
     /**
@@ -680,7 +629,7 @@ $(document).ready(function() {
                 at: 'center',
                 collision: 'fit',
                 using: function(pos) {
-                    var topOffset = $(this).css(pos).offset().top;
+                    let topOffset = $(this).css(pos).offset().top;
                     if (topOffset < 0) {
                         $(this).css('top', pos.top - topOffset);
                     }
@@ -708,7 +657,7 @@ $(document).ready(function() {
                 }
             }
         });
-    };
+    }
 
 
     /**
@@ -738,8 +687,9 @@ $(document).ready(function() {
      *
      */
     $('body').on('click', '.message_block', function () {
-        $('.message_block').removeClass('selected_message');
-        $('.message_block').find('.additional_block').hide();
+        let $message_block = $('.message_block');
+        $message_block.removeClass('selected_message');
+        $message_block.find('.additional_block').hide();
         if ($(this).hasClass('is_my')) {
             if ($(this).hasClass('selected_message')) {
                 $(this).removeClass('selected_message');
@@ -757,12 +707,13 @@ $(document).ready(function() {
      *
      */
     $('body').on('click', '.edit_message', function () {
-        var $message_block = $(this).closest('.message_block'),
+        let $message_block = $(this).closest('.message_block'),
             id_message = $message_block.attr('message_id'),
-            message_text = $message_block.find('.message').text();
-        $('#chat-message-input').val(message_text);
-        $('#chat-message-input').addClass('edited_message');
-        $('#chat-message-input').attr('message_id', id_message);
+            message_text = $message_block.find('.message').text(),
+            $input = $('#chat-message-input');
+        $input.val(message_text);
+        $input.addClass('edited_message');
+        $input.attr('message_id', id_message);
     });
 
 
@@ -771,7 +722,7 @@ $(document).ready(function() {
      *
      */
     $('body').on('click', '.delete_message', function () {
-        var message_id = $(this).closest('.message_block').attr('message_id');
+        let message_id = $(this).closest('.message_block').attr('message_id');
         $.ajax({
             url: '/chats/delete_message',
             type: 'POST',
@@ -798,7 +749,7 @@ $(document).ready(function() {
         if ($(this).find('.chat_status').hasClass('blocked')) {
             return;
         }
-        var url = '';
+        let url = '';
         if ($(this).data('chat_id'))
             url = 'dlg?peer=' + $(this).data('chat_id');
         else
@@ -827,7 +778,7 @@ $(document).ready(function() {
      */
     function add_to_chat($this) {
         if ($this.is(':checked')) {
-            var username = $this.parent().find('.username').html(),
+            let username = $this.parent().find('.username').html(),
                 user_id = '"' + $this.val() + '"',
                 user_item = '<span class="inside_mark" data-id='+user_id+'>'+ username +'</span>',
                 user = '<div class="user">'+ user_item +'<span data-id=' + user_id + ' class="delete_user">x</span></div>';
@@ -839,11 +790,10 @@ $(document).ready(function() {
                 $(this).closest('.user').remove();
             });
         } else {
-            var id = $this.val();
+            let id = $this.val();
             $('*[data-id='+ id +']', '.added_users').closest('.user').remove();
         }
     }
-
 
     /**
      * Добавить пользователей в чат, включает в себя:
@@ -853,7 +803,6 @@ $(document).ready(function() {
      * Обработчики на чекбоксы
      */
     $('body').on('click', '.add_to_chat', function () {
-        debugger;
         $('.add_chat_wrapper').show();
         $('.add_to_chat').hide();
         $.ajax({
@@ -865,7 +814,7 @@ $(document).ready(function() {
                 $(':checkbox', '.add_chat_wrapper').off('click').on('click', function () {
                     add_to_chat($(this));
                 });
-                var obj = $('input[type=checkbox]', '.add_chat_form_subscribers'), iter = '', added_users = [];
+                let obj = $('input[type=checkbox]', '.add_chat_form_subscribers'), iter = '', added_users = [];
                 $('.message_block', '.form_to_messages').each(function (key, value) {
                     added_users.push(($(this).data('user_id')).toString());
                 });
@@ -884,7 +833,7 @@ $(document).ready(function() {
         });
 
         $('.submite', '.add_chat_wrapper').off('click').on('click', function () {
-            var obj = $('.user', '.add_chat_wrapper'),
+            let obj = $('.user', '.add_chat_wrapper'),
                 added_users = '',
                 room_id = $('.messages').data('room_id');
 
@@ -966,7 +915,6 @@ $(document).ready(function() {
                 }
             });
         });
-
     });
 
 
@@ -994,6 +942,7 @@ $(document).ready(function() {
                 });
             }
         });
+
         $('.cancel', '.create_chat_wrapper').off('click').on('click', function () {
             $('.find_dialogs').show();
             $('.content_paginator_chat').show();
@@ -1002,7 +951,7 @@ $(document).ready(function() {
         });
 
         $('.submite', '.create_chat_wrapper').off('click').on('click', function () {
-            var dialog_name = $('[name=dialog_name]').val(),
+            let dialog_name = $('[name=dialog_name]').val(),
                 obj = $('.user', '.added_users'),
                 added_users = '';
             obj.each(function (key, value) {
@@ -1033,7 +982,7 @@ $(document).ready(function() {
      *
      */
     $('.content_paginator_chat').on('click', '.accept', function () {
-        var room_id = $(this).closest('.dialog_last_info').data('room_id');
+        let room_id = $(this).closest('.dialog_last_info').data('room_id');
         $.ajax({
             url: '/chats/join_room',
             type: 'POST',
@@ -1057,7 +1006,7 @@ $(document).ready(function() {
      *
      */
     $('.content_paginator_chat').on('click', '.decline', function () {
-        var room_id = $(this).closest('.dialog_last_info').data('room_id');
+        let room_id = $(this).closest('.dialog_last_info').data('room_id');
         $.ajax({
             url: '/chats/decline_room',
             type: 'POST',
@@ -1073,15 +1022,14 @@ $(document).ready(function() {
                 }
             }
         });
-    })
+    });
 
     /**
      * Поиск города в кастомном селекте
      *
      */
     $('.find_city', '.custom_select').on('input', function () {
-        var city_name = $(this).val(),
-            $this = $(this);
+        let city_name = $(this).val();
         $.ajax({
             url: '/cities_/find_city',
             type: 'POST',
@@ -1095,7 +1043,7 @@ $(document).ready(function() {
                     $('.custom_select_items').append("<span  class='select_item go_out' >Ничего не найдено</span>");
                     return;
                 }
-                data.forEach(function(data, i, arr) {
+                data.forEach(function(data) {
                     $('.custom_select_items').append("<span  class='select_item' data-city_id="+ data.pk +">" + data.fields.city + "</span>");
                 });
 
@@ -1115,24 +1063,37 @@ $(document).ready(function() {
             if ($(this).hasClass('go_out'))
                 return;
             $(this).addClass('selected');
+
             try {
                 set_center_by_city_name($(this).html());
+
+                if ($('#location').hasClass('event_map')) {
+                    $.ajax({
+                        url: '/main_app/get_event_map',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            'city_name': $(this).html(),
+                            'city_id': $(this).data('city_id')
+                        },
+                        success: function (data) {
+                            data.forEach(function(item, i, arr) {
+                                add_bounds(item);
+                            });
+                        }
+                    });
+                }
             } catch (err) {
             }
         })
     }
-
-
-
-
-
 
     /**
      * Ajax для формы EventForm (Создание)
      *
      */
     $('#event_form_create').on('submit', function(e){
-        custom_save_event_form($('#event_form'), e, '/events/create')
+        custom_save_event_form($('#event_form_create'), e, '/events/create')
     });
 
     /**
@@ -1140,7 +1101,7 @@ $(document).ready(function() {
      *
      */
     $('#event_form_edit').on('submit', function(e){
-        custom_save_event_form($('#event_form'), e, '/events/edit/' + $('#id_id').val())
+        custom_save_event_form($('#event_form_edit'), e, '/events/edit/' + $('#id_id').val())
     });
 
     /**
@@ -1160,11 +1121,14 @@ $(document).ready(function() {
                 if (data.status === 200) {
                     window.location.replace('/events/' + data.url);
                 } else {
+                    if (data.status === 400) {
+                        $('#'+data.wrong_field).addClass('is-invalid');
+                    }
                     ajax_validate_form_data($form, data);
                 }
             }
         });
-    };
+    }
 
     /**
      * Получение выбранного в кастомном селекте
@@ -1195,6 +1159,11 @@ $(document).ready(function() {
 
         let location = get_value_from_custom_select($('#location'));
         unindexed_array.push({name: 'location', value: location.data('city_id')});
+        let categories = '';
+        $('.custom_multiply_select').find('.remove_categories').each(function (key, value) {
+            categories += ($(this).data('categories_id')).toString() + ',';
+        });
+        indexed_array['categories'] = categories;
 
         indexed_array = get_geo_values(indexed_array, $('.select_bounds_yamaps'));
 
@@ -1202,8 +1171,15 @@ $(document).ready(function() {
             indexed_array[n['name']] = n['value'];
         });
 
+        let url = new URL(window.location.href),
+            group_id = url.searchParams.get("group_id");
+        if (group_id !== null || group_id !== '' ) {
+            indexed_array['group_id'] = group_id;
+        }
+
         return indexed_array;
     }
+
 
     $('.popup_header_menu_down').on('click', function(){
         $(this).hide();
@@ -1218,4 +1194,373 @@ $(document).ready(function() {
         $('.popup_menu_block').hide();
     });
 
+    /**
+     * Кастомный мультиселект
+     *
+     */
+    $('.custom_multiply_select_items').on('click', '.multiply_select_item', function () {
+        if ($('.remove_categories').length < 3) {
+            $('.custom_multiply_select').append('<span class="remove_categories" data-categories_id="' +
+                $(this).data('categories_id') + '" data-categories_description="'+ $(this).data('categories_description') +'">'+ $(this).html() + ' </span>');
+            $(this).remove();
+
+            // Добавить проверку на редактирование
+            var categories = [];
+            $('.custom_multiply_select').find('.remove_categories').each(function (key, value) {
+                var $selector = $('.column_'+ (key + 1), '.recommend_image_block'), this_category;
+
+                if ($selector.attr('category_name') !== $(this).data('categories_description')) {
+                    var is_new = true;
+                    $selector.attr('category_name', $(this).data('categories_description'));
+                    $selector.css('display', 'block');
+                }
+
+                let category = $(this).data('categories_description');
+                if (category && category !== '') {
+                    categories += category + ',';
+                    this_category = category;
+                }
+                if (is_new) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/events/get_images_by_categories',
+                        data: {
+                            'categories': this_category
+                        },
+                        dataType: 'json',
+                        success: function(data) {
+                            $selector.show();
+                            $('.category_name_column_'+ (key + 1), '.recommend_image_block').html(category);
+                            for (let i = 0; i < data.length; i ++) {
+                                $selector.append('<div class="rec_im"><img src="/' + data[i] + '"></div>');
+                            }
+                        }
+                    });
+                }
+            });
+            let category_array = categories.split(',');
+
+            set_default_image_to_event(category_array)
+        }
+    });
+
+    /**
+     * Удаление элементов из мультиселекта
+     *
+     */
+    $('.custom_multiply_select').on('click', '.remove_categories', function () {
+        $('.custom_multiply_select_items').append('<span class="multiply_select_item" data-categories_id="'+
+            $(this).data('categories_id') + '" data-categories_description="'+ $(this).data('categories_description') +'">'+ $(this).html()+'</span>');
+        $(this).remove();
+
+        // Добавить проверку на редактирование
+        let categories = [];
+        $('.custom_multiply_select').find('.remove_categories').each(function (key, value) {
+            let $selector = $('.column_'+ (key + 1), '.recommend_image_block'), this_category;
+            if ($selector.attr('category_name') !== $(this).data('categories_description')) {
+                var is_new = true;
+            }
+
+            let category = $(this).data('categories_description');
+            if (category && category !== '') {
+                categories += category + ',';
+                this_category = category;
+            }
+            if (is_new) {
+                let x = $('[category_name = ' + this_category + ']').html();
+                $('.column_'+ (key + 1), '.recommend_image_block').html(x);
+                $selector.attr('category_name', $(this).data('categories_description'));
+            }
+        });
+
+        if (categories.length === 0) {
+            $('.recommend_img', '.recommend_image_block').each(function () {
+                $(this).attr('category_name', '');
+                $(this).attr('image_name', '');
+                $(this).css('display', 'none');
+                $(this).find('.rec_im').remove();
+            });
+            $('.event_avatar').attr('src', '/media/avatar_event_default/default.png');
+            return
+        } else {
+            let category_array = categories.split(','), flag, i = 1, j = 0, category_array_ = category_array.slice();
+
+            for (i; i < 4; i++) {  // Нумерация с единицы
+                flag = false;
+                let $selector = $('.column_' + i, '.recommend_image_block');
+                for (j = 0; j < category_array.length; j++) {
+                    if ($selector.attr('category_name') === category_array[j]) {
+                        delete category_array[j];
+                        flag = true;
+                    }
+                }
+                if (flag === false) {
+                    $selector.attr('category_name', '');
+                    $selector.attr('image_name', '');
+                    $selector.css('display', 'none');
+                    $selector.find('.rec_im').remove();
+                }
+            }
+
+            set_default_image_to_event(category_array_)
+        }
+    });
+
+    function set_default_image_to_event(category_array) {
+        let json = {}, image_name = '';
+        for (let i = 0; i < category_array.length; i++) {
+            if (category_array[i] !== '') {
+                image_name = $('[category_name = ' + category_array[i] + ']').attr('category_name');
+                json[category_array[i]] = image_name;
+            }
+        }
+        $.ajax({
+            type: "POST",
+            url: '/events/change_default_image',
+            data: {
+                'json': JSON.stringify(json)
+            },
+            dataType: 'json',
+            success: function(data) {
+                $('.event_avatar').attr('src', '/media/avatar_event_default/'+ data.image);
+                $('.recommend_img', '.recommend_image_block').each(function (key, value) {
+                    $(this).attr('image_name', data.image_names[key]);
+                });
+            }
+        });
+    }
+
+
+    /**
+     * Подписчики события
+     *
+     */
+    $('.see_all_event_subscribers').on('click', function () {
+        $( "#dialog" ).dialog({
+            title: 'Подписчики события',
+            height: '700',
+            width: '500',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+        }).dialog('open');
+
+        var url = $(this).data('url');
+        $.ajax({
+            url: url,
+            success: function (data) {
+                $('.content_paginator').html(data);
+                var infinite = new Waypoint.Infinite({
+                    element: $('.infinite-container')[0],
+                    reverse: true
+                });
+            }
+        });
+    });
+
+
+    /**
+     * Диалоговое окно
+     *
+     */
+    function confirm_dialog(buttons) {
+        $( "#dialog_confirm" ).dialog({
+            title: 'Подтвердите действие',
+            height: '100',
+            width: '200',
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            buttons: buttons,
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    var topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+
+        }).dialog('open');
+    }
+
+    /**
+     * удаление события
+     *
+     */
+    $('.restore_or_delete_event').off('click').on('click', function () {
+        var $this = $(this);
+        let buttons = [
+            {
+                text: "Да",
+                icon: "ui-icon-heart",
+                click: function() {
+                    delete_event($this);
+                }
+            },
+            {
+                text: "Нет",
+                icon: "ui-icon-heart",
+                click: function() {
+                    $(this).dialog( "close" );
+                }
+            }
+        ];
+        confirm_dialog(buttons);
+    });
+
+    /**
+     * Удаление события
+     *
+     */
+    function delete_event($button) {
+        $.ajax({
+            url: '/events/delete_event',
+            type: 'POST',
+            data: {
+                'event_id': $('#dialog_confirm').data('event_id'),
+                'is_restore':  $button.data('is_restore')
+            },
+            success: function (data) {
+                if (data === 200) {
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    }
+
+
+    /**
+     * удаление новости
+     *
+     */
+    $('.event_news').on('click', '.delete_news', function () {
+        let $this = $(this),
+            buttons = [
+                {
+                    text: "Да",
+                    icon: "ui-icon-heart",
+                    click: function() {
+                        delete_event_news($this);
+                        $( this ).dialog( "close" );
+                    }
+                },
+                {
+                    text: "Нет",
+                    icon: "ui-icon-heart",
+                    click: function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            ];
+        confirm_dialog(buttons);
+    });
+
+    /**
+     * Удаление новости (метод ajax)
+     * @$button - кнопка удаления на элементе
+     *
+     */
+    function delete_event_news($button) {
+        $.ajax({
+            url: '/events/delete_event_news',
+            type: 'POST',
+            data: {
+                'event_id': $('#dialog_confirm').data('event_id'),
+                'news_id':  $button.closest('li').data('id')
+            },
+            success: function (data) {
+                if (data === "200") {
+                    $('[data-id='+$button.closest('li').data('id')+']').remove();
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    }
+
+    /**
+     * Редактирование новости, обработчик кнопк
+     *
+     */
+    $('.event_news').on('click', '.edit_news', function () {
+        let $news = $(this).closest('li'), news_id = $news.data('id');
+        $('#id_text', '.news-form').val($('div.text', $news).html().replace(/<br\s*[\/]?>/gi, "\n")); // выставляем \n вместо br
+        $('#id_news', '.news-form').val(news_id);
+    });
+
+    $('.load_events', '.load_events_container').on('click', function () {
+        let url = '/main_app/get_new_events/',
+            last_update = $('.event_item:first', '.infinite-container').data('last_update');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: get_event_filter('event_filter_block', last_update),
+            success: function (data) {
+                if (data) {
+                    let parent = $('.content_paginator_events');
+                    $(data).find('.event_item').each(function (key, value) {
+                        let id  = $(this).data('event_id');
+                        $('[data-event_id = "'+id+'"]', parent).remove();
+                        $('.infinite-container', parent).prepend($(this))
+
+                    });
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    });
+
+    $('#date', '.event_filter_block').on('change', function () {
+        if (parseInt($(this).val()) === 6) {
+            $('#date').closest('div').append('<input class="date_filter" name="date_filter">')
+            $('.date_filter').datetimepicker({
+                timepicker:false,
+                format:'Y-m-d'
+            });
+        } else {
+            $('.date_filter').remove();
+        }
+    });
+
+    get_subscribers_to_autocomplete();
+    function get_subscribers_to_autocomplete() {
+        let $add_users_autocomplete = $('.add_users_autocomplete'), url='';
+
+        if ($add_users_autocomplete.data('is_group') === true) {
+            url = '&group_id=' +  $add_users_autocomplete.data('id');
+        } else if ($add_users_autocomplete.data('is_event') === true) {
+            url = '&event=' +  $add_users_autocomplete.data('id');
+        }
+
+        $.ajax({
+            url: '/profile/get_subscribers?action=checkbox' + url,
+            type: 'GET',
+            success: function (data) {
+                $('.subscribers', $add_users_autocomplete).html(data);
+                $('.added_users').empty();
+                $(':checkbox', $add_users_autocomplete).off('click').on('click', function () {
+                    add_to_chat($(this));
+                });
+            }
+        });
+    }
 });

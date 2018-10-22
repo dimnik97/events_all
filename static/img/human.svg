@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 15 15">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-human);
+      }
+
+      .cls-2 {
+        fill: #3e4e88;
+      }
+    </style>
+    <clipPath id="clip-human">
+      <rect width="15" height="15"/>
+    </clipPath>
+  </defs>
+  <g id="human" class="cls-1">
+    <path id="Path_332" data-name="Path 332" class="cls-2" d="M11,5.662A1.838,1.838,0,1,1,9.162,7.5,1.837,1.837,0,0,1,11,5.662m0,7.875c2.6,0,5.338,1.278,5.338,1.838v.963H5.662v-.963c0-.56,2.739-1.838,5.338-1.838M11,4a3.5,3.5,0,1,0,3.5,3.5A3.5,3.5,0,0,0,11,4Zm0,7.875c-2.336,0-7,1.173-7,3.5V18H18V15.375C18,13.048,13.336,11.875,11,11.875Z" transform="translate(-3.5 -3.5)"/>
+  </g>
+</svg>

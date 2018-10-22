@@ -1,38 +1,108 @@
+{% load custom_filters %}
+{% load tz %}
 <div class="infinite-container">
     {% for event in events %}
-        <hr style="border-top: 1px solid #000;">
-        <div class="event_item infinite-item" data-event_id="{{event.id}}" >
 
-            <a href="/events/{{ event.id }}">
-                <img src="{{ event.event_avatar.reduced_url }}" class="avatar_round">
-            </a>
-            id:{{ event.id }}    <br>
-            Название эвента: {{ event.name }}    <br>
-            Описание эвента, оно пока без ограничений, режь на клиенте: {{ event.description }} <br>
-<br><br>
-        <div>
-            <a href="/profile/{{ event.creator_id_id }}">
-                <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
-            </a>
-        <br>
-            Информация о создателе: <br>
-            FIRST name: {{ event.creator_id.first_name }} <br>
-            LAST name: {{ event.creator_id.last_name }} <br>
+        <div class="event_item_block event_item infinite-item" data-event_id="{{event.id}}"
+             data-last_update="{{ event.last_update|date:"Y-m-d H:i:s" }}">
+
+            <div class="event_info">
+                <div class="header_event_info">
+                    <span class="event_time"></span>
+                    <span class="event_date"></span>
+                    <script>
+                        transform_event_date_start_end("{{ event.start_time|date:"c" }}", "{{ event.end_time|date:"c" }}", "{{event.id}}");
+                    </script>
+                </div>
+                <div class="event_name">
+                    {{ event.name }}
+                    {% if event.active == '2' %}
+                        (Закрытое)
+                    {% endif %}
+                </div>
+                <div class="event_description">{{ event.description }}</div>
+                <div class="event_location"><span class="location_icon"><img src="/static/img/map.svg" class="location_img" alt=""></span><span class="location_nameг">{{ event.geo_point.name }}</span></div>
+                <div class="creator_info">
+
+                {% if event.created_by_group %}
+                    <span class="creator_avatar">
+                        <a href="/groups/{{ event.created_by_group_id }}">
+                            <img src="{{ event.created_by_group.groupavatar.mini_url }}" class="creator_avatar_img">
+                        </a>
+                    </span>
+                    <span class="location_nameг"><a class="username" href="/groups/{{ event.created_by_group_id }}">{{ event.created_by_group.name }}</a></span>
+
+                {% else %}
+                    <span class="creator_avatar">
+                        <a href="/profile/{{ event.creator_id_id }}">
+                            <img src="{{ event.creator_id.profileavatar.mini_url }}" class="creator_avatar_img">
+                        </a>
+                    </span>
+                    <span class="location_nameг"><a href="/profile/{{ event.creator_id_id }}">{{ event.creator_id.first_name }} {{ event.creator_id.last_name }}</a></span>
+                {% endif %}
+
+
+
+                <div class="subscribe_info_block">
+                        <span class="button_block">
+                            {% if event.id|is_subscribe:request.user %}
+                                <button class="subscribe_event_btn" data-action="unsubscribe">Отписаться</button>
+                            {% else %}
+                                <button class="subscribe_event_btn" data-action="subscribe">Присоединиться</button>
+                            {% endif %}
+
+                        </span>
+                    <span class="stat_block">
+                            <span class="event_stat_item">
+                                <img src="/static/img/star.svg" class="event_stat_icon" alt="">55
+                            </span>
+                            <span class="event_stat_item">
+                                <img src="/static/img/human.svg" class="event_stat_icon" alt="">{{ event.members|count }}
+                            </span>
+                            <span class="event_stat_item">
+                                <img src="/static/img/eye.svg" class="event_stat_icon" alt="">55
+                            </span>
+                        </span>
+                </div>
+            </div>
+            <div class="event_avatar">
+                <a href="/events/{{ event.id }}">
+                    <img src="{{ event.event_avatar.reduced_url }}" class="avatar_round">
+                </a>
+            </div>
         </div>
 
-            {% if event.party_flag == 1 %}
-                <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
-            {% elif event.party_flag == 0 %}
-                <button class="subscribe_event" data-action="subscribe">Пойти</button>
-            {% endif %}
-        </div>
-    {% empty %}
-        <p>There are no athletes. Only computer programmers.</p>
+
+        {% empty %}
+
+        {% if get_page_url != 'groups' %}
+            <p>Событий по заданному фильтру не найдено, но вы можете создать свое событие
+            </p>
+            <a href="/events/create"><button>Создать событие</button></a>
+        {% endif %}
     {% endfor %}
 </div>
 
 {% if events.has_next %}
-    <a class="infinite-more-link"
-       href="/main_app/get_infinite_events?page={{ events.next_page_number }}">More
-    </a>
+    {% if get_page_url == 'active' %}
+        <a class="infinite-more-link_active"
+           href="/main_app/active_user_events?page={{ events.next_page_number }}&id={{ id }}">More
+        </a>
+    {% elif get_page_url == 'ended' %}
+        <a class="infinite-more-link_ended"
+           href="/main_app/ended_user_events?page={{ events.next_page_number }}&id={{ id }}">More
+        </a>
+    {% elif get_page_url == 'user_events' %}
+        <a class="infinite-more-link_user_events"
+           href="/main_app/user_events?page={{ events.next_page_number }}&id={{ id }}">More
+        </a>
+    {% elif get_page_url == 'groups' %}
+        <a class="infinite-more-link"
+           href="/main_app/get_group_events?page={{ events.next_page_number }}&id={{ id }}">More
+        </a>
+    {% else  %}
+        <a class="infinite-more-link"
+           href="/main_app/get_infinite_events?page={{ events.next_page_number }}">More
+        </a>
+    {% endif %}
 {% endif %}

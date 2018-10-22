@@ -21,7 +21,7 @@ function infinity_dialogs(filter = null) {
 }
 
 function request_dialog(url, url_type) {
-    var url_ = 'dlg?' + url_type + '=' + url;
+    let url_ = 'dlg?' + url_type + '=' + url;
 
     $('.dialogs').hide();
     $('.back_to_dialogs').on('click', function () {

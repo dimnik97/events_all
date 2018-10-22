@@ -1,7 +1,7 @@
 import json
 import os
-
-from PIL import Image
+from os import path as op
+from PIL import Image, ImageDraw, ImageEnhance
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -214,3 +214,85 @@ class PhotoEditor:
         except (cls.DoesNotExist, ValueError):
             pass
         super(cls, self_cls).delete()
+
+    @staticmethod
+    def add_watermark(image, watermark, opacity=1, wm_interval=0):
+        assert opacity >= 0 and opacity <= 1
+        if opacity < 1:
+            if watermark.mode != 'RGBA':
+                watermark = watermark.convert('RGBA')
+            else:
+                watermark = watermark.copy()
+            alpha = watermark.split()[3]
+            alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
+            watermark.putalpha(alpha)
+        layer = Image.new('RGBA', image.size, (0, 0, 0, 0))
+        for y in range(0, image.size[1], watermark.size[1] + wm_interval):
+            for x in range(0, image.size[0], watermark.size[0] + wm_interval):
+                layer.paste(watermark, (x, y))
+        return Image.composite(layer, image, layer)
+
+    @staticmethod
+    def create_image_for_two_categories(categories, general_file_name, images_names):
+        try:
+            img_path_1 = op.join('media', 'avatar_event_default', categories[0], images_names[0] + '.png')
+            img1 = Image.open(img_path_1)
+            draw1 = ImageDraw.Draw(img1)
+            h1 = img1.height
+            w1 = img1.width
+            draw1.polygon([(w1, h1), (0, h1), (w1, 0)], fill=(0, 0, 0, 0))
+            img_path_2 = op.join('media', 'avatar_event_default', categories[1], images_names[1] + '.png')
+            img2 = Image.open(img_path_2)
+            draw2 = ImageDraw.Draw(img2)
+            h2 = img2.height
+            w2 = img2.width
+            draw2.polygon([(0, 0), (0, h2), (w2, 0)], fill=(0, 0, 0, 0))
+            img = PhotoEditor.add_watermark(img1, img2)
+
+            img.save(op.join('media', 'avatar_event_default', 'general', general_file_name), 'PNG')
+
+            result = {
+                'image': op.join('general', general_file_name),
+                'image_names': [images_names[0], images_names[1], 'default']
+            }
+            return result
+        except IOError:
+            return op.join('default.png')
+
+    @staticmethod
+    def create_image_for_three_categories(categories, general_file_name, images_names):
+        try:
+            img_path_1 = op.join('media', 'avatar_event_default', categories[0], images_names[0] + '.png')
+            img1 = Image.open(img_path_1)
+            draw1 = ImageDraw.Draw(img1)
+            h1 = img1.height
+            w1 = img1.width
+            draw1.polygon([(w1/2, 0), (w1, 0), (w1, h1), (w1/2, h1)], fill=(0, 0, 0, 0))
+            draw1.polygon([(w1, h1), (0, h1), (w1, 0)], fill=(0, 0, 0, 0))
+
+            img_path_2 = op.join('media', 'avatar_event_default', categories[1], images_names[1] + '.png')
+            img2 = Image.open(img_path_2)
+            draw2 = ImageDraw.Draw(img2)
+            h2 = img2.height
+            w2 = img2.width
+            draw2.polygon([(w2/2, 0), (0, 0), (0, h2), (w2/2, h2)], fill=(0, 0, 0, 0))
+            draw2.polygon([(0, 0), (0, h2), (w2, h2)], fill=(0, 0, 0, 0))
+
+            img_path_3 = op.join('media', 'avatar_event_default', categories[2], images_names[2] + '.png')
+            img3 = Image.open(img_path_3)
+            draw3 = ImageDraw.Draw(img3)
+            h3 = img3.height
+            w3 = img3.width
+            draw3.polygon([(0, 0), (w3, 0), (w3, h3)], fill=(0, 0, 0, 0))
+            draw3.polygon([(0, h3), (0, 0), (w3, 0)], fill=(0, 0, 0, 0))
+
+            img = PhotoEditor.add_watermark(img1, img2)
+            img = PhotoEditor.add_watermark(img, img3)
+            img.save(op.join('media', 'avatar_event_default', 'general', general_file_name), 'PNG')
+            result = {
+                'image': op.join('general', general_file_name),
+                'image_names': [images_names[0], images_names[1], images_names[2]]
+            }
+            return result
+        except IOError:
+            return op.join('default.png')

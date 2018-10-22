@@ -12,7 +12,11 @@ urlpatterns = [
     url(r'^change_mini', views.change_mini, name='change_mini'),  # Смена минифицированной версии автара
     url(r'^save_image', views.save_image, name='save_image'),  # Сохранение аватара
 
-    url(r'^invite_group$', views.invite_group, name='invite_group'),  # Приглашение в группы
+    url(r'^invite$', views.invite, name='invite'),  # Приглашение в группу TODO
+    url(r'^cancel$', views.cancel, name='cancel'),  # Отклонить заявку
+    url(r'^accept$', views.accept, name='accept'),  # Принять заявку
+    url(r'^send_an_application$', views.send_an_application, name='send_an_application'),  # Отправить заявку в группу
+
     url(r'^add_to_editor$', views.add_to_editor, name='add_to_editor'),  # Повышение до редактора
     url(r'^add_to_subscribers$', views.add_to_subscribers, name='add_to_subscribers'),  # Понижение до просто подписчика
     url(r'^delete_subscribers$', views.delete_subscribers, name='delete_subscribers'),  # Удаление подписчика

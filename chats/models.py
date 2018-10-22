@@ -2,9 +2,6 @@ import json
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import signals
-from django.db.models.signals import pre_save, post_save
-from django.dispatch import receiver
 
 from events_.models import Event
 from events_all import helper
@@ -187,7 +184,7 @@ class Room(models.Model):
         elif self.event is not None:
             result_url = "/events/%i" % self.group.id
         else:
-            result_url = "javascript:vodi(0)"
+            result_url = "javascript:void(0)"
         return result_url
 
     def __str__(self):
@@ -197,8 +194,8 @@ class Room(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = ('Чаты (групп, евентов)')
-        verbose_name_plural = ('Чаты (групп, евентов)')
+        verbose_name = 'Чаты (групп, евентов)'
+        verbose_name_plural = 'Чаты (групп, евентов)'
 
 
 class RoomMembers(models.Model):
@@ -232,7 +229,8 @@ class RoomMembers(models.Model):
         message_db = ChatMessage()
         message_db.user = creator
         user = User.objects.get(id=user)
-        text = 'Отправлен запрос на добавление в чат <a href="/profile/' + str(user.id) + '">' + user.first_name + ' ' + user.last_name + '</a>'
+        text = 'Отправлен запрос на добавление в чат <a href="/profile/' + str(user.id) + '">' + user.first_name + ' '\
+               + user.last_name + '</a>'
         message_db.text = text
         message_db.flags = 35 + 256 # Отправленное в комнату
         message_db.room_id = room_id
@@ -256,8 +254,8 @@ class ChatMessage(models.Model):
         return self.user.first_name + "  " + str(self.created)
 
     class Meta:
-        verbose_name = ('Сообщения')
-        verbose_name_plural = ('Сообщения')
+        verbose_name = 'Сообщения'
+        verbose_name_plural = 'Сообщения'
 
     # Flags расшифровка
     # 1 - сообщение не прочитано
@@ -420,4 +418,4 @@ class ChatMessage(models.Model):
         except ChatMessage.DoesNotExist:
             dic['status'] == 403
             dic['text'] == 'Ошибка'
-        pass
+        return

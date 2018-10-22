@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 12 12">
+  <defs>
+    <style>
+      .cls-1 {
+        clip-path: url(#clip-Search);
+      }
+
+      .cls-2 {
+        fill: #393e46;
+      }
+
+      .cls-3 {
+        fill: none;
+      }
+    </style>
+    <clipPath id="clip-Search">
+      <rect width="12" height="12"/>
+    </clipPath>
+  </defs>
+  <g id="Search" class="cls-1">
+    <g id="baseline-search-24px" transform="translate(-1.005 -1.005)">
+      <path id="Path_322" data-name="Path 322" class="cls-2" d="M10.3,9.421H9.836l-.163-.158a3.8,3.8,0,1,0-.409.409l.158.163V10.3L12.34,13.21l.87-.87Zm-3.5,0A2.627,2.627,0,1,1,9.421,6.795,2.623,2.623,0,0,1,6.795,9.421Z" transform="translate(-1.249 -1.249)"/>
+      <path id="Path_323" data-name="Path 323" class="cls-3" d="M0,0H14.01V14.01H0Z"/>
+    </g>
+  </g>
+</svg>
