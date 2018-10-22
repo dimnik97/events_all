@@ -72,20 +72,22 @@
         </div>
 
         {# Вся работа с картой #}
-        <div>
-            <label>Место проведения</label>
-            <span class="select_bounds_yamaps">{{ event.geo_point.name }}</span>
-            <div id="map" style="width: 600px; height: 200px"></div>
-            <script>
-                var is_create = false,
-                    is_edit = false,
-                    is_view = true,
-                    event_map = false,
-                    geo_lat ='{{ event.geo_point.lat }}',
-                    geo_lng ='{{ event.geo_point.lng }}'
-            </script>
-            <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
-        </div>
+        {% if event.geo_point.name %}
+            <div>
+                <label>Место проведения</label>
+                <span class="select_bounds_yamaps">{{ event.geo_point.name }}</span>
+                <div id="map" style="width: 600px; height: 200px"></div>
+                <script>
+                    var is_create = false,
+                        is_edit = false,
+                        is_view = true,
+                        event_map = false,
+                        geo_lat ='{{ event.geo_point.lat }}',
+                        geo_lng ='{{ event.geo_point.lng }}'
+                </script>
+                <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
+            </div>
+        {% endif %}
         {# Вся работа с картой #}
 
 

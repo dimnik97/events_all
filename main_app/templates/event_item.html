@@ -25,7 +25,9 @@
                     <span class="location_icon">
                         <img src="/static/img/map.svg" class="location_img" alt="">
                     </span>
-                    <span class="location_nameг">{{ event.geo_point.name }}</span>
+                    {% if event.geo_point.name %}
+                        <span class="location_nameг">{{ event.geo_point.name }}</span>
+                    {% endif %}
                 </div>
                 <div class="creator_info">
                     {% if event.created_by_group %}
@@ -71,11 +73,9 @@
                         </span>
                     </div>
                 </div>
-                <div class="event_avatar">
-                    <a href="/events/{{ event.id }}">
-                        <img src="{{ event.event_avatar.reduced_url }}" class="avatar_round">
-                    </a>
-                </div>
+            </div>
+            <div class="event_avatar">
+                <img src="{{ event.event_avatar.reduced_url }}" width="500px" height="500px">
             </div>
         </div>
 
