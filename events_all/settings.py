@@ -143,14 +143,14 @@ if (getpass.getuser() == 'dmitrij'):
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'NAME': 'test6',
-        # 'USER': 'postgreadmin',
-        # 'PASSWORD': '4321',
-        # 'HOST': 'localhost',
-        'NAME': 'local_2',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': host,
+        'NAME': 'test6',
+        'USER': 'postgreadmin',
+        'PASSWORD': '4321',
+        'HOST': 'localhost',
+        # 'NAME': 'local_2',
+        # 'USER': 'postgres',
+        # 'PASSWORD': '',
+        # 'HOST': host,
         'PORT': '5432',
     }
 }

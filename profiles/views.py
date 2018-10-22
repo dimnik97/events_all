@@ -93,50 +93,15 @@ def add_or_remove_friends(request):
         raise Http404
 
 
+@login_required(login_url='/accounts/login/')
+def edit_view(request):
+    context, is_validate = Profile.edit(request)
+    if is_validate is True:
+        return HttpResponse(json.dumps(context))
+    return render(request, 'profile_edit.html', context)
+
+
 class Edit(FormView):
-    @login_required(login_url='/accounts/login/')
-    def edit_view(request):
-        user = request.user
-        if request.method == 'POST':
-            if request.POST['type'] == 'main_info':
-                form = EditProfile(request.POST)
-            elif request.POST['type'] == 'settings':
-                form = EditUserSettings(request.POST)
-            if form.is_valid():
-                form.save(request)
-                return HttpResponse(str(200))
-            else:
-                data = parse_from_error_to_json(request, form)
-                return HttpResponse(json.dumps(data))
-
-        form = EditProfile({
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'birth_date': user.profile.birth_date,
-            'phone': user.profile.phone,
-            'description': user.profile.description,
-            'gender': user.profile.gender
-        })
-        form_private = EditUserSettings({
-            'messages':
-                user.usersettings.messages,
-            'birth_date':
-                user.usersettings.birth_date,
-            'invite':
-                user.usersettings.invite,
-            'near_invite':
-                user.usersettings.near_invite,
-        })
-        context = {
-            'title': 'Профиль',
-            'form': form,
-            'form_private': form_private,
-            "csrf_token": get_token(request),
-            'avatar': ProfileAvatar.objects.get(user=request.user.id)
-        }
-        return render(request, 'profile_edit.html', context)
-
     @staticmethod
     def change_avatar(request):
         if request.method == 'POST' and request.is_ajax():

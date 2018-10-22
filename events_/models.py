@@ -150,13 +150,14 @@ class Event(models.Model):
                 q_objects.add(Q(end_time__gte=start_time), Q.AND)  # Для того, чтобы показывать незавершенные события
 
         if request.user.is_authenticated: # инача будет ошибка
-            members = Membership.objects.filter(person=request.user.profile, group__type=2)
+            members = Membership.objects.filter(person=request.user.profile, group__type=2,
+                                                role__role__in=['admin', 'subscribers', 'editor'])
             groups_name = list()
             for member in members:
                 groups_name.append(str(member.group.id))
 
-            q_objects.add(Q(active__in=['1', '2']), Q.AND)
-            q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)
+            q_objects.add(Q(active__in=['1', '2']), Q.AND)  # Если активное или закрытое
+            q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)  # Я есть в группе
             q_objects_2.add(Q(created_by_group__isnull=True), Q.OR)
             q_objects_2.add(Q(created_by_group__type='1'), Q.OR)
             q_objects.add(q_objects_2, Q.AND)

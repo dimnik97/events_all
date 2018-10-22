@@ -55,7 +55,7 @@ class EditProfile(forms.Form):
         # profile
         user.profile.description = self.cleaned_data['description']
         user.profile.phone = self.cleaned_data['phone']
-        user.profile.birth_date = self.cleaned_data['birth_date']
+        # user.profile.birth_date = self.cleaned_data['birth_date']
         user.profile.gender = self.cleaned_data['gender']
         user.save()
         return HttpResponse(str(200))

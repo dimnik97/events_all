@@ -5,7 +5,6 @@
 
         <div class="event_item_block event_item infinite-item" data-event_id="{{event.id}}"
              data-last_update="{{ event.last_update|date:"Y-m-d H:i:s" }}">
-
             <div class="event_info">
                 <div class="header_event_info">
                     <span class="event_time"></span>
@@ -15,44 +14,51 @@
                     </script>
                 </div>
                 <div class="event_name">
-                    {{ event.name }}
-                    {% if event.active == '2' %}
-                        (Закрытое)
-                    {% endif %}
+                    <a href="/events/{{ event.id }}">{{ event.name }}
+                        {% if event.active == '2' %}
+                            (Закрытое)
+                        {% endif %}
+                    </a>
                 </div>
                 <div class="event_description">{{ event.description }}</div>
-                <div class="event_location"><span class="location_icon"><img src="/static/img/map.svg" class="location_img" alt=""></span><span class="location_nameг">{{ event.geo_point.name }}</span></div>
+                <div class="event_location">
+                    <span class="location_icon">
+                        <img src="/static/img/map.svg" class="location_img" alt="">
+                    </span>
+                    <span class="location_nameг">{{ event.geo_point.name }}</span>
+                </div>
                 <div class="creator_info">
+                    {% if event.created_by_group %}
+                        <span class="creator_avatar">
+                            <a href="/groups/{{ event.created_by_group_id }}">
+                                <img src="{{ event.created_by_group.groupavatar.mini_url }}" class="creator_avatar_img">
+                            </a>
+                        </span>
+                        <span class="location_nameг"><a class="username" href="/groups/{{ event.created_by_group_id }}">
+                            {{ event.created_by_group.name }}</a>
+                        </span>
+                    {% else %}
+                        <span class="creator_avatar">
+                            <a href="/profile/{{ event.creator_id_id }}">
+                                <img src="{{ event.creator_id.profileavatar.mini_url }}" class="creator_avatar_img">
+                            </a>
+                        </span>
+                        <span class="location_nameг">
+                            <a href="/profile/{{ event.creator_id_id }}">
+                                {{ event.creator_id.first_name }} {{ event.creator_id.last_name }}
+                            </a>
+                        </span>
+                    {% endif %}
 
-                {% if event.created_by_group %}
-                    <span class="creator_avatar">
-                        <a href="/groups/{{ event.created_by_group_id }}">
-                            <img src="{{ event.created_by_group.groupavatar.mini_url }}" class="creator_avatar_img">
-                        </a>
-                    </span>
-                    <span class="location_nameг"><a class="username" href="/groups/{{ event.created_by_group_id }}">{{ event.created_by_group.name }}</a></span>
-
-                {% else %}
-                    <span class="creator_avatar">
-                        <a href="/profile/{{ event.creator_id_id }}">
-                            <img src="{{ event.creator_id.profileavatar.mini_url }}" class="creator_avatar_img">
-                        </a>
-                    </span>
-                    <span class="location_nameг"><a href="/profile/{{ event.creator_id_id }}">{{ event.creator_id.first_name }} {{ event.creator_id.last_name }}</a></span>
-                {% endif %}
-
-
-
-                <div class="subscribe_info_block">
+                    <div class="subscribe_info_block">
                         <span class="button_block">
                             {% if event.id|is_subscribe:request.user %}
                                 <button class="subscribe_event_btn" data-action="unsubscribe">Отписаться</button>
                             {% else %}
                                 <button class="subscribe_event_btn" data-action="subscribe">Присоединиться</button>
                             {% endif %}
-
                         </span>
-                    <span class="stat_block">
+                        <span class="stat_block">
                             <span class="event_stat_item">
                                 <img src="/static/img/star.svg" class="event_stat_icon" alt="">55
                             </span>
@@ -63,21 +69,19 @@
                                 <img src="/static/img/eye.svg" class="event_stat_icon" alt="">55
                             </span>
                         </span>
+                    </div>
                 </div>
-            </div>
-            <div class="event_avatar">
-                <a href="/events/{{ event.id }}">
-                    <img src="{{ event.event_avatar.reduced_url }}" class="avatar_round">
-                </a>
+                <div class="event_avatar">
+                    <a href="/events/{{ event.id }}">
+                        <img src="{{ event.event_avatar.reduced_url }}" class="avatar_round">
+                    </a>
+                </div>
             </div>
         </div>
 
-
-        {% empty %}
-
+    {% empty %}
         {% if get_page_url != 'groups' %}
-            <p>Событий по заданному фильтру не найдено, но вы можете создать свое событие
-            </p>
+            <p>Событий по заданному фильтру не найдено, но вы можете создать свое событие</p>
             <a href="/events/create"><button>Создать событие</button></a>
         {% endif %}
     {% endfor %}

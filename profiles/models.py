@@ -1,4 +1,5 @@
 import datetime
+import json
 from profile import Profile
 
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -6,11 +7,16 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.middleware.csrf import get_token
 from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
 
+from cities_.models import CityTable
 from events_all import helper
+from events_all.helper import parse_from_error_to_json
 from images_custom.models import PhotoEditor
+from profiles.forms import EditProfile, EditUserSettings
 from profiles.validator import SignupValidator
 
 
@@ -75,6 +81,8 @@ class Profile(models.Model):
         choices=CHOICES_ACTIVE,
         default=1,
     )
+    location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=None)
+    location_name = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Профили'
@@ -159,6 +167,50 @@ class Profile(models.Model):
             'action': action,
             'type': 'subscribers'
         }
+
+    @staticmethod
+    def edit(request):
+        user = request.user
+        if request.method == 'POST':
+            if request.POST['type'] == 'main_info':
+                form = EditProfile(request.POST)
+            elif request.POST['type'] == 'settings':
+                form = EditUserSettings(request.POST)
+            if form.is_valid():
+                form.save(request)
+            else:
+                data = parse_from_error_to_json(request, form)
+                return data, True
+            if request.is_ajax:
+                return True, True
+
+        form = EditProfile({
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'birth_date': user.profile.birth_date,
+            'phone': user.profile.phone,
+            'description': user.profile.description,
+            'gender': user.profile.gender
+        })
+        form_private = EditUserSettings({
+            'messages':
+                user.usersettings.messages,
+            'birth_date':
+                user.usersettings.birth_date,
+            'invite':
+                user.usersettings.invite,
+            'near_invite':
+                user.usersettings.near_invite,
+        })
+        context = {
+            'title': 'Профиль',
+            'form': form,
+            'form_private': form_private,
+            "csrf_token": get_token(request),
+            'avatar': ProfileAvatar.objects.get(user=request.user.id)
+        }
+        return context, False
 
     # Возвращает абсолютный URL
     def get_absolute_url(self):
