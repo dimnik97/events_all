@@ -11,4 +11,6 @@ urlpatterns = [
     url(r'^get_subscribers$', views.get_subscribers, name='get_subscribers'),
     url(r'^get_followers$', views.get_followers, name='get_followers$'),
     url(r'^subscribe$', views.add_or_remove_friends, name='add_or_remove_friends'),
+
+    url(r'^custom_fields_for_signup$', views.custom_fields_for_signup, name='custom_fields_for_signup'),  # кастомные поля для формы регистрации
 ]

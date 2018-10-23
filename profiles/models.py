@@ -1,5 +1,4 @@
 import datetime
-import json
 from profile import Profile
 
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -7,7 +6,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
-from django.http import HttpResponse
 from django.middleware.csrf import get_token
 from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase

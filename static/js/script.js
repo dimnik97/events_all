@@ -130,7 +130,7 @@ $(document).ready(function() {
         $('.invalid-feedback', $form).remove();
         $('input', $form).removeClass('is-invalid');
 
-        var first_name  = $('#id_first_name'),
+        let first_name  = $('#id_first_name'),
             last_name  = $('#id_last_name'),
             phone = $("#id_phone"),
             f_first_name = false,
@@ -1030,7 +1030,7 @@ $(document).ready(function() {
      * Поиск города в кастомном селекте
      *
      */
-    $('.find_city', '.custom_select').on('input', function () {
+    $('.custom_select').on('input', '.find_city', function () {
         let city_name = $(this).val();
         $.ajax({
             url: '/cities_/find_city',
@@ -1048,8 +1048,6 @@ $(document).ready(function() {
                 data.forEach(function(data) {
                     $('.custom_select_items').append("<span  class='select_item' data-city_id="+ data.pk +">" + data.fields.city + "</span>");
                 });
-
-                set_value_on_custom_select();
             }
         });
     });
@@ -1058,37 +1056,35 @@ $(document).ready(function() {
      * Установка значения в кастомном селекте
      *
      */
-    set_value_on_custom_select();
-    function set_value_on_custom_select() {
-        $('.select_item', '.custom_select_items').off('click').on('click', function () {
-            $(this).parent().find('.select_item').removeClass('selected');
-            if ($(this).hasClass('go_out'))
-                return;
-            $(this).addClass('selected');
+    $('.custom_select_items').off('click').on('click', '.select_item', function () {
+        $(this).parent().find('.select_item').removeClass('selected');
+        if ($(this).hasClass('go_out'))
+            return;
+        $(this).addClass('selected');
+        $('[name="select_city"]', '.custom_select').val($(this).html());
 
-            try {
-                set_center_by_city_name($(this).html());
+        try {
+            set_center_by_city_name($(this).html());
 
-                if ($('#location').hasClass('event_map')) {
-                    $.ajax({
-                        url: '/main_app/get_event_map',
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            'city_name': $(this).html(),
-                            'city_id': $(this).data('city_id')
-                        },
-                        success: function (data) {
-                            data.forEach(function(item, i, arr) {
-                                add_bounds(item);
-                            });
-                        }
-                    });
-                }
-            } catch (err) {
+            if ($('#location').hasClass('event_map')) {
+                $.ajax({
+                    url: '/main_app/get_event_map',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        'city_name': $(this).html(),
+                        'city_id': $(this).data('city_id')
+                    },
+                    success: function (data) {
+                        data.forEach(function(item, i, arr) {
+                            add_bounds(item);
+                        });
+                    }
+                });
             }
-        })
-    }
+        } catch (err) {
+        }
+    })
 
     /**
      * Ajax для формы EventForm (Создание)
@@ -1543,7 +1539,7 @@ $(document).ready(function() {
         }
     });
 
-    get_subscribers_to_autocomplete();
+    // get_subscribers_to_autocomplete();  TODO Посмотреть что с этим
     function get_subscribers_to_autocomplete() {
         let $add_users_autocomplete = $('.add_users_autocomplete'), url='';
 

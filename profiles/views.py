@@ -3,15 +3,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse, Http404
-from django.middleware.csrf import get_token
+from django.template.loader import render_to_string
 from django.views.generic import FormView
 
+from cities_.models import CityTable
 from groups.models import Group
 from images_custom.models import PhotoEditor
-from profiles.forms import EditProfile, EditUserSettings, ImageUploadForm
-from profiles.models import Profile, ProfileAvatar
+from profiles.forms import ImageUploadForm
+from profiles.models import Profile, ProfileAvatar, Users
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
-from events_all.helper import parse_from_error_to_json
 
 
 # Редирект на аккаунт пользователя
@@ -79,7 +79,6 @@ def add_or_remove_friends(request):
             user_id = request.POST['user_id']
             if user_id != request.user.id:
                 action = request.POST['action']
-                owner = request.user
                 new_friend = User.objects.get(id=user_id)
 
                 if action == "add":
@@ -178,3 +177,13 @@ def get_followers(request):
         return render(request, 'subscribers.html', context)
     else:
         return render(request, 'search_subscribers_items.html', context)
+
+
+def custom_fields_for_signup(request):
+    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
+    user_city = Users.get_user_locations(request)
+    context = {
+        'city_list': city_list,
+        'user_city': user_city
+    }
+    return HttpResponse(render_to_string('custom_fields_for_signup.html', context=context))

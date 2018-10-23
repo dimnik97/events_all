@@ -47,11 +47,33 @@
             {% endif %}
             </div>
             {% endfor %}
-
-            <button type="button" class="next_step btn btn-primary">{% trans "next_step" %} &raquo;</button>
-            <button type="button" class="prev_step d_none btn btn-primary">{% trans "prev_step" %} &raquo;</button>
-            <button type="button" class="signup d_none btn btn-primary">{% trans "Signup" %} &raquo;</button>
+            <div class="form-group field_d_none">
+                <div id="location" class="custom_select">
+                    <label>Город</label>
+                    <input type="text" placeholder="поиск" class="find_city" >
+                    <input type="hidden" name="select_city">
+                    <div class="custom_select_items"></div>
+                </div>
+            </div>
+            <button type="button" class="next_step btn btn-primary">Следующий шаг</button>
+            <button type="button" class="prev_step d_none btn btn-primary">Предыдущий шаг</button>
+            <button type="button" class="signup d_none btn btn-primary">Зарегистрироваться</button>
         </form>
+
+        <script>
+            $.ajax({
+                url: '/profile/custom_fields_for_signup',
+                type: 'POST',
+                success: function (data) {
+                    if (data) {
+                        $('.custom_select_items', '.custom_select').append(data);
+                        $('[name="select_city"]', '.custom_select').val($('.selected', '.custom_select_items').html());
+                    } else {
+                        // TODO заполнить error
+                    }
+                }
+            });
+        </script>
     </div>
 
 {% endblock %}

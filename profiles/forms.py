@@ -1,6 +1,8 @@
 from django import forms
 from django.http import HttpResponse
 
+from cities_.models import CityTable
+
 
 class SignupForm(forms.Form):
     first_name = forms.CharField(
@@ -15,12 +17,21 @@ class SignupForm(forms.Form):
     gender = forms.ChoiceField(required=False, help_text='field_d_none',
                                label='Пол', widget=forms.Select, choices=GENDER)
 
+    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
+    # user_city = Users.get_user_locations(request)
+
     # Create User and related models (ProfileAvatar, UserSettings)
     def signup(self, request, user):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.profile.phone = self.cleaned_data['phone']
         user.profile.gender = self.cleaned_data['gender']
+        city = request.POST['select_city']
+        user.profile.location_name = city
+        try:
+            user.profile.location = CityTable.objects.get(city=city)
+        except CityTable.DoesNotExist:
+            pass
 
         from profiles.models import ProfileAvatar, UserSettings
         ProfileAvatar.objects.create(user=user)
