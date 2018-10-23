@@ -73,7 +73,7 @@ def index(request, id):
         can_change_news = True
 
     try:
-        EventViews.objects.create(event=event_detail, user=None if user is False else user)
+        EventViews.objects.create(event=event_detail, user=None if user is False else user)  # Проставляем просмотры
     except:
         pass
 

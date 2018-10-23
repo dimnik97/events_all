@@ -79,7 +79,7 @@ class Profile(models.Model):
         choices=CHOICES_ACTIVE,
         default=1,
     )
-    location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=None)
+    location = models.ForeignKey(CityTable, to_field='city_id', on_delete=models.CASCADE, default=2732)
     location_name = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
