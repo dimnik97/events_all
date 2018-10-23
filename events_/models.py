@@ -259,6 +259,32 @@ class Event(models.Model):
         return start_time, end_time
 
 
+class EventLikes(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, default=True)
+    date = models.DateField(null=True, blank=True, default=datetime.date.today)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=True)
+
+    def __str__(self):
+        return "Лайк на событие: " + str(self.event) + " от " + str(self.user.first_name)
+
+    class Meta:
+        verbose_name = 'Лайки'
+        verbose_name_plural = 'Лайки'
+
+
+class EventViews(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, default=True)
+    date = models.DateField(null=True, blank=True, default=datetime.date.today)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=True)
+
+    def __str__(self):
+        return "Просмотр события: " + str(self.event) + " от " + str(self.user.first_name)
+
+    class Meta:
+        verbose_name = 'Просмотры'
+        verbose_name_plural = 'Просмотры'
+
+
 class EventCategoryRelation(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     category = models.ForeignKey(EventCategory, on_delete=models.CASCADE)

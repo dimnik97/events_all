@@ -55,9 +55,9 @@
                     <div class="subscribe_info_block">
                         <span class="button_block">
                             {% if event.id|is_subscribe:request.user %}
-                                <button class="subscribe_event_btn" data-action="unsubscribe">Отписаться</button>
+                                <button class="subscribe_event_btn subscribe_event" data-action="unsubscribe">Отписаться</button>
                             {% else %}
-                                <button class="subscribe_event_btn" data-action="subscribe">Присоединиться</button>
+                                <button class="subscribe_event_btn subscribe_event" data-action="subscribe">Присоединиться</button>
                             {% endif %}
                         </span>
                         <span class="stat_block">
@@ -75,7 +75,7 @@
                 </div>
             </div>
             <div class="event_avatar">
-                <img src="{{ event.event_avatar.reduced_url }}" width="500px" height="500px">
+{#                <img src="{{ event.event_avatar.reduced_url }}" width="500px" height="500px">#}
             </div>
         </div>
 
