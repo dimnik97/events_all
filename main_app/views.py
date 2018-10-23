@@ -16,7 +16,10 @@ def index(request):
     category_list = EventCategory.objects.all()
 
     city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
-    user_city = Users.get_user_locations(request)
+    try:
+        user_city = request.user.profile.location
+    except:
+        user_city = CityTable.objects.get(city='Москва')
 
     context = {
         'user': user,
@@ -34,7 +37,10 @@ def event_map(request):
     user = request.user
     # Не забыть про закрытые эвенты
     city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
-    user_city = Users.get_user_locations(request)
+    try:
+        user_city = request.user.profile.location
+    except:
+        user_city = CityTable.objects.get(city='Москва')
     events = Event.objects.filter(location=user_city.city_id).only('name', 'geo_point__lng',
                                                                    'geo_point__lat', 'geo_point__name',
                                                                    'id').select_related('event_avatar')

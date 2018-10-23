@@ -148,7 +148,10 @@ def change_mini(request):
 @login_required(login_url='/accounts/login/')
 def edit(request, id, group_id=None):
     user = request.user
-    user_city = Users.get_user_locations(request)
+    try:
+        user_city = request.user.profile.location
+    except:
+        user_city = CityTable.objects.get(city='Москва')
     event = get_object_or_404(Event, id=id)
     if event.creator_id == user:
         if request.method == 'POST':
@@ -209,7 +212,10 @@ def create(request):
     else:
         form = EventForm()
 
-    user_city = Users.get_user_locations(request)
+    try:
+        user_city = request.user.profile.location
+    except:
+        user_city = CityTable.objects.get(city='Москва')
     categories = EventCategory.objects.all()
 
     context = {

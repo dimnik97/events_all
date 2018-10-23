@@ -156,11 +156,14 @@ class Event(models.Model):
             for member in members:
                 groups_name.append(str(member.group.id))
 
-            q_objects.add(Q(active__in=['1', '2']), Q.AND)  # Если активное или закрытое
-            q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)  # Я есть в группе
-            q_objects_2.add(Q(created_by_group__isnull=True), Q.OR)
-            q_objects_2.add(Q(created_by_group__type='1'), Q.OR)
-            q_objects.add(q_objects_2, Q.AND)
+            if len(groups_name) > 0:
+                q_objects.add(Q(active__in=['1', '2']), Q.AND)  # Если активное или закрытое
+                q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)  # Я есть в группе
+                q_objects_2.add(Q(created_by_group__isnull=True), Q.OR)
+                q_objects_2.add(Q(created_by_group__type='1'), Q.OR)
+                q_objects.add(q_objects_2, Q.AND)
+            else:
+                q_objects.add(Q(active='1'), Q.AND)
         else:
             q_objects.add(Q(active='1'), Q.AND)
 
