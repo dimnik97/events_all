@@ -1,0 +1,4 @@
+<span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
+{% for city in city_list %}
+    <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
+{% endfor %}

@@ -14,8 +14,7 @@ from events_all.helper import parse_from_error_to_json
 from groups.models import Group
 from images_custom.models import PhotoEditor
 from profiles.forms import ImageUploadForm
-from profiles.models import Users
-from .models import Event, Event_avatar, EventNews, EventMembership, EventCategory
+from .models import Event, Event_avatar, EventNews, EventMembership, EventCategory, EventLikes, EventViews
 
 
 def index(request, id):
@@ -72,6 +71,11 @@ def index(request, id):
     can_change_news = False
     if is_creator or is_editor:
         can_change_news = True
+
+    try:
+        EventViews.objects.create(event=event_detail, user=None if user is False else user)  # Проставляем просмотры
+    except:
+        pass
 
     context = {
         'news_form': form,

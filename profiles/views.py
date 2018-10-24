@@ -37,7 +37,7 @@ def detail(request, id):
             "user__first_name", 'user__last_name', 'user_id')[:5] if subscriber != profile
     ]
 
-    groups = Group.objects.all().select_related("groupavatar").only("name")[:5]
+    groups_count = Group.objects.filter(membership__person=profile).count()
 
     if Profile.objects.filter(user=account, subscribers=profile).exists():
         friend_flag = 'remove'
@@ -62,7 +62,7 @@ def detail(request, id):
         'user': user,
         'users': Profile.objects.all().select_related("user__profileavatar").only("user__first_name", 'user__last_name', 'user_id'),
         'followers': followers,
-        'groups': groups,
+        'groups_count': groups_count,
         'subscribers': subscribers,
         'account': account,
         'friend_flag': friend_flag,
