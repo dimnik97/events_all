@@ -32,21 +32,21 @@
                             <a href="edit"><span class="settings_link">Редактировать профиль</span></a>
                         </div>
                         <div class="subscrbers_groups_events fs16">
-                            <span class="groups_count">
+                            <span class="groups_count ta-l">
                                 <a href="/groups/view?id={{ user.id }}">
                                     <p class="header">Группы</p><p class="count">{{ groups_count }}</p>
                                 </a>
                             </span>
 
-                            <span data-url="/profile/get_subscribers?user={{ user.id }}"  # TODO неверно
+                            <span data-url="/profile/get_subscribers?user={{ user.id }}"  {# TODO неверно #}
                                   class="subscribe_count ta-l all_subscribers">
                                 <p class="header">Подписки</p><p class="count">{{ subscribers|length }}</p>
                             </span>
                             <span data-url="/profile/get_followers?user={{ user.id }}"
-                                class="subscribe_count all_followers">
+                                class="subscribe_count all_followers ta-l">
                                 <p class="header">Подписчики</p><p class="count">{{ followers|length }}</p>
                             </span>
-                            <span class="events_count"><p class="header">Встреч</p><p class="count">10</p></span >{#TODO вывод количества встреч#}
+                            <span class="events_count ta-l"><p class="header">Встреч</p><p class="count">10</p></span >{#TODO вывод количества встреч#}
                         </div>
 
                         <div class="birthday_info right_info_user_block">
