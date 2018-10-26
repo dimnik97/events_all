@@ -22,7 +22,7 @@ def my_profile(request):
 
 
 @login_required(login_url='/accounts/login/')
-def detail(request, id):
+def detail(request, id):   # TODO переделать, 4 запроса, серьезно?
     account = request.user.id  # Залогиненный пользователь
     user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
 
@@ -39,7 +39,7 @@ def detail(request, id):
 
     groups_count = Group.objects.filter(membership__person=profile).count()
 
-    if Profile.objects.filter(user=account, subscribers=profile).exists():
+    if Profile.objects.filter(user=account, subscribers=profile).exists():  # TODO переделать вместе с подписчиками
         friend_flag = 'remove'
     else:
         friend_flag = 'add'

@@ -1561,4 +1561,54 @@ $(document).ready(function() {
             }
         });
     }
+
+    $('body').on('click', '[data-like="like"]', function () {
+        let $this = $(this),
+            event_id = $this.closest('.event_item_block').data('event_id');
+        $.ajax({
+            url: '/events/like',
+            type: 'POST',
+            data: {
+                'event_id': event_id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data === 200) {
+                    $this.attr('data-like', 'unlike');
+                    $this.attr('src', '/static/img/star.svg');   // TODO Убрать хардкод
+
+                    let count = parseInt($this.siblings('.like_count').html());
+                    $this.siblings('.like_count').html(count + 1);
+                } else if (data === 400) {
+                    window.location.replace('/accounts/login/?next=');
+                }
+            }
+        });
+    });
+
+
+    $('body').on('click', '[data-like="unlike"]', function () {
+        let $this = $(this),
+            event_id = $this.closest('.event_item_block').data('event_id');
+        $.ajax({
+            url: '/events/unlike',
+            type: 'POST',
+            data: {
+                'event_id': event_id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data === 200) {
+                    $this.attr('data-like', 'like');
+                    $this.attr('src', '/static/img/star_empty.svg');   // TODO Убрать хардкод
+
+                    let count = parseInt($this.siblings('.like_count').html());
+                    $this.siblings('.like_count').html(count - 1);
+                } else if (data === 400) {
+                    window.location.replace('/accounts/login/?next=');
+                }
+            }
+        });
+    });
+
 });

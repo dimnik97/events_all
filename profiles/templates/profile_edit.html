@@ -8,6 +8,14 @@
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <input name="type" class="d_none" value="main_info">
+            <div class="form-group">
+                <div id="location" class="custom_select">
+                    <label>Город</label>
+                    <input type="text" placeholder="поиск" class="find_city" >
+                    <input type="hidden" name="select_city">
+                    <div class="custom_select_items"></div>
+                </div>
+            </div>
             <button type="button" class="btn btn-primary" id="edit_profile_form">Submit</button>
         </form>
         <hr>
@@ -23,4 +31,19 @@
         Хотите выйти из аккаунта?
         <p><a class="btn btn-primary" href="/accounts/logout/">logout</a></p>
     </div>
+
+    <script>
+        $.ajax({
+            url: '/profile/custom_fields_for_signup',
+            type: 'POST',
+            success: function (data) {
+                if (data) {
+                    $('.custom_select_items', '.custom_select').append(data);
+                    $('[name="select_city"]', '.custom_select').val($('.selected', '.custom_select_items').html());
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    </script>
 {% endblock %}

@@ -15,5 +15,8 @@ urlpatterns = [
     url(r'^edit_news$', views.edit_news, name='edit_news'),  # редактирование новости
     url(r'^delete_event_news$', views.delete_event_news, name='delete_event_news'),  # удаление новости
 
+    url(r'^like$', views.like, name='like'),  # проставление лайка (добавление в закладки)
+    url(r'^unlike$', views.unlike, name='unlike'),  # удаление лайка (добавление в закладки)
+
     # url(r'^save_image', views.save_image, name='save_image'),
 ]

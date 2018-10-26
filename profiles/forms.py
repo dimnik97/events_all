@@ -12,13 +12,13 @@ class SignupForm(forms.Form):
         required=True, max_length=30, label='Фамилия', help_text='field_d_none'
     )
     GENDER = (('1', 'Мужской'), ('2', 'Женский'))
+    birth_date = forms.DateField(required=True, label='Дата рождения', help_text='field_d_none')
     phone = forms.CharField(required=False, max_length=30, help_text='field_d_none',
                             label='Телефонный номер (необязательно)')
     gender = forms.ChoiceField(required=False, help_text='field_d_none',
                                label='Пол', widget=forms.Select, choices=GENDER)
 
     city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
-    # user_city = Users.get_user_locations(request)
 
     # Create User and related models (ProfileAvatar, UserSettings)
     def signup(self, request, user):
@@ -26,6 +26,7 @@ class SignupForm(forms.Form):
         user.last_name = self.cleaned_data['last_name']
         user.profile.phone = self.cleaned_data['phone']
         user.profile.gender = self.cleaned_data['gender']
+        user.profile.birth_date = self.cleaned_data['birth_date']
         city = request.POST['select_city']
         user.profile.location_name = city
         try:
@@ -42,17 +43,8 @@ class SignupForm(forms.Form):
 class EditProfile(forms.Form):
     first_name = forms.CharField(required=True, max_length=30, label='Имя')
     last_name = forms.CharField(required=True, max_length=30, label='Фамилия')
-
-    CHOICES_С = (('1', 'Не работает'), ('1', 'Мужской'))
-    country = forms.ChoiceField(widget=forms.Select, choices=CHOICES_С, label='Страна', required=False)
-
-    CHOICES_СITY = (('1', 'Не работает'), ('1', 'Мужской',))
-    city = forms.ChoiceField(widget=forms.Select, choices=CHOICES_СITY, label='Город', required=False)
-
     description = forms.CharField(required=False, max_length=2000, widget=forms.Textarea(), label='Пара слов обо мне')
-    # birth_date = forms.CharField(required=False,
-    #                              widget=CustomDatePicker(),
-    #                              label='Дата рождения')
+    birth_date = forms.DateField(required=True, label='Дата рождения')
     phone = forms.CharField(required=False, max_length=30, label='Телефонный номер')
 
     CHOICES_M = (('1', 'Мужской',),
@@ -66,6 +58,13 @@ class EditProfile(forms.Form):
         # profile
         user.profile.description = self.cleaned_data['description']
         user.profile.phone = self.cleaned_data['phone']
+        user.profile.birth_date = self.cleaned_data['birth_date']
+        city = request.POST['select_city']
+        user.profile.location_name = city
+        try:
+            user.profile.location = CityTable.objects.get(city=city)
+        except CityTable.DoesNotExist:
+            pass
         # user.profile.birth_date = self.cleaned_data['birth_date']
         user.profile.gender = self.cleaned_data['gender']
         user.save()
@@ -77,11 +76,6 @@ class EditUserSettings(forms.Form):
                  ('2', 'Написать могут только те, на кого я подписан',),
                  ('3', 'Закрыть сообщения для всех',))
     messages = forms.ChoiceField(widget=forms.Select, choices=CHOICES_M, label='Настройки сообщений')
-
-    CHOICES_D = (('1', 'Видно всем',),
-                 ('2', 'Видно только подписчикам',),
-                 ('3', 'Скрыть для всех',))
-    birth_date = forms.ChoiceField(widget=forms.Select, choices=CHOICES_D, label='Отображения даты рождения')
 
     CHOICES_I = (('1', 'Приглашать могут все',),
                  ('2', 'Приглашать могут только те, на кого я подписан ',),)

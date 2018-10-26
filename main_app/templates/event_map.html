@@ -12,12 +12,14 @@
 
         var first_bounds = [];
         {% for event in events %}
-            first_bounds[{{ forloop.counter0 }}] = {
-                'name': '{{ event.name }}',
-                'lat': '{{ event.geo_point.lat }}',
-                'lng': '{{ event.geo_point.lng }}',
-                'image': '{{ event.event_avatar.mini_url }}'
-            };
+            {% if event.geo_point %}
+                first_bounds[{{ forloop.counter0 }}] = {
+                    'name': '{{ event.name }}',
+                    'lat': '{{ event.geo_point.lat }}',
+                    'lng': '{{ event.geo_point.lng }}',
+                    'image': '{{ event.event_avatar.mini_url }}'
+                };
+            {% endif %}
         {% endfor %}
     </script>
 

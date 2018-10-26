@@ -132,13 +132,8 @@ WSGI_APPLICATION = 'events_all.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-import socket
-import getpass
-host = '127.0.0.1'
 
-if (getpass.getuser() == 'dmitrij'):
-    host = socket.gethostbyname(socket.getfqdn())
-    print(host)
+host = '127.0.0.1'
 
 DATABASES = {
     'default': {

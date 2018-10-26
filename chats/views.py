@@ -146,13 +146,11 @@ def get_messages(request):
         chat_type = 'room'
         messages = ChatMessage.objects\
             .filter(user=request.user, room=request.GET[chat_type])\
-            .select_related('user__profileavatar', 'peer__profileavatar', 'user')\
             .order_by('-created')
     elif 'peer' in request.GET:
         chat_type = 'peer'
         messages = ChatMessage.objects\
-            .filter(user=request.user, peer=request.GET[chat_type]).\
-            select_related('user__profileavatar', 'peer__profileavatar', 'user', '')\
+            .filter(user=request.user, peer=request.GET[chat_type])\
             .order_by('-created')
 
     page = request.GET.get('page', 1)

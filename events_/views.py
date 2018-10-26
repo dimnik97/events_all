@@ -18,6 +18,8 @@ from .models import Event, Event_avatar, EventNews, EventMembership, EventCatego
 
 
 def index(request, id):
+    Event.get_friends_events(request)
+
     event_id = id
     event_detail = get_object_or_404(Event, id=event_id)  # Получение эвента
     try:
@@ -197,8 +199,7 @@ def edit(request, id, group_id=None):
         }
 
         return render_to_response('edit.html', context)
-    else:
-        raise Http404
+    raise Http404
 
 
 @login_required(login_url='/accounts/login/')
@@ -327,7 +328,7 @@ def create_news(request):
         form = CreateEventNews(request.POST, request.FILES, request.GET)
         if form.is_valid():
             return EventNews.check_rights_and_create_news(request, form)  # Вынес, чтобы не захлямлять вьюху
-
+    raise Http404
 
 # Удаление новостей событий
 def delete_event_news(request):
@@ -345,7 +346,7 @@ def delete_event_news(request):
                 return HttpResponse(200)
         except EventNews.DoesNotExist:
             return HttpResponse(400)
-    return HttpResponse(400)
+        raise Http404
 
 
 def edit_news(request):
@@ -365,4 +366,22 @@ def edit_news(request):
                 return HttpResponse(200)
         except EventNews.DoesNotExist:
             return HttpResponse(400)
-    return HttpResponse(400)
+    raise Http404
+
+
+# Простановка лайка (добавление в закладки)
+def like(request):
+    try:
+        EventLikes.objects.create(event_id=request.POST['event_id'], user=request.user)
+        return HttpResponse(200)
+    except:
+        return HttpResponse(400)
+
+
+# Удаляем лайк (удаление из закладки)
+def unlike(request):
+    try:
+        EventLikes.objects.filter(event_id=request.POST['event_id'], user=request.user).delete()  # TODO заменить на гет
+        return HttpResponse(200)
+    except:
+        return HttpResponse(400)

@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
+from django.http import Http404
 from django.middleware.csrf import get_token
 from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
@@ -35,7 +36,7 @@ class Users:
         return SignupValidator.email_and_password(request)
 
     @staticmethod
-    def get_user_locations(request):
+    def get_user_locations(request, need_ip=False):
         # Работает при помощи библиотеки ipgeobase
         # Иногда необходимо апдейтить базу python manage.py ipgeobase_update
         # -------------------------------------
@@ -47,13 +48,19 @@ class Users:
         # print(ipgeobase.ip_block)  # IP-блок, в который попали (212.49.96.0 - 212.49.127.255)
         # print(ipgeobase.start_ip, ipgeobase.end_ip)  # (3560005632, 3560013823), IP-блок в числовом формате
         # print(ipgeobase.latitude, ipgeobase.longitude)  # (56.837814, 60.596844), широта и долгота
-
-        ip = "212.49.98.48"
-        # ip = Users.get_client_ip(request)
-        ipgeobases = IPGeoBase.objects.by_ip(ip)
-
-        if ipgeobases.exists():
-            return ipgeobases[0]
+        if request.user.is_authenticated and need_ip is False:
+            try:
+                city_obj = CityTable.objects.get(city=request.user.profile.location_name)
+            except CityTable.DoesNotExist:
+                city_obj = CityTable.objects.get(city='Москва')  # TODO Так вообще можно?
+            return city_obj
+        else:
+            ip = "212.49.98.48"
+            # ip = Users.get_client_ip(request)  # TODO При переносе
+            ipgeobases = IPGeoBase.objects.by_ip(ip)
+            if ipgeobases.exists():
+                return ipgeobases[0]
+        raise Http404
 
 
 # Доп данные для юзера

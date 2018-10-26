@@ -16,17 +16,12 @@ def index(request):
     category_list = EventCategory.objects.all()
 
     city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
-    try:
-        user_city = request.user.profile.location
-    except:
-        user_city = CityTable.objects.get(city='Москва')
 
     context = {
         'user': user,
-        'locate': Users.get_user_locations(user),
         'category_list': category_list,
         'city_list': city_list,
-        'user_city': user_city
+        'user_city': Users.get_user_locations(request, need_ip=True),
     }
 
     return render_to_response('index.html', context)
@@ -36,20 +31,18 @@ def index(request):
 def event_map(request):
     user = request.user
     # Не забыть про закрытые эвенты
+
     city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
-    try:
-        user_city = request.user.profile.location
-    except:
-        user_city = CityTable.objects.get(city='Москва')
-    events = Event.objects.filter(location=user_city.city_id).only('name', 'geo_point__lng',
-                                                                   'geo_point__lat', 'geo_point__name',
-                                                                   'id').select_related('event_avatar')
+    city = Users.get_user_locations(request, need_ip=True)
+    events = Event.objects.filter(location=city.city_id).only('name', 'geo_point__lng',
+                                                              'geo_point__lat', 'geo_point__name',
+                                                              'id').select_related('event_avatar')
 
     context = {
         'user': user,
-        'locate': Users.get_user_locations(user),
+        'locate': city,
         'city_list': city_list,
-        'user_city': user_city,
+        'user_city': city,
         'events': list(events)
     }
 

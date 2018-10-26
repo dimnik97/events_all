@@ -14,7 +14,7 @@ function init() {
         }
     }
     if (is_create === true || (is_edit === true)) {
-        if (is_edit === true) {
+        if (is_edit === true && geo_lat && geo_lng) {
             var coords = [parseFloat(geo_lat.replace(',', '.')), parseFloat(geo_lng.replace(',', '.'))];
             set_center_by_cords(coords);
             create_and_add_place_mark(coords, true);
