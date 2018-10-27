@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
+from django.http import Http404
 from django.middleware.csrf import get_token
 from django.utils.functional import curry
 from django_ipgeobase.models import IPGeoBase
@@ -35,7 +36,7 @@ class Users:
         return SignupValidator.email_and_password(request)
 
     @staticmethod
-    def get_user_locations(request):
+    def get_user_locations(request, need_ip=False):
         # Работает при помощи библиотеки ipgeobase
         # Иногда необходимо апдейтить базу python manage.py ipgeobase_update
         # -------------------------------------
@@ -47,13 +48,19 @@ class Users:
         # print(ipgeobase.ip_block)  # IP-блок, в который попали (212.49.96.0 - 212.49.127.255)
         # print(ipgeobase.start_ip, ipgeobase.end_ip)  # (3560005632, 3560013823), IP-блок в числовом формате
         # print(ipgeobase.latitude, ipgeobase.longitude)  # (56.837814, 60.596844), широта и долгота
-
-        ip = "212.49.98.48"
-        # ip = Users.get_client_ip(request)
-        ipgeobases = IPGeoBase.objects.by_ip(ip)
-
-        if ipgeobases.exists():
-            return ipgeobases[0]
+        if request.user.is_authenticated and need_ip is False:
+            try:
+                city_obj = CityTable.objects.get(city=request.user.profile.location_name)
+            except CityTable.DoesNotExist:
+                city_obj = CityTable.objects.get(city='Москва')  # TODO Так вообще можно?
+            return city_obj
+        else:
+            ip = "212.49.98.48"
+            # ip = Users.get_client_ip(request)  # TODO При переносе
+            ipgeobases = IPGeoBase.objects.by_ip(ip)
+            if ipgeobases.exists():
+                return ipgeobases[0]
+        raise Http404
 
 
 # Доп данные для юзера
@@ -71,6 +78,11 @@ class Profile(models.Model):
         default=1,
     )
     subscribers = models.ManyToManyField('self', blank=True, symmetrical=False)
+    through_profile = models.ManyToManyField(
+        Profile,
+        through='ProfileSubscribers',
+        through_fields=('from_profile', 'to_profile'),
+    )
     CHOICES_ACTIVE = (('1', 'Активный'),
                       ('2', 'Удаленный'),
                       ('3', 'Заблокированный'),)
@@ -110,62 +122,6 @@ class Profile(models.Model):
     def remove_friend(cls, request, new_friend):
         request.user.profile.subscribers.remove(new_friend.profile)
 
-    # TODO ПЕРЕДЕЛАТЬ
-    @staticmethod
-    def get_subscribers(request):
-        # TODO ПЕРЕДЕЛАТЬ
-        if 'user' in request.GET:
-            user_id = request.GET.get('user', 1)
-        else:
-            user_id = request.user.id
-
-        flag = False
-        action = ''  # Просмотр
-        if 'action' in request.GET:
-            action = request.GET.get('action')  # Тип - выбор подписчиков (с чекбоксами)
-        else:
-            if str(request.user.id) == user_id or request.user.id == user_id:
-                action = 'context_menu'  # Тип - контекстное меню
-
-        if 'group_id' in request.GET:
-            group_id = request.GET.get('group_id')  # Исключаем подписчиков из выборки
-        else:
-            pass
-
-        user = User.objects.get(id=user_id)
-        if 'value' in request.POST and 'search' in request.POST:
-            # TODO Тут ошибка, знаю, надо доделать, не работает паджинация
-            subscribers = []
-            subscribers_object = user.profile.subscribers
-            for subscriber in subscribers_object.all():
-                if request.POST['value'] in subscriber.user.first_name or request.POST['value'] in subscriber.user.last_name:
-                    subscribers.append(subscriber)
-                else:
-                    continue
-            flag = True
-        else:
-            subscribers_object = user.profile.subscribers
-            subscribers = [
-                subscriber for subscriber in subscribers_object.all()
-            ]
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(subscribers, 20)
-        try:
-            subscribers = paginator.page(page)
-        except PageNotAnInteger:
-            subscribers = paginator.page(1)
-        except EmptyPage:
-            subscribers = paginator.page(paginator.num_pages)
-
-        return {
-            'flag': flag,
-            'items': subscribers,
-            'user_id': user_id,
-            'action': action,
-            'type': 'subscribers'
-        }
-
     @staticmethod
     def edit(request):
         user = request.user
@@ -186,7 +142,7 @@ class Profile(models.Model):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'birth_date': user.profile.birth_date,
+            'birth_date': user.profile.birth_date.strftime('%d-%m-%Y'),
             'phone': user.profile.phone,
             'description': user.profile.description,
             'gender': user.profile.gender
@@ -215,6 +171,57 @@ class Profile(models.Model):
         return "/profile/%i" % self.user.id
 
 
+class ProfileSubscribers(models.Model):
+    from_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='from')
+    to_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='to')
+    date_subscribe = models.DateField(null=True, blank=True, default=datetime.date.today)
+
+    class Meta:
+        verbose_name = 'Подписчики'
+        verbose_name_plural = 'Подписчики'
+        # unique_together = ('from_profile', 'to_profile')
+
+    @staticmethod
+    def get_subscribers(request):
+        if 'user' in request.GET:
+            user_id = request.GET.get('user', 1)
+        else:
+            user_id = request.user.id
+
+        flag = False
+        action = ''  # Просмотр
+        if 'action' in request.GET:
+            action = request.GET.get('action')  # Тип - выбор подписчиков (с чекбоксами)
+        else:
+            if str(request.user.id) == str(user_id):
+                action = 'context_menu'  # Тип - контекстное меню
+
+        user = User.objects.get(id=user_id)
+        if 'value' in request.POST and 'search' in request.POST:
+            from django.db.models import Q
+            subscribers_object = ProfileSubscribers.objects.filter(
+                Q(to_profile__user__last_name__icontains=request.POST['value'])
+                | Q(to_profile__user__first_name__icontains=request.POST['value']),
+                from_profile=user.profile)
+            flag = True
+        else:
+            subscribers_object = user.profile.members
+
+        subscribers = [
+            subscriber for subscriber in subscribers_object.all()
+        ]
+
+        subscribers = helper.helper_paginator(request, subscribers)
+
+        return {
+            'flag': flag,
+            'items': subscribers,
+            'user_id': user_id,
+            'action': action,
+            'type': 'subscribers'
+        }
+
+
 # Аватарки и миниатюры пользователей
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
@@ -222,7 +229,7 @@ class ProfileAvatar(models.Model):
     image = models.ImageField(
         upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
         # upload_to=helper.ImageHelper.upload_to,
-                              default='avatar/default/img.jpg')
+        default='avatar/default/img.jpg')
 
     class Meta:
         verbose_name = 'Аватары'

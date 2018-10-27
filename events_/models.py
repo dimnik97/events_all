@@ -126,7 +126,7 @@ class Event(models.Model):
 
     # Получение эвентов с учетом фильтрации, для главной ленты
     @staticmethod
-    def get_events(request, last_update=None):
+    def get_events(request, last_update=None, is_simple=False):
         q_objects = Q()
         q_objects_2 = Q()
 
@@ -143,11 +143,11 @@ class Event(models.Model):
         if 'time_code' in request.POST:
             if int(request.POST['time_code']) > 0:
                 start_time, end_time = Event.get_filter_time(request)
-                q_objects.add(Q(start_time__gte=start_time), Q.AND)
-                q_objects.add(Q(start_time__lte=end_time), Q.AND)
-
-                # TODO переделать
-                q_objects.add(Q(end_time__gte=start_time), Q.AND)  # Для того, чтобы показывать незавершенные события
+                q_objects_time = Q()
+                q_objects_time.add(Q(start_time__gte=start_time), Q.AND)
+                q_objects_time.add(Q(start_time__lte=end_time), Q.AND)
+                q_objects_time.add(Q(end_time__gte=end_time), Q.OR)  # Для того, чтобы показывать незавершенные события
+                q_objects.add(q_objects_time, Q.AND)
 
         if request.user.is_authenticated: # инача будет ошибка
             members = Membership.objects.filter(person=request.user.profile, group__type=2,
@@ -172,7 +172,7 @@ class Event(models.Model):
                 last_update = datetime.datetime.strptime(last_update, '%Y-%m-%d %H:%M:%S') + \
                               datetime.timedelta(minutes=1)
                 q_objects.add(Q(last_update__gte=last_update), Q.AND)
-            events = Event.event_query(q_objects)
+            events = Event.event_query(q_objects, is_simple)
         except Event.DoesNotExist:
             return None
         return events
@@ -186,17 +186,30 @@ class Event(models.Model):
         events = Event.event_query(q_objects)
         return events
 
+    # События группы
+    @staticmethod
+    def get_friends_events(request):
+
+        q_objects = Q()
+        q_objects.add(Q(active__in=['1', '2', '4']), Q.AND)  # Не включать в выборку удаленные события
+        events = Event.event_query(q_objects)
+        return events
+
     # Основной запрос на получение ленты и связных данных
     @staticmethod
-    def event_query(q_objects):
-        return Event.objects.filter(q_objects). \
-            only('name', 'creator_id__first_name', 'description', 'last_update',
-                 'creator_id__last_name', 'created_by_group', 'created_by_group__name',
-                 'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
-                 'category__name', 'category__id', 'category__description', 'active'). \
-            select_related('event_avatar', 'creator_id', 'creator_id__profileavatar', 'created_by_group',
-                           'created_by_group__groupavatar'). \
-            order_by('-last_update')
+    def event_query(q_objects, is_simple=False):
+        if is_simple:
+            return Event.objects.filter(q_objects).only('name', 'geo_point__lng', 'geo_point__lat', 'geo_point__name',
+                                                        'id').select_related('event_avatar')
+        else:
+            return Event.objects.filter(q_objects). \
+                only('name', 'creator_id__first_name', 'description', 'last_update',
+                     'creator_id__last_name', 'created_by_group', 'created_by_group__name',
+                     'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
+                     'category__name', 'category__id', 'category__description', 'active'). \
+                select_related('event_avatar', 'creator_id', 'creator_id__profileavatar', 'created_by_group',
+                               'created_by_group__groupavatar'). \
+                order_by('-last_update')
 
     @staticmethod
     def paginator(request, events):
@@ -247,15 +260,15 @@ class Event(models.Model):
                                                                                       second=0, microsecond=0)
         elif time_code == 5:  # В следующем месяце
             start_time = (datetime.datetime.now().replace(day=28) + datetime.timedelta(days=4)).replace(hour=0, minute=0,
-                                                                                                second=0, microsecond=0)
+                                                                                                        second=0, microsecond=0)
 
             end_time = ((datetime.datetime.now().replace(day=28) + datetime.timedelta(days=4)).replace(day=28) + \
-                         datetime.timedelta(days=3)).replace(hour=0, minute=0, second=0, microsecond=0)
+                        datetime.timedelta(days=3)).replace(hour=0, minute=0, second=0, microsecond=0)
         elif time_code == 6:
             if 'date_filter' in request.POST:
-                start_time = datetime.datetime.strptime(request.POST['date_filter'], '%Y-%m-%d').\
+                start_time = datetime.datetime.strptime(request.POST['date_filter'], '%Y-%m-%d'). \
                     replace(hour=0, minute=0, second=0, microsecond=0)
-                end_time = (datetime.datetime.strptime(request.POST['date_filter'], '%Y-%m-%d') + timedelta(days=1)).\
+                end_time = (datetime.datetime.strptime(request.POST['date_filter'], '%Y-%m-%d') + timedelta(days=1)). \
                     replace(hour=0, minute=0, second=0, microsecond=0)
         else:
             pass
@@ -265,9 +278,7 @@ class Event(models.Model):
 class EventLikes(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, default=True)
     date = models.DateField(null=True, blank=True, default=datetime.date.today)
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=True, unique=True)
-
 
     def __str__(self):
         return "Лайк на событие: " + str(self.event) + " от " + str(self.user.first_name)
@@ -275,13 +286,14 @@ class EventLikes(models.Model):
     class Meta:
         verbose_name = 'Лайки'
         verbose_name_plural = 'Лайки'
+        unique_together = ('event', 'user')  # Составной ключ - 1 пользователь - 1 лайк на событие
 
 
 class EventViews(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, default=True)
     date = models.DateField(null=True, blank=True, default=datetime.date.today)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=True, null=True)
-
+    token = models.TextField(null=True, blank=True)  # Для незарегистрированных
 
     def __str__(self):
         return "Просмотр события: " + str(self.event) + " от " + str(self.user.first_name)
@@ -289,6 +301,7 @@ class EventViews(models.Model):
     class Meta:
         verbose_name = 'Просмотры'
         verbose_name_plural = 'Просмотры'
+        unique_together = (('event', 'user'),)  # Составной ключ - 1 пользователь - 1 просмотр на событие
 
 
 class EventCategoryRelation(models.Model):

@@ -6,6 +6,9 @@ from PIL import Image
 
 
 # Возвращает массив в 2СС из 10СС
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+
 def convert_base(num):
     if num == 0:
         return [0]
@@ -97,6 +100,17 @@ def dictfetchall(cursor):
         for row in cursor.fetchall()
     ]
 
+
+def helper_paginator(request, p_object):
+    page = request.GET.get('page', 1)
+    paginator = Paginator(p_object, 20)
+    try:
+        p_object = paginator.page(page)
+    except PageNotAnInteger:
+        p_object = paginator.page(1)
+    except EmptyPage:
+        p_object = paginator.page(paginator.num_pages)
+    return p_object
 
 
 # from django.db import connection

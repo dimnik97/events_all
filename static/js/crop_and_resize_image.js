@@ -61,7 +61,7 @@ $('body').on('change', '#id_load_image', function (e) {
                         css('width', $image_.width() + 'px');
                         $help_image_div.css('z-index', 2);
                         $image_.show();
-                        imgAreaSelect_($help_image_div, '');
+                        imgAreaSelect_($help_image_div, '1:1');
                         $reset_.show();
                     };
                     img.src = response.link;
@@ -121,7 +121,7 @@ function rotate_image(direction) {
     $help_image_div.imgAreaSelect({
         remove: true
     });
-    imgAreaSelect_($help_image_div, '');
+    imgAreaSelect_($help_image_div, '1:1');
 }
 
 var crop_x1,

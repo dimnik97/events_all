@@ -1063,27 +1063,27 @@ $(document).ready(function() {
         $(this).addClass('selected');
         $('[name="select_city"]', '.custom_select').val($(this).html());
 
-        try {
-            set_center_by_city_name($(this).html());
-
-            if ($('#location').hasClass('event_map')) {
-                $.ajax({
-                    url: '/main_app/get_event_map',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        'city_name': $(this).html(),
-                        'city_id': $(this).data('city_id')
-                    },
-                    success: function (data) {
-                        data.forEach(function(item, i, arr) {
-                            add_bounds(item);
-                        });
-                    }
-                });
-            }
-        } catch (err) {
-        }
+        // try {
+        //     set_center_by_city_name($(this).html());
+        //
+        //     if ($('#location').hasClass('event_map')) {
+        //         $.ajax({
+        //             url: '/main_app/get_event_map',
+        //             type: 'POST',
+        //             dataType: 'json',
+        //             data: {
+        //                 'city_name': $(this).html(),
+        //                 'city_id': $(this).data('city_id')
+        //             },
+        //             success: function (data) {
+        //                 data.forEach(function(item, i, arr) {
+        //                     add_bounds(item);
+        //                 });
+        //             }
+        //         });
+        //     }
+        // } catch (err) {
+        // }
     })
 
     /**
@@ -1562,5 +1562,54 @@ $(document).ready(function() {
         });
     }
 
+
+    $('body').on('click', '[data-like="like"]', function () {
+        let $this = $(this),
+            event_id = $this.closest('.event_item_block').data('event_id');
+        $.ajax({
+            url: '/events/like',
+            type: 'POST',
+            data: {
+                'event_id': event_id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data === 200) {
+                    $this.attr('data-like', 'unlike');
+                    $this.attr('src', '/static/img/star.svg');   // TODO Убрать хардкод
+
+                    let count = parseInt($this.siblings('.like_count').html());
+                    $this.siblings('.like_count').html(count + 1);
+                } else if (data === 400) {
+                    window.location.replace('/accounts/login/?next=');
+                }
+            }
+        });
+    });
+
+
+    $('body').on('click', '[data-like="unlike"]', function () {
+        let $this = $(this),
+            event_id = $this.closest('.event_item_block').data('event_id');
+        $.ajax({
+            url: '/events/unlike',
+            type: 'POST',
+            data: {
+                'event_id': event_id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data === 200) {
+                    $this.attr('data-like', 'like');
+                    $this.attr('src', '/static/img/star_empty.svg');   // TODO Убрать хардкод
+
+                    let count = parseInt($this.siblings('.like_count').html());
+                    $this.siblings('.like_count').html(count - 1);
+                } else if (data === 400) {
+                    window.location.replace('/accounts/login/?next=');
+                }
+            }
+        });
+    });
 
 });

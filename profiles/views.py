@@ -10,7 +10,7 @@ from cities_.models import CityTable
 from groups.models import Group
 from images_custom.models import PhotoEditor
 from profiles.forms import ImageUploadForm
-from profiles.models import Profile, ProfileAvatar, Users
+from profiles.models import Profile, ProfileAvatar, Users, ProfileSubscribers
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 
 
@@ -22,7 +22,7 @@ def my_profile(request):
 
 
 @login_required(login_url='/accounts/login/')
-def detail(request, id):
+def detail(request, id):   # TODO переделать, 4 запроса, серьезно?
     account = request.user.id  # Залогиненный пользователь
     user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
 
@@ -39,7 +39,7 @@ def detail(request, id):
 
     groups_count = Group.objects.filter(membership__person=profile).count()
 
-    if Profile.objects.filter(user=account, subscribers=profile).exists():
+    if Profile.objects.filter(user=account, subscribers=profile).exists():  # TODO переделать вместе с подписчиками
         friend_flag = 'remove'
     else:
         friend_flag = 'add'
@@ -60,7 +60,7 @@ def detail(request, id):
         'is_online': is_online,
         'title': 'Профиль',
         'user': user,
-        'users': Profile.objects.all().select_related("user__profileavatar").only("user__first_name", 'user__last_name', 'user_id'),
+        # 'users': Profile.objects.all().select_related("user__profileavatar").only("user__first_name", 'user__last_name', 'user_id'),
         'followers': followers,
         'groups_count': groups_count,
         'subscribers': subscribers,
@@ -140,7 +140,7 @@ class Edit(FormView):
 
 
 def get_subscribers(request):
-    context = Profile.get_subscribers(request)
+    context = ProfileSubscribers.get_subscribers(request)
     if not context['flag']:
         return render(request, 'subscribers.html', context)
     else:
