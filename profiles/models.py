@@ -142,7 +142,7 @@ class Profile(models.Model):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'birth_date': user.profile.birth_date,
+            'birth_date': user.profile.birth_date.strftime('%d-%m-%Y'),
             'phone': user.profile.phone,
             'description': user.profile.description,
             'gender': user.profile.gender
@@ -172,14 +172,14 @@ class Profile(models.Model):
 
 
 class ProfileSubscribers(models.Model):
-    from_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    to_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    from_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='from')
+    to_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='to')
     date_subscribe = models.DateField(null=True, blank=True, default=datetime.date.today)
 
     class Meta:
         verbose_name = 'Подписчики'
         verbose_name_plural = 'Подписчики'
-        unique_together = ('from_profile', 'to_profile')
+        # unique_together = ('from_profile', 'to_profile')
 
     @staticmethod
     def get_subscribers(request):

@@ -2,6 +2,7 @@ from django import forms
 from django.http import HttpResponse
 
 from cities_.models import CityTable
+from events_all import settings
 
 
 class SignupForm(forms.Form):
@@ -44,7 +45,7 @@ class EditProfile(forms.Form):
     first_name = forms.CharField(required=True, max_length=30, label='Имя')
     last_name = forms.CharField(required=True, max_length=30, label='Фамилия')
     description = forms.CharField(required=False, max_length=2000, widget=forms.Textarea(), label='Пара слов обо мне')
-    birth_date = forms.DateField(required=True, label='Дата рождения')
+    birth_date = forms.DateField(required=True, label='Дата рождения', input_formats=['%d-%m-%Y'])
     phone = forms.CharField(required=False, max_length=30, label='Телефонный номер')
 
     CHOICES_M = (('1', 'Мужской',),
