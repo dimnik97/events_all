@@ -1,56 +1,70 @@
 {% extends "main_template.html" %}
 
 {% block content %}
-
-    <button class="btn btn-grey"><a href="/events/create">Создать событие</a></button>
-    <h2>Список событий</h2>
-
-    <form class="event_filter_block">
-        <div>
-            <label>Свободный поиск</label>
-            <input type="text" name="name" placeholder="поиск" class="find_groups" >
-        </div>
-        <div>
-            <label>Категория</label>
-            <select id="category" name="category">
-                <option value="" selected>Все</option>
-                {% for category in category_list %}
-                    <option value="{{ category.id }}">{{ category.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div>
-            <label>Город</label>
-            <div id="location" class="custom_select">
-                <input type="text" placeholder="поиск" class="find_city">
-                <div class="custom_select_items">
-                    <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
-                    {% for city in city_list %}
-                        <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
-                    {% endfor %}
-                </div>
+    <div class="main_bidy_content">
+        <div class="main_scroll_block">
+            <div class="load_events_container">
+                {#                <button class="load_events btn" style="border: 1px solid red;">НОВЫЕ СОБЫТИЯ (НЕ ПРОЕБИ)</button>#}
             </div>
+            <div class="content_paginator_events"></div>
         </div>
-        <div>
-            <label>Дата начала</label>
-            <select id="date">
-                <option value="0">За все время</option>
-                <option value="1">Сегодня</option>
-                <option value="2">Завтра</option>
-                <option value="3">На этой неделе</option>
-                <option value="4">В этом месяце</option>
-                <option value="5">В следующем месяце</option>
-                <option value="6">Выбрать дату</option>
-            </select>
-        </div>
-    </form>
 
-    <button class="submit_event_filter">Найти</button>
-    <div class="load_events_container">
-        <button class="load_events btn" style="border: 1px solid red;">НОВЫЕ СОБЫТИЯ (НЕ ПРОЕБИ)</button>
+
+
+
+
+
+        <div class="main_filter_block">
+            <button class="btn btn-grey"><a href="/events/create">Создать событие</a></button>
+            <form class="event_filter_block">
+                <div class="margin-b-25">
+                    <input type="text" name="name" placeholder="поиск" class="find_groups main_search_input width225_center" >
+                </div>
+                <div class="margin-b-25">
+                    <select id="category" name="category" class="main_category_select width225_center">
+                        <option value="" selected>Категория</option>
+                        {% for category in category_list %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <div class="main_filter_city_block_btn width225_center toogler_arrow" data-toggle="collapse" data-target="#hide-me">
+                        <span>Город</span>
+                        <img src="../static/img/chevrondown.svg" class="popup_header_menu_down" alt="">
+                        <img src="../static/img/chevronup.svg" class="popup_header_menu_up d_none" alt="">
+                    </div>
+                    <div id="hide-me" class="collapse in hide_area_filter">
+                        <div id="location" class="custom_select custom_select_city">
+                            <input type="text" placeholder="поиск" class="find_city">
+                            <div class="custom_select_items">
+                                <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
+                                {% for city in city_list %}
+                                    <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div>
+                    <label>Дата начала</label>
+                    <select id="date">
+                        <option value="0">За все время</option>
+                        <option value="1">Сегодня</option>
+                        <option value="2">Завтра</option>
+                        <option value="3">На этой неделе</option>
+                        <option value="4">В этом месяце</option>
+                        <option value="5">В следующем месяце</option>
+                        <option value="6">Выбрать дату</option>
+                    </select>
+                </div>
+            </form>
+
+            <button class="submit_event_filter">Найти</button>
+        </div>
     </div>
-    <div class="content_paginator_events">
-    </div>
+
 
     <script>
 
@@ -145,9 +159,25 @@
                     });
                 },
                 offset: '25%'
-            })
-        })
+            });
+            $('.toogler_arrow').on('click', function(){
+                debugger;
+                $('.popup_header_menu_down', $(this)).hide();
+                $('.popup_header_menu_up', $(this)).show();
+
+            });
+
+            $('.toogler_arrow').on('click', function(){
+                $('.popup_header_menu_up', $(this)).hide();
+                $('.popup_header_menu_down', $(this)).show();
+            });
+        });
+
+
+
 
     </script>
+
+
 
 {% endblock %}

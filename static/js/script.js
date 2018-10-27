@@ -1179,14 +1179,14 @@ $(document).ready(function() {
     }
 
 
-    $('.popup_header_menu_down').on('click', function(){
+    $('.auth_block_header .popup_header_menu_down').on('click', function(){
         $(this).hide();
         $('.popup_header_menu_up').show();
         $('.popup_menu_block').show();
 
     });
 
-    $('.popup_header_menu_up').on('click', function(){
+    $('.auth_block_header .popup_header_menu_up').on('click', function(){
         $(this).hide();
         $('.popup_header_menu_down').show();
         $('.popup_menu_block').hide();
@@ -1561,6 +1561,7 @@ $(document).ready(function() {
             }
         });
     }
+
 
     $('body').on('click', '[data-like="like"]', function () {
         let $this = $(this),
