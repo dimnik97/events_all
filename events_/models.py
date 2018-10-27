@@ -11,7 +11,7 @@ from django.db.models import Q
 
 from cities_.models import CityTable
 from events_all import helper
-from groups.models import Group, Membership
+from groups.models import Group, Membership, AllRoles
 import datetime
 from django.utils.timezone import utc
 
@@ -212,6 +212,15 @@ class Event(models.Model):
                 order_by('-last_update')
 
     @staticmethod
+    def firend_and_group_events(self):
+
+        pass
+        # from operator import attrgetter
+        # result_list = sorted(
+        #     chain(page_list, article_list, post_list),
+        #     key=attrgetter('date_created'))
+
+    @staticmethod
     def paginator(request, events):
         page = request.GET.get('page', 1)
         paginator = Paginator(events, 5)
@@ -317,6 +326,9 @@ class EventMembership(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     person = models.ForeignKey(Profile, on_delete=models.CASCADE)
     date_joined = models.DateField(null=True, blank=True, default=datetime.date.today)
+    role = models.ForeignKey(AllRoles, related_name="event_role",
+                             on_delete=models.CASCADE,
+                             default=AllRoles.objects.get(role='admin'))
 
     class Meta:
         verbose_name = 'Подписчики события'

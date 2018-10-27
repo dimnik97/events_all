@@ -34,7 +34,8 @@ def detail(request, id):
             'group': group,
             'members': members,
             'avatar': GroupAvatar.objects.get(group=group.id),
-            'chat': chat
+            'chat': chat,
+            'user': request.user
         }
     else:
         return render_to_response('error_page.html', context)
