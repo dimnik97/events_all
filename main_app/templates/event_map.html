@@ -25,14 +25,45 @@
 
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 
-    <label>Город</label>
-    <div id="location" class="custom_select event_map">
-        <input type="text" placeholder="поиск" class="find_city" >
-        <div class="custom_select_items">
-            <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
-            {% for city in city_list %}
-                <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
-            {% endfor %}
+    <form class="event_map_filter_block">
+        <div>
+            <label>Свободный поиск</label>
+            <input type="text" name="name" placeholder="поиск" class="find_groups" >
         </div>
-    </div>
+        <div>
+            <label>Категория</label>
+            <select id="category" name="category">
+                <option value="" selected>Все</option>
+                {% for category in category_list %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Город</label>
+            <div id="location" class="custom_select">
+                <input type="text" placeholder="поиск" class="find_city">
+                <div class="custom_select_items">
+                    <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
+                    {% for city in city_list %}
+                        <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div>
+            <label>Дата начала</label>
+            <select id="date">
+                <option value="0">За все время</option>
+                <option value="1">Сегодня</option>
+                <option value="2">Завтра</option>
+                <option value="3">На этой неделе</option>
+                <option value="4">В этом месяце</option>
+                <option value="5">В следующем месяце</option>
+                <option value="6">Выбрать дату</option>
+            </select>
+        </div>
+        <button type='button' class="submit_event_map_filter">Найти</button>
+    </form>
+
 {% endblock %}

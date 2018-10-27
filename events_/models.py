@@ -126,7 +126,7 @@ class Event(models.Model):
 
     # Получение эвентов с учетом фильтрации, для главной ленты
     @staticmethod
-    def get_events(request, last_update=None):
+    def get_events(request, last_update=None, is_simple=False):
         q_objects = Q()
         q_objects_2 = Q()
 
@@ -172,7 +172,7 @@ class Event(models.Model):
                 last_update = datetime.datetime.strptime(last_update, '%Y-%m-%d %H:%M:%S') + \
                               datetime.timedelta(minutes=1)
                 q_objects.add(Q(last_update__gte=last_update), Q.AND)
-            events = Event.event_query(q_objects)
+            events = Event.event_query(q_objects, is_simple)
         except Event.DoesNotExist:
             return None
         return events
@@ -197,15 +197,19 @@ class Event(models.Model):
 
     # Основной запрос на получение ленты и связных данных
     @staticmethod
-    def event_query(q_objects):
-        return Event.objects.filter(q_objects). \
-            only('name', 'creator_id__first_name', 'description', 'last_update',
-                 'creator_id__last_name', 'created_by_group', 'created_by_group__name',
-                 'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
-                 'category__name', 'category__id', 'category__description', 'active'). \
-            select_related('event_avatar', 'creator_id', 'creator_id__profileavatar', 'created_by_group',
-                           'created_by_group__groupavatar'). \
-            order_by('-last_update')
+    def event_query(q_objects, is_simple=False):
+        if is_simple:
+            return Event.objects.filter(q_objects).only('name', 'geo_point__lng', 'geo_point__lat', 'geo_point__name',
+                                                        'id').select_related('event_avatar')
+        else:
+            return Event.objects.filter(q_objects). \
+                only('name', 'creator_id__first_name', 'description', 'last_update',
+                     'creator_id__last_name', 'created_by_group', 'created_by_group__name',
+                     'start_time', 'end_time', 'geo_point__lat', 'geo_point__lng', 'geo_point__name',
+                     'category__name', 'category__id', 'category__description', 'active'). \
+                select_related('event_avatar', 'creator_id', 'creator_id__profileavatar', 'created_by_group',
+                               'created_by_group__groupavatar'). \
+                order_by('-last_update')
 
     @staticmethod
     def paginator(request, events):
@@ -274,9 +278,7 @@ class Event(models.Model):
 class EventLikes(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, default=True)
     date = models.DateField(null=True, blank=True, default=datetime.date.today)
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=True, unique=True)
-
 
     def __str__(self):
         return "Лайк на событие: " + str(self.event) + " от " + str(self.user.first_name)
@@ -292,7 +294,6 @@ class EventViews(models.Model):
     date = models.DateField(null=True, blank=True, default=datetime.date.today)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=True, null=True)
     token = models.TextField(null=True, blank=True)  # Для незарегистрированных
-
 
     def __str__(self):
         return "Просмотр события: " + str(self.event) + " от " + str(self.user.first_name)

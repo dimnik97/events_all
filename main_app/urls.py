@@ -12,6 +12,7 @@ urlpatterns = [
      url(r'^signup_check/$', Users.signup_check, name='signup_check'),
      url(r'^subscribe_event/$', event_view.subsc_unsubsc, name='subscribe_event'),
      url(r'^get_infinite_events$', views.get_infinite_events, name='get_infinite_events'),
+     url(r'^get_events_map$', views.get_events_map, name='get_events_map'),
      # Ленты
      url(r'^get_group_events$', views.get_group_events, name='get_group_events'),  # Лента группы, через view
      url(r'^active_user_events$', views.active_user_events, name='active_user_events'),  # Лента активных евентов юзера

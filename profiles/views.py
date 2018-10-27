@@ -60,7 +60,7 @@ def detail(request, id):   # TODO переделать, 4 запроса, сер
         'is_online': is_online,
         'title': 'Профиль',
         'user': user,
-        'users': Profile.objects.all().select_related("user__profileavatar").only("user__first_name", 'user__last_name', 'user_id'),
+        # 'users': Profile.objects.all().select_related("user__profileavatar").only("user__first_name", 'user__last_name', 'user_id'),
         'followers': followers,
         'groups_count': groups_count,
         'subscribers': subscribers,

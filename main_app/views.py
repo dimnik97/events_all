@@ -30,20 +30,17 @@ def index(request):
 # Получение данных на карту событий
 def event_map(request):
     user = request.user
+    category_list = EventCategory.objects.all()
     # Не забыть про закрытые эвенты
 
     city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
     city = Users.get_user_locations(request, need_ip=True)
-    events = Event.objects.filter(location=city.city_id).only('name', 'geo_point__lng',
-                                                              'geo_point__lat', 'geo_point__name',
-                                                              'id').select_related('event_avatar')
 
     context = {
         'user': user,
-        'locate': city,
+        'category_list': category_list,
         'city_list': city_list,
         'user_city': city,
-        'events': list(events)
     }
 
     return render_to_response('event_map.html', context)
@@ -72,6 +69,24 @@ def get_infinite_events(request):
     events = Event.get_events(request)
     context = Event.paginator(request, events)
     return render(request, 'event_item.html', context)
+
+
+# Карта событий
+def get_events_map(request):
+    events = []
+    for event in Event.get_events(request, is_simple=True):
+        if event.geo_point:
+            events.append({
+                'name': event.name,
+                'lat': event.geo_point.lat,
+                'lng': event.geo_point.lng,
+                'if': event.id
+            })
+    context = {
+        'events': events,
+        'user_city': CityTable.objects.get(city_id=request.POST['location']).city
+    }
+    return HttpResponse(json.dumps(context))
 
 
 # Подгрузка новых событий
