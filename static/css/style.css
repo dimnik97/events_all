@@ -460,7 +460,7 @@ p {
 }
 
 .event_info{
-    width: 570px;
+    width: 540px;
 }
 
 .header_event_info{
@@ -561,7 +561,7 @@ p {
 
 .event_item_avatar_img{
     object-fit: cover;
-    width: 362px;
+    width: 360px;
     height: 390px;
 }
 
@@ -575,5 +575,89 @@ p {
 }
 .user_events_header li a{
     border: none!important;
-    padding: 10px 24px;
+    padding: 10px 22px;
+}
+
+.main_bidy_content{
+    display: flex;
+    width: 1170px;
+    margin-left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.main_scroll_block{
+    width: 900px;
+    margin-right: 20px;
+}
+
+.main_filter_block{
+    width: 250px
+}
+
+.main_search_input{
+    border-radius: 15px;
+    height: 19px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);; /* Параметры тени */
+    padding-left: 15px;
+}
+
+.margin-b-25{
+    margin-bottom: 25px;
+}
+
+.main_category_select{
+    background: white;
+    border: none;
+    width: 225px;
+    margin-left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.width225_center{
+    width: 225px;
+    margin-left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.main_filter_city_block_btn img{
+    float: right;
+}
+
+.toogler_arrow{
+    height: 43px;
+    padding-left: 15px;
+    padding-top: 15px;
+}
+
+.hide_area_filter{
+    background-color: #F8F8F8;
+}
+
+.find_city{
+    width: 170px;
+    border-radius: 15px;
+    height: 19px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);; /* Параметры тени */
+    padding-left: 15px;
+}
+
+.custom_select_city{
+    width: 170px;
+    margin-left: 50%;
+    transform: translate(-50%, 0);
+}
+
+
+.custom_select_city .custom_select_items{
+    width: 150px;
+    margin-left: 40%;
+    transform: translate(-50%, 0);
+    margin-top: 10px;
+}
+
+.custom_select_city .custom_select_items span{
+    margin-bottom: 10px;
+    color: #B5B5B5;
 }
