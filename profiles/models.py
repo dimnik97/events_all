@@ -1,5 +1,5 @@
 import datetime
-from profile import Profile
+# from profile import Profile
 
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models.signals import post_save
@@ -77,11 +77,11 @@ class Profile(models.Model):
         choices=CHOICES_M,
         default=1,
     )
-    subscribers = models.ManyToManyField('self', blank=True, symmetrical=False)
     through_profile = models.ManyToManyField(
-        Profile,
+        'self',
         through='ProfileSubscribers',
         through_fields=('from_profile', 'to_profile'),
+        symmetrical=False
     )
     CHOICES_ACTIVE = (('1', 'Активный'),
                       ('2', 'Удаленный'),
@@ -172,8 +172,8 @@ class Profile(models.Model):
 
 
 class ProfileSubscribers(models.Model):
-    from_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='from')
-    to_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='to')
+    from_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='from_p')
+    to_profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='to_p')
     date_subscribe = models.DateField(null=True, blank=True, default=datetime.date.today)
 
     class Meta:

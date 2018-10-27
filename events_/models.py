@@ -1,5 +1,6 @@
 import json
 
+import django
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import models
@@ -88,7 +89,7 @@ class Event(models.Model):
         choices=CHOICES_ACTIVE,
         default=1,
     )
-    last_update = models.DateTimeField(default=datetime.datetime.utcnow().replace(tzinfo=utc), blank=True)
+    last_update = models.DateTimeField(default=django.utils.timezone.now, blank=True)
 
     class Meta:
         verbose_name = 'События'
@@ -287,7 +288,7 @@ class Event(models.Model):
 class EventLikes(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, default=True)
     date = models.DateField(null=True, blank=True, default=datetime.date.today)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, default=True, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=True)
 
     def __str__(self):
         return "Лайк на событие: " + str(self.event) + " от " + str(self.user.first_name)
@@ -328,7 +329,7 @@ class EventMembership(models.Model):
     date_joined = models.DateField(null=True, blank=True, default=datetime.date.today)
     role = models.ForeignKey(AllRoles, related_name="event_role",
                              on_delete=models.CASCADE,
-                             default=AllRoles.objects.get(role='admin'))
+                             default=6)
 
     class Meta:
         verbose_name = 'Подписчики события'
