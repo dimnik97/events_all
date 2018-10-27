@@ -115,7 +115,6 @@ $(document).ready(function() {
      */
     $('.signup', '#signup').on('click', function(event) {
         if ( validateForm() ) { // если есть ошибки возвращает true
-            event.preventDefault();
             return
         }
         $('#signup').submit();

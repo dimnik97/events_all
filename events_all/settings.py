@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'm8gdupn16q&t*k3o597i9_c@jwlw4df(_^9ajy(lx!1)j*z@2x'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -113,6 +111,7 @@ TEMPLATES = [
                  '/profiles/templates',
                  '/groups/templates',
                  '/chats/templates',
+                 '/events_/templates',
                  ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -138,14 +137,14 @@ host = '127.0.0.1'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'NAME': 'test8',
-        # 'USER': 'postgreadmin',
-        # 'PASSWORD': '4321',
-        # 'HOST': 'localhost',
-        'NAME': 'local_2',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': host,
+        'NAME': 'test9',
+        'USER': 'postgreadmin',
+        'PASSWORD': '4321',
+        'HOST': 'localhost',
+        # 'NAME': 'local_2',
+        # 'USER': 'postgres',
+        # 'PASSWORD': '',
+        # 'HOST': host,
         'PORT': '5432',
     }
 }
@@ -176,15 +175,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
 LANGUAGE_CODE = 'ru-ru'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
@@ -210,8 +204,8 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 60
-LOGIN_REDIRECT_URL = "/main_app"
-ACCOUNT_LOGOUT_REDIRECT_URL = "/main_app"
+LOGIN_REDIRECT_URL = "/main_app/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/main_app/"
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
 ACCOUNT_SIGNUP_FORM_CLASS = 'profiles.forms.SignupForm'

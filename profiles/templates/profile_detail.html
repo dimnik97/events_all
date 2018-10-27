@@ -5,7 +5,7 @@
     <div class="row main_content_block">
         <div class="profile_info_block">
             <div class="avatar_image">
-                {% if account and account == user.id %}
+                {% if user and user.id == cur_user.id %}
                     <img class="change_avatar" data-url="/profile/change_avatar" src="/static/img/editing.svg">
                 {% endif %}
                 <img class="profile_main_avatar" src="{{ avatar.reduced_url }}">
@@ -13,64 +13,65 @@
 
             <div class="row">
                 <div class="col-3 profile_left">
-                    {% if account and account != user.id %}
+                    {% if user and user.id != cur_user.id %}
                         {# TODO Посмотреть, написать как-нибудь по другому #}
-                        <button class="add_to_friend" data-user_id="{{ user.id }}" data-action="{{ is_friend }}">
+                        <button class="add_to_friend" data-user_id="{{ cur_user.id }}" data-action="{{ friend_flag }}">
                             {% if friend_flag == 'add'%}
                                 Подписаться
                             {% else %}
                                 Отписаться
                             {% endif %}
                         </button>
-                        <a href="/chats/?peer={{ user.id }}">Отправить сообщение</a>
+                        <a href="/chats/?peer={{ cur_user.id }}">Отправить сообщение</a>
                     {% endif %}
 
                     <div class="block_info">
-                        {#TODO вывод онлайна#}
-                        <div class="name_block"><span class="name_text">{{ user.first_name }} {{ user.last_name }}</span> {{ is_online }}</div>
-                        <div class="city_settings_block"><span class="city_text">г. {{ user.profile.location_name }}</span>
+                        <div class="name_block"><span class="name_text">{{ cur_user.first_name }} {{ cur_user.last_name }}</span>
+                            {{ is_online }}  {# TODO Поменять на клиенте #}
+                        </div>
+                        <div class="city_settings_block"><span class="city_text">г. {{ cur_user.profile.location_name }}</span>
                             <a href="edit"><span class="settings_link">Редактировать профиль</span></a>
                         </div>
                         <div class="subscrbers_groups_events fs16">
                             <span class="groups_count ta-l">
-                                <a href="/groups/view?id={{ user.id }}">
+                                <a href="/groups/view?id={{ cur_user.id }}">
                                     <p class="header">Группы</p><p class="count">{{ groups_count }}</p>
                                 </a>
                             </span>
 
-                            <span data-url="/profile/get_subscribers?user={{ user.id }}"  {# TODO неверно #}
+                            <span data-url="/profile/get_subscribers?cur_user={{ cur_user.id }}"
                                   class="subscribe_count ta-l all_subscribers">
-                                <p class="header">Подписки</p><p class="count">{{ subscribers|length }}</p>
+                                <p class="header">Подписки</p><p class="count">{{ subscribers}}</p>
                             </span>
-                            <span data-url="/profile/get_followers?user={{ user.id }}"
-                                class="subscribe_count all_followers ta-l">
-                                <p class="header">Подписчики</p><p class="count">{{ followers|length }}</p>
+                            <span data-url="/profile/get_followers?cur_user={{ cur_user.id }}"
+                                  class="subscribe_count all_followers ta-l">
+                                <p class="header">Подписчики</p><p class="count">{{ followers }}</p>
                             </span>
                             <span class="events_count ta-l"><p class="header">Встреч</p><p class="count">10</p></span >{#TODO вывод количества встреч#}
                         </div>
 
-                        <div class="birthday_info right_info_user_block">
+                        <div class="birthday_info right_info_cur_user_block">
                             <p class="header">Дата рождения:</p>
-                            <p class="fs16">{{ user.profile.birth_date }}</p>
+                            <p class="fs16">{{ cur_user.profile.birth_date }}</p>
                         </div>
 
-                        <div class="contact_info right_info_user_block">
+                        <div class="contact_info right_info_cur_user_block">
                             <p class="header">Контактные данные:</p>
-                            <p class="fs16">{{ user.profile.phone }}</p>{#TODO вывод телефона#}
-                            <p class="fs16">{{ user.email }}</p>
+                            <p class="fs16">{{ cur_user.profile.phone }}</p>{#TODO вывод телефона#}
+                            <p class="fs16">{{ cur_user.email }}</p>
                         </div>
 
-                        <div class="about_info right_info_user_block">
+                        <div class="about_info right_info_cur_user_block">
                             <p class="header">О себе:</p>
-                            <p class="fs16">{{ user.profile.description }}</p>
+                            <p class="fs16">{{ cur_user.profile.description }}</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="user_events_block">
+        <div class="cur_user_events_block">
 
-            <div class="user_events_header">
+            <div class="cur_user_events_header">
                 <ul class="nav nav-tabs">
                     <li class="active"><a data-toggle="tab" href="#panel1">Активные</a></li>
                     <li class="activate_panel2_events"><a data-toggle="tab" href="#panel2">Мои</a></li>
@@ -83,7 +84,7 @@
                     </div>
                 </div>
                 <div id="panel2" class="tab-pane fade">
-                    <div class="content_paginator_user_events">
+                    <div class="content_paginator_cur_user_events">
                     </div>
                 </div>
                 <div id="panel3" class="tab-pane fade">
@@ -91,102 +92,17 @@
                     </div>
                 </div>
             </div>
-
-
-
-
-
-
-
-            <div class="d_none">
-
-
-
-                <br><br><br><br><br>
-                {#        {% if account and account == user.id %}#}
-                {#            <button class="change_avatar" data-url="/profile/change_avatar">Смена аватара</button>#}
-                {#            <button class="change_mini" data-url="/profile/change_mini">Смена миниатюры</button>#}
-                {#            <a href="edit" class="btn btn-default">Настройки</a> <br>#}
-                {#        {% endif %}#}
-                {#        <a href="/groups/create">Создать группу</a> <br>#}
-
-                <hr>
-                <div>
-                    <span>Список всех пользователей</span>
-                    <ul>
-                        {% for item in users %}
-                            <li>
-                                <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
-                                <button class="add_to_friend"  data-user_id="{{ item.id }}" data-action="add">Подписаться</button>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-                <div>
-                    <span><a href="/groups/view?id={{ user.id }}">Мои группы</a></span>
-                    <ul>
-                        {% for item in groups %}
-                            <li>
-                                <a href="/groups/{{ item.id }}">
-                                    <img src="{{ item.groupavatar.mini_url }}" class="avatar_round">
-                                </a>
-                                <a href="/groups/{{ item.id }}"> {{ item.name }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <hr>
-                <div>
-                <span data-url="/profile/get_subscribers?user={{ user.id }}"
-                      class="all_subscribers">Подписки {{ subscribers|length }}</span>
-                    <ul>
-                        {% for item in subscribers %}
-                            <div>
-                                <a href="/profile/{{ item.id }}">
-                                    <img src="{{ item.profileavatar.mini_url }}" class="avatar_round">
-                                </a>
-                                <a href="/profile/{{ item.id }}"> {{ item.first_name }}  {{ item.last_name }} </a>
-                                {% if account and account == user.id %}
-                                    <button class="add_to_friend" data-user_id="{{ item.id }}" data-action="remove">Отписаться</button>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div>
-                <span data-url="/profile/get_followers?user={{ user.id }}"
-                      class="all_followers">Подписчики {{ followers|length }}</span>
-                    <ul>
-                        {% for item in followers %}
-                            <div>
-                                <a href="/profile/{{ item.user.id }}">
-                                    <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
-                                </a>
-                                <a href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
-                                {% if account and account == user.user.id %}
-                                    <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="col-9">Тут будут выводится события</div>
-            </div>
         </div>
+
         <div id="dialog" class="d_none">
             <div class="content_paginator">
             </div>
         </div>
         <div id="dialog_img" class="d_none">
         </div>
-
-
-
-
     </div>
     <script>
-        var id ={{ user.id }}
+        var id ={{ cur_user.id }}
     </script>
     <script type="text/javascript" src="{% static 'js/profile_events.js' %}"></script>
 {% endblock %}

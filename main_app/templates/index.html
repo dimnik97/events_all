@@ -4,15 +4,10 @@
     <div class="main_bidy_content">
         <div class="main_scroll_block">
             <div class="load_events_container">
-                {#                <button class="load_events btn" style="border: 1px solid red;">НОВЫЕ СОБЫТИЯ (НЕ ПРОЕБИ)</button>#}
+                <button class="load_events btn" style="border: 1px solid red;">НОВЫЕ СОБЫТИЯ (НЕ ПРОЕБИ)</button>
             </div>
             <div class="content_paginator_events"></div>
         </div>
-
-
-
-
-
 
         <div class="main_filter_block">
             <button class="btn btn-grey"><a href="/events/create">Создать событие</a></button>
@@ -65,13 +60,11 @@
         </div>
     </div>
 
-
     <script>
-
         find_events();
 
         function find_events() {
-            var url = '/main_app/get_infinite_events';
+            let url = '/main_app/get_infinite_events';
             $.ajax({
                 url: url,
                 type: 'POST',
@@ -160,8 +153,8 @@
                 },
                 offset: '25%'
             });
+
             $('.toogler_arrow').on('click', function(){
-                debugger;
                 $('.popup_header_menu_down', $(this)).hide();
                 $('.popup_header_menu_up', $(this)).show();
 
@@ -172,10 +165,6 @@
                 $('.popup_header_menu_down', $(this)).show();
             });
         });
-
-
-
-
     </script>
 
 

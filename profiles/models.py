@@ -1,7 +1,4 @@
 import datetime
-# from profile import Profile
-
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
@@ -112,16 +109,6 @@ class Profile(models.Model):
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
 
-    # Подписка на пользователя
-    @classmethod
-    def make_friend(cls, request, new_friend):
-        request.user.profile.subscribers.add(new_friend.profile)
-
-    # Отписка от пользователя
-    @classmethod
-    def remove_friend(cls, request, new_friend):
-        request.user.profile.subscribers.remove(new_friend.profile)
-
     @staticmethod
     def edit(request):
         user = request.user
@@ -179,7 +166,22 @@ class ProfileSubscribers(models.Model):
     class Meta:
         verbose_name = 'Подписчики'
         verbose_name_plural = 'Подписчики'
-        # unique_together = ('from_profile', 'to_profile')
+
+    # Подписка на пользователя
+    @classmethod
+    def make_friend(cls, request, new_friend):
+        try:
+            ProfileSubscribers.objects.create(from_profile=request.user.profile, to_profile=new_friend.profile)
+        except ProfileSubscribers:
+            raise Http404
+
+    # Отписка от пользователя
+    @classmethod
+    def remove_friend(cls, request, new_friend):
+        try:
+            ProfileSubscribers.objects.get(from_profile=request.user.profile, to_profile=new_friend.profile).delete()
+        except ProfileSubscribers.DoesNotExist:
+            raise Http404
 
     @staticmethod
     def get_subscribers(request):
@@ -205,10 +207,10 @@ class ProfileSubscribers(models.Model):
                 from_profile=user.profile)
             flag = True
         else:
-            subscribers_object = user.profile.members
+            subscribers_object = ProfileSubscribers.objects.filter(from_profile=user.profile)
 
         subscribers = [
-            subscriber for subscriber in subscribers_object.all()
+            subscriber.to_profile for subscriber in subscribers_object.all()
         ]
 
         subscribers = helper.helper_paginator(request, subscribers)
@@ -219,6 +221,36 @@ class ProfileSubscribers(models.Model):
             'user_id': user_id,
             'action': action,
             'type': 'subscribers'
+        }
+
+    @staticmethod
+    def get_followers(request):
+        if 'user' in request.GET:
+            user_id = request.GET.get('user', 1)
+        else:
+            user_id = request.user.id
+        flag = False
+        user = User.objects.get(id=user_id)
+        if 'value' in request.POST and 'search' in request.POST:
+            from django.db.models import Q
+            followers_object = ProfileSubscribers.objects.filter(Q(user__first_name__istartswith=request.POST['value'])
+                                               | Q(user__last_name__istartswith=request.POST['value']),
+                                               to_profile=user.profile)
+            flag = True
+        else:
+            followers_object = ProfileSubscribers.objects.filter(to_profile=user.profile)
+
+        followers = [
+            follower.to_profile for follower in followers_object.all()
+        ]
+        followers = helper.helper_paginator(request, followers)
+
+        return {
+            'flag': flag,
+            'items': followers,
+            'user_id': user_id,
+            'action': False,
+            'type': 'followers'
         }
 
 

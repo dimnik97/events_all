@@ -1,7 +1,6 @@
 import json
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse, Http404
 from django.template.loader import render_to_string
 from django.views.generic import FormView
@@ -23,50 +22,32 @@ def my_profile(request):
 
 @login_required(login_url='/accounts/login/')
 def detail(request, id):   # TODO переделать, 4 запроса, серьезно?
-    account = request.user.id  # Залогиненный пользователь
-    user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
-
-    avatar, created = ProfileAvatar.objects.get_or_create(user=user)
-
-    subscribers_object = user.profile.subscribers
-    profile = user.profile
-
-    subscribers = [
-        User.objects.get(id=subscriber.user_id)
-        for subscriber in subscribers_object.all().select_related("user__profileavatar").only(
-            "user__first_name", 'user__last_name', 'user_id')[:5] if subscriber != profile
-    ]
-
-    groups_count = Group.objects.filter(membership__person=profile).count()
-
-    if Profile.objects.filter(user=account, subscribers=profile).exists():  # TODO переделать вместе с подписчиками
-        friend_flag = 'remove'
-    else:
-        friend_flag = 'add'
-
-    followers = Profile.objects.filter(subscribers=profile.id).select_related("user__profileavatar").only(
-        "user__first_name", 'user__last_name', 'user_id')[:5]
+    user = request.user  # Залогиненный пользователь
+    cur_user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
+    avatar, created = ProfileAvatar.objects.get_or_create(user=cur_user)  # Аватар
+    groups_count = Group.objects.filter(membership__person=cur_user.profile).count()  # Количество групп пользователя
+    subscribers = ProfileSubscribers.objects.filter(from_profile=cur_user.profile).count()  # Количество подписчиков
+    followers = ProfileSubscribers.objects.filter(to_profile=cur_user.profile).count()  # Количество подписок
+    friend_flag = 'remove' if ProfileSubscribers.objects.filter(from_profile=user.profile,  # Добавлен в друзья?
+                                                                to_profile=cur_user.profile).count() else 'add'
 
     from django.utils import timezone
-
-    if (timezone.now() - user.profile.last_activity).seconds > 1800:
-        is_online = 'Последний раз в сети ' + str(user.profile.last_activity)
-    elif (timezone.now() - user.profile.last_activity).seconds > 900:
+    if (timezone.now() - cur_user.profile.last_activity).seconds > 1800:
+        is_online = 'Последний раз в сети ' + str(cur_user.profile.last_activity)
+    elif (timezone.now() - cur_user.profile.last_activity).seconds > 900:
         is_online = 'Последний раз в сети менее 15 минут назад'
     else:
         is_online = 'online'
 
     context = {
-        'is_online': is_online,
-        'title': 'Профиль',
         'user': user,
-        # 'users': Profile.objects.all().select_related("user__profileavatar").only("user__first_name", 'user__last_name', 'user_id'),
+        'cur_user': cur_user,
+        'avatar': avatar,
+        'is_online': is_online,
         'followers': followers,
+        'friend_flag': friend_flag,
         'groups_count': groups_count,
         'subscribers': subscribers,
-        'account': account,
-        'friend_flag': friend_flag,
-        'avatar': avatar
     }
     return render_to_response('profile_detail.html', context)
 
@@ -82,9 +63,9 @@ def add_or_remove_friends(request):
                 new_friend = User.objects.get(id=user_id)
 
                 if action == "add":
-                    Profile.make_friend(request, new_friend)
+                    ProfileSubscribers.make_friend(request, new_friend)
                 else:
-                    Profile.remove_friend(request, new_friend)
+                    ProfileSubscribers.remove_friend(request, new_friend)
         except KeyError:
             return HttpResponse('Error')
         return HttpResponse(str(200))
@@ -148,32 +129,8 @@ def get_subscribers(request):
 
 
 def get_followers(request):
-    user_id = request.GET.get('user', 1)
-    flag = False
-
-    if 'value' in request.POST and 'search' in request.POST:
-        # TODO Тут ошибка, знаю, надо доделать, не работает паджинация
-        from django.db.models import Q
-        user = User.objects.get(id=user_id)
-        followers = Profile.objects.filter(Q(user__first_name__istartswith=request.POST['value'])
-                                           | Q(user__last_name__istartswith=request.POST['value']),
-                                           subscribers=user.profile)
-        flag = True
-    else:
-        followers = Profile.objects.filter(
-            subscribers=User.objects.get(id=user_id).profile.id)
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(followers, 20)
-    try:
-        followers = paginator.page(page)
-    except PageNotAnInteger:
-        followers = paginator.page(1)
-    except EmptyPage:
-        followers = paginator.page(paginator.num_pages)
-
-    context = {'items': followers, 'user_id': user_id, 'action': False, 'type': 'followers'}
-    if not flag:
+    context = ProfileSubscribers.get_followers(request)
+    if not context['flag']:
         return render(request, 'subscribers.html', context)
     else:
         return render(request, 'search_subscribers_items.html', context)
