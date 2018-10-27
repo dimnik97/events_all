@@ -286,7 +286,7 @@ class EventLikes(models.Model):
     class Meta:
         verbose_name = 'Лайки'
         verbose_name_plural = 'Лайки'
-        unique_together = (('event', 'user'),)  # Составной ключ - 1 пользователь - 1 лайк на событие
+        unique_together = ('event', 'user')  # Составной ключ - 1 пользователь - 1 лайк на событие
 
 
 class EventViews(models.Model):

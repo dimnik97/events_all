@@ -60,7 +60,6 @@ def view(request):
 
 # Получение списка всех групп с последующей фильтрацией
 def get_groups(request):
-    exclude_access_to_closed_groups = 2  # Не показывать закрытые группы у пользвователей
     is_my = False  # Если страница пользователя, то показывать административные поля
     user = request.user  # По умолчанию юзер из реквеста
     # Параметры приходящие постом
@@ -70,20 +69,11 @@ def get_groups(request):
         name = ''
 
     if 'all' in request.POST:
-        groups = Group.objects.filter(name__icontains=name).exclude(type=exclude_access_to_closed_groups)\
+        groups = Group.objects.filter(name__icontains=name)\
             .only('id', 'name', 'status', ).select_related('groupavatar')
     else:
-        if 'id' in request.GET:  # Если нет id, то ошибка
-            user = User.objects.get(id=request.GET['id'])
-            if user == request.user:
-                exclude_access_to_closed_groups = ''
-                is_my = True
-        else:
-            exclude_access_to_closed_groups = ''
-            is_my = True
-
-        groups = Group.objects.filter(membership__person=user.profile, name__icontains=name).exclude(
-            type=exclude_access_to_closed_groups).only('id', 'name', 'status', ).select_related('groupavatar')
+        groups = Group.objects.filter(membership__person=user.profile, name__icontains=name)\
+            .only('id', 'name', 'status', ).select_related('groupavatar')
     # Параметры приходящие постом
 
     page = request.GET.get('page', 1)

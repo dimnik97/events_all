@@ -10,7 +10,7 @@ from cities_.models import CityTable
 from groups.models import Group
 from images_custom.models import PhotoEditor
 from profiles.forms import ImageUploadForm
-from profiles.models import Profile, ProfileAvatar, Users
+from profiles.models import Profile, ProfileAvatar, Users, ProfileSubscribers
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 
 
@@ -140,7 +140,7 @@ class Edit(FormView):
 
 
 def get_subscribers(request):
-    context = Profile.get_subscribers(request)
+    context = ProfileSubscribers.get_subscribers(request)
     if not context['flag']:
         return render(request, 'subscribers.html', context)
     else:

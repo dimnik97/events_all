@@ -78,6 +78,11 @@ class Profile(models.Model):
         default=1,
     )
     subscribers = models.ManyToManyField('self', blank=True, symmetrical=False)
+    through_profile = models.ManyToManyField(
+        Profile,
+        through='ProfileSubscribers',
+        through_fields=('from_profile', 'to_profile'),
+    )
     CHOICES_ACTIVE = (('1', 'Активный'),
                       ('2', 'Удаленный'),
                       ('3', 'Заблокированный'),)
@@ -116,62 +121,6 @@ class Profile(models.Model):
     @classmethod
     def remove_friend(cls, request, new_friend):
         request.user.profile.subscribers.remove(new_friend.profile)
-
-    # TODO ПЕРЕДЕЛАТЬ
-    @staticmethod
-    def get_subscribers(request):
-        # TODO ПЕРЕДЕЛАТЬ
-        if 'user' in request.GET:
-            user_id = request.GET.get('user', 1)
-        else:
-            user_id = request.user.id
-
-        flag = False
-        action = ''  # Просмотр
-        if 'action' in request.GET:
-            action = request.GET.get('action')  # Тип - выбор подписчиков (с чекбоксами)
-        else:
-            if str(request.user.id) == user_id or request.user.id == user_id:
-                action = 'context_menu'  # Тип - контекстное меню
-
-        if 'group_id' in request.GET:
-            group_id = request.GET.get('group_id')  # Исключаем подписчиков из выборки
-        else:
-            pass
-
-        user = User.objects.get(id=user_id)
-        if 'value' in request.POST and 'search' in request.POST:
-            # TODO Тут ошибка, знаю, надо доделать, не работает паджинация
-            subscribers = []
-            subscribers_object = user.profile.subscribers
-            for subscriber in subscribers_object.all():
-                if request.POST['value'] in subscriber.user.first_name or request.POST['value'] in subscriber.user.last_name:
-                    subscribers.append(subscriber)
-                else:
-                    continue
-            flag = True
-        else:
-            subscribers_object = user.profile.subscribers
-            subscribers = [
-                subscriber for subscriber in subscribers_object.all()
-            ]
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(subscribers, 20)
-        try:
-            subscribers = paginator.page(page)
-        except PageNotAnInteger:
-            subscribers = paginator.page(1)
-        except EmptyPage:
-            subscribers = paginator.page(paginator.num_pages)
-
-        return {
-            'flag': flag,
-            'items': subscribers,
-            'user_id': user_id,
-            'action': action,
-            'type': 'subscribers'
-        }
 
     @staticmethod
     def edit(request):
@@ -222,6 +171,57 @@ class Profile(models.Model):
         return "/profile/%i" % self.user.id
 
 
+class ProfileSubscribers(models.Model):
+    from_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    to_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    date_subscribe = models.DateField(null=True, blank=True, default=datetime.date.today)
+
+    class Meta:
+        verbose_name = 'Подписчики'
+        verbose_name_plural = 'Подписчики'
+        unique_together = ('from_profile', 'to_profile')
+
+    @staticmethod
+    def get_subscribers(request):
+        if 'user' in request.GET:
+            user_id = request.GET.get('user', 1)
+        else:
+            user_id = request.user.id
+
+        flag = False
+        action = ''  # Просмотр
+        if 'action' in request.GET:
+            action = request.GET.get('action')  # Тип - выбор подписчиков (с чекбоксами)
+        else:
+            if str(request.user.id) == str(user_id):
+                action = 'context_menu'  # Тип - контекстное меню
+
+        user = User.objects.get(id=user_id)
+        if 'value' in request.POST and 'search' in request.POST:
+            from django.db.models import Q
+            subscribers_object = ProfileSubscribers.objects.filter(
+                Q(to_profile__user__last_name__icontains=request.POST['value'])
+                | Q(to_profile__user__first_name__icontains=request.POST['value']),
+                from_profile=user.profile)
+            flag = True
+        else:
+            subscribers_object = user.profile.members
+
+        subscribers = [
+            subscriber for subscriber in subscribers_object.all()
+        ]
+
+        subscribers = helper.helper_paginator(request, subscribers)
+
+        return {
+            'flag': flag,
+            'items': subscribers,
+            'user_id': user_id,
+            'action': action,
+            'type': 'subscribers'
+        }
+
+
 # Аватарки и миниатюры пользователей
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
@@ -229,7 +229,7 @@ class ProfileAvatar(models.Model):
     image = models.ImageField(
         upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
         # upload_to=helper.ImageHelper.upload_to,
-                              default='avatar/default/img.jpg')
+        default='avatar/default/img.jpg')
 
     class Meta:
         verbose_name = 'Аватары'
