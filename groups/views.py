@@ -38,8 +38,8 @@ def detail(request, id):
             'user': request.user
         }
     else:
-        return render_to_response('error_page.html', context)
-    return render_to_response('detail_group.html', context)
+        return render_to_response('groups/error.html', context)
+    return render_to_response('groups/detail.html', context)
 
 
 # Список всех групп
@@ -56,7 +56,7 @@ def view(request):
         'user': user,
         'is_my': is_my
     }
-    return render_to_response('view_group.html', context)
+    return render_to_response('groups/view.html', context)
 
 
 # Получение списка всех групп с последующей фильтрацией
@@ -92,7 +92,7 @@ def get_groups(request):
         'find': name,
         'groups': groups
     }
-    return render_to_response('groups_template.html', context)
+    return render_to_response('groups/groups_template.html', context)
 
 
 def get_invite(request):
@@ -104,7 +104,7 @@ def get_invite(request):
                 'date_joined').select_related('group')
             context = Group.paginator(request, members)
             context.update({'user': request.user})
-            return render_to_response('invite_template.html', context)
+            return render_to_response('groups/invite_template.html', context)
     else:
         return
 
@@ -129,10 +129,10 @@ def edit(request, id=None):
                     'type': group.type
                 })
             else:
-                return render_to_response('error_page.html', context)
+                return render_to_response('groups/error.html', context)
         else:
             context = {'is_not_admin': True}
-            return render_to_response('error_page.html', context)
+            return render_to_response('groups/error.html', context)
     try:
         roles = Membership.objects.get(person=request.user.profile, group=id).role
     except Membership.DoesNotExist:
@@ -173,7 +173,7 @@ def edit(request, id=None):
         'sends': sends,
         'group': group
     }
-    return render_to_response('edit_group.html', context)
+    return render_to_response('groups/edit.html', context)
 
 
 @login_required(login_url='/accounts/login/')
@@ -202,7 +202,7 @@ def create(request, id=None):
         "csrf_token": get_token(request),
     }
 
-    return render_to_response('create_group.html', context)
+    return render_to_response('groups/create.html', context)
 
 
 def subscribe_group(request):
@@ -374,7 +374,7 @@ def change_avatar(request):
         'url': request.META['PATH_INFO'],
         'save_url': '/groups/save_image'
     }
-    return render(request, 'change_avatar.html', context)
+    return render(request, 'profiles/change_avatar.html', context)
 
 
 def change_mini(request):
@@ -393,7 +393,7 @@ def change_mini(request):
         'url': request.META['PATH_INFO'],
         'save_url': '/groups/save_image'
     }
-    return render(request, 'change_mini.html', context)
+    return render(request, 'profiles/change_mini.html', context)
 
 
 def save_image(request):

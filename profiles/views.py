@@ -52,7 +52,7 @@ def detail(request, id):   # TODO переделать, 4 запроса, сер
         'groups_count': groups_count,
         'subscribers': subscribers,
     }
-    return render_to_response('profile_detail.html', context)
+    return render_to_response('profiles/detail.html', context)
 
 
 # Добавление или удаление подписки
@@ -81,7 +81,7 @@ def edit_view(request):
     context, is_validate = Profile.edit(request)
     if is_validate is True:
         return HttpResponse(json.dumps(context))
-    return render(request, 'profile_edit.html', context)
+    return render(request, 'profiles/edit.html', context)
 
 
 class Edit(FormView):
@@ -95,7 +95,7 @@ class Edit(FormView):
             'url': request.META['PATH_INFO'],
             'save_url': '/profile/save_image'
         }
-        return render(request, 'change_avatar.html', context)
+        return render(request, 'profiles/change_avatar.html', context)
 
     @staticmethod
     def change_mini(request):
@@ -114,7 +114,7 @@ class Edit(FormView):
             'url': request.META['PATH_INFO'],
             'save_url': '/profile/save_image'
         }
-        return render(request, 'change_mini.html', context)
+        return render(request, 'profiles/change_mini.html', context)
 
     @staticmethod
     def save_image(request):
@@ -126,17 +126,17 @@ class Edit(FormView):
 def get_subscribers(request):
     context = ProfileSubscribers.get_subscribers(request)
     if not context['flag']:
-        return render(request, 'subscribers.html', context)
+        return render(request, 'profiles/subscribers.html', context)
     else:
-        return render(request, 'search_subscribers_items.html', context)
+        return render(request, 'profiles/search_subscribers_items.html', context)
 
 
 def get_followers(request):
     context = ProfileSubscribers.get_followers(request)
     if not context['flag']:
-        return render(request, 'subscribers.html', context)
+        return render(request, 'profiles/subscribers.html', context)
     else:
-        return render(request, 'search_subscribers_items.html', context)
+        return render(request, 'profiles/search_subscribers_items.html', context)
 
 
 def custom_fields_for_signup(request):
@@ -146,4 +146,4 @@ def custom_fields_for_signup(request):
         'city_list': city_list,
         'user_city': user_city
     }
-    return HttpResponse(render_to_string('custom_fields_for_signup.html', context=context))
+    return HttpResponse(render_to_string('profiles/custom_fields_for_signup.html', context=context))

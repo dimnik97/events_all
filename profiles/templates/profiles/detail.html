@@ -29,7 +29,7 @@
                         <div class="name_block"><span class="name_text">{{ cur_user.first_name }} {{ cur_user.last_name }}</span>
                             <span class="online_time"></span>
                             <script>
-                                SetTimeOnline("{{ is_online|print_timestamp }}", ".name_block");
+                                SetTimeOnline("{{ is_online }}", ".name_block");
                             </script>
                         </div>
                         <div class="city_settings_block"><span class="city_text">г. {{ cur_user.profile.location_name }}</span>

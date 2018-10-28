@@ -43,7 +43,7 @@ class CreateEventNews(forms.Form):
                 news.save()
 
                 result = {
-                    'text': render_to_string('event_news.html', {'news': EventNews.objects.filter(id=news.id),
+                    'text': render_to_string('events_/news.html', {'news': EventNews.objects.filter(id=news.id),
                                                                  'can_change_news': can_change_news}),
                     'status': 201,
                 }

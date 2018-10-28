@@ -31,13 +31,13 @@ def index(request, id):
             context = {
                 'error': 'Событие удалено'
             }
-            return render_to_response('event_detail.html', context)
+            return render_to_response('events_/detail.html', context)
 
         if int(event_detail.active) == 4:
             context = {
                 'error': 'Событие заблокировано'
             }
-            return render_to_response('event_detail.html', context)
+            return render_to_response('events_/detail.html', context)
 
     categories = event_detail.category.all()
 
@@ -63,7 +63,7 @@ def index(request, id):
         context = {
             'error': 'Зыкрытое событие, нет доступа'
         }
-        return render_to_response('event_detail.html', context)
+        return render_to_response('events_/detail.html', context)
 
     subscribers = EventMembership.objects.filter(event=event_detail)[:5]
 
@@ -89,7 +89,7 @@ def index(request, id):
         'is_creator': is_creator,
         'is_editor': is_editor,
         "csrf_token": get_token(request),
-        "news": render_to_string('event_news.html', {'news': news, 'can_change_news': can_change_news}),
+        "news": render_to_string('events_/news.html', {'news': news, 'can_change_news': can_change_news}),
         'categories': categories,
         'error': False,
         'active': event_detail.active
@@ -98,7 +98,7 @@ def index(request, id):
     if 'is_card_on_event_map' in request.GET:
         return HttpResponse(json.dumps(render_to_string('events_/card.html', context)))
     else:
-        return render_to_response('event_detail.html', context)
+        return render_to_response('events_/detail.html', context)
 
 
 def subsc_unsubsc(request):
@@ -132,7 +132,7 @@ def change_avatar(request):
         'url': request.META['PATH_INFO'],
         'save_url': '/profile/save_image'
     }
-    return render(request, 'change_avatar.html', context)
+    return render(request, 'profiles/change_avatar.html', context)
 
 
 @login_required(login_url='/accounts/login/')
@@ -152,7 +152,7 @@ def change_mini(request):
         'url': request.META['PATH_INFO'],
         'save_url': '/profile/save_image'
     }
-    return render(request, 'change_mini.html', context)
+    return render(request, 'profiles/change_mini.html', context)
 
 
 @login_required(login_url='/accounts/login/')
@@ -202,7 +202,7 @@ def edit(request, id, group_id=None):
             'id': event.id
         }
 
-        return render_to_response('edit.html', context)
+        return render_to_response('events_/edit.html', context)
     raise Http404
 
 
@@ -235,7 +235,7 @@ def create(request):
         'user_city': user_city,
         'categories': categories
     }
-    return render_to_response('create.html', context)
+    return render_to_response('events_/create.html', context)
 
 
 @login_required(login_url='/accounts/login/')
@@ -303,9 +303,9 @@ def get_images_by_categories(request):   # TODO Вынести в класс р�
 def get_subscribers(request):
     context = EventMembership.get_subscribers(request)
     if not context['flag']:
-        return render(request, 'subscribers.html', context)
+        return render(request, 'profiles/subscribers.html', context)
     else:
-        return render(request, 'search_subscribers_items.html', context)
+        return render(request, 'profiles/search_subscribers_items.html', context)
 
 
 # Восстановить или удалить событие

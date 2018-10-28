@@ -24,7 +24,7 @@ def index(request):
         'user_city': Users.get_user_locations(request, need_ip=True),
     }
 
-    return render_to_response('index.html', context)
+    return render_to_response('main_app/index.html', context)
 
 
 # Получение данных на карту событий
@@ -43,7 +43,7 @@ def event_map(request):
         'user_city': city,
     }
 
-    return render_to_response('event_map.html', context)
+    return render_to_response('main_app/map.html', context)
 
 
 # Получение данных на карту событий при смене города
@@ -68,7 +68,7 @@ def get_event_map(request):
 def get_infinite_events(request):
     events = Event.get_events(request)
     context = Event.paginator(request, events)
-    return render(request, 'event_item.html', context)
+    return render(request, 'main_app/event_item.html', context)
 
 
 # Карта событий
@@ -94,7 +94,7 @@ def get_new_events(request):
     if 'last_update' in request.POST and request.POST['last_update'] != '':
         events = Event.get_events(request, request.POST['last_update'])
         context = Event.paginator(request, events)
-        return render(request, 'event_item.html', context)
+        return render(request, 'main_app/event_item.html', context)
 
 
 def get_new_events_count(request):
@@ -113,7 +113,7 @@ def active_user_events(request):
     events = Event.get_ended_or_active_user_events(request, user, 'active')
     context = Event.paginator(request, events)
     context.update({'get_page_url': 'active', 'id': id})
-    return render(request, 'event_item.html', context)
+    return render(request, 'main_app/event_item.html', context)
 
 
 def ended_user_events(request):
@@ -123,7 +123,7 @@ def ended_user_events(request):
     events = Event.get_ended_or_active_user_events(request, user, 'ended')
     context = Event.paginator(request, events)
     context.update({'get_page_url': 'ended', 'id': id})
-    return render(request, 'event_item.html', context)
+    return render(request, 'main_app/event_item.html', context)
 
 
 def user_events(request):
@@ -132,7 +132,7 @@ def user_events(request):
     events = Event.get_user_events(request, id)
     context = Event.paginator(request, events)
     context.update({'get_page_url': 'user_events', 'id': id})
-    return render(request, 'event_item.html', context)
+    return render(request, 'main_app/event_item.html', context)
 
 
 def get_group_events(request):
@@ -147,4 +147,4 @@ def get_group_events(request):
     events = Event.get_group_events(request, group)
     context = Event.paginator(request, events)
     context.update({'get_page_url': 'groups', 'id': id})
-    return render(request, 'event_item.html', context)
+    return render(request, 'main_app/event_item.html', context)
