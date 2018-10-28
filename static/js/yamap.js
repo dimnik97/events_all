@@ -32,11 +32,11 @@ function get_form_with_custom_modules($form) {
     return indexed_array;
 }
 
-
 function init() {
     myMap = new ymaps.Map('map', {
         center: [55.753994, 37.622093],
-        zoom: 10
+        zoom: 10,
+        controls: []
     });
     myCollection = new ymaps.GeoObjectCollection();
 
@@ -83,7 +83,7 @@ function init() {
                             firstGeoObject.getLocalities().length ? firstGeoObject.getLocalities() : firstGeoObject.getAdministrativeAreas(),
                             firstGeoObject.getThoroughfare() || firstGeoObject.getPremise()
                         ].filter(Boolean).join(', '),
-                        balloonContent: $('#id_name').val()
+                        // balloonContent: $('#id_name').val()
                     });
             });
         }
@@ -93,8 +93,6 @@ function init() {
         create_and_add_place_mark(coords, false);
     }
 
-
-
     function create_and_add_place_mark(coords, draggable) {
         myPlacemark = createPlacemark(coords);
         myPlacemark.geometry.setCoordinates(coords);
@@ -103,8 +101,8 @@ function init() {
             var firstGeoObject = res.geoObjects.get(0);
             myPlacemark.properties
                 .set({
-                    iconCaption: $('.event_item').data('name'),
-                    balloonContent: $('.event_item').data('name'),
+                    // iconCaption: $('.event_item').data('name'),
+                    // balloonContent: $('.event_item').data('name'),
                 });
             myPlacemark.options.set({draggable: draggable})
         });
@@ -133,6 +131,19 @@ function add_bounds(bounds) {
         coords = [bounds.lat, bounds.lng]
     }
     myPlacemark = createPlacemark_event_map(coords, bounds);
+
+    myPlacemark.events.add('click', function () {
+        $.ajax({
+            url: '/events/' + myPlacemark.properties._data.myid + '?is_card_on_event_map=True',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    $('.event_card').html(data)
+                }
+            }
+        });
+    });
     myCollection.add(myPlacemark);
     myPlacemark.geometry.setCoordinates(coords);
 }
@@ -150,8 +161,7 @@ function createPlacemark(coords) {
 
 function createPlacemark_event_map(coords, bounds) {
     return new ymaps.Placemark(coords, {
-        iconCaption: bounds.name,
-        balloonContent: '<bounds>' + bounds.name + '</span>',
+        myid: bounds.id,
     }, {
         preset: 'islands#violetDotIconWithCaption',
         draggable: false,
@@ -192,3 +202,5 @@ function ajax_get_events() {
         }
     });
 }
+
+

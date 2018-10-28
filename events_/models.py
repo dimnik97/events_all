@@ -190,7 +190,7 @@ class Event(models.Model):
     # События группы
     @staticmethod
     def get_friends_events(request):
-
+        Event.objects.filter(creator_id=123)
         q_objects = Q()
         q_objects.add(Q(active__in=['1', '2', '4']), Q.AND)  # Не включать в выборку удаленные события
         events = Event.event_query(q_objects)

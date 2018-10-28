@@ -80,7 +80,7 @@ def get_events_map(request):
                 'name': event.name,
                 'lat': event.geo_point.lat,
                 'lng': event.geo_point.lng,
-                'if': event.id
+                'id': event.id
             })
     context = {
         'events': events,

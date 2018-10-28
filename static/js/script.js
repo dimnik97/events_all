@@ -1,88 +1,8 @@
-function SetTimeToUser(DateStr, div_id){
-    var d = new Date(),
-        timezone = d.getTimezoneOffset(),
-        date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1')),
-        x = new Date(+date - timezone * 6e4);
-    $('.event_time','#'+div_id).text(x);
-// document.write(date_with_timezone)
-}
-function SetTimeChats(DateStr, div_id){
+function SetTimeChats(DateStr, div_id) {
     $('.date_create', div_id).text(time_(DateStr));
-// document.write(date_with_timezone)
 }
-function SetTimeDialogs(DateStr, div_id){
+function SetTimeDialogs(DateStr, div_id) {
     $('.date_create_dailogs', div_id).text(time_(DateStr));
-// document.write(date_with_timezone)
-}
-
-/**
- * Дата серверная - в часовой пояс клиента
- *
- */
-function time_(DateStr) {
-    var x =  new Date((+DateStr.replace(',', '.')) * 1000),
-        arr=[
-            'Января',
-            'Февраля',
-            'Марта',
-            'Апреля',
-            'Мая',
-            'Июня',
-            'Июля',
-            'Августа',
-            'Сентября',
-            'Октября',
-            'Ноября',
-            'Декабря',
-        ];
-
-    var curr_date = x.getDate(),
-        curr_month = arr[x.getMonth() ],
-        curr_year = x.getFullYear(),
-        curr_hours = x.getHours(),
-        curr_minutes = x.getMinutes();
-    return curr_date + " " + curr_month + " " + curr_year + " " + curr_hours + ":" + curr_minutes;
-}
-
-
-function SetTimeToUser_js_str(DateStr){
-    var d = new Date();
-    var timezone = d.getTimezoneOffset();
-    var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
-    var date_with_timezone = new Date(+date - timezone * 6e4);
-
-
-    var strdate = date_with_timezone.getFullYear()+'-'+
-        GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
-        GetCorrectNumber(date_with_timezone.getDate()) +' '+
-        GetCorrectNumber(date_with_timezone.getHours()) +':' +
-        GetCorrectNumber(date_with_timezone.getMinutes());
-    strdate = strdate.substring(0, strdate.length-1) + "0";
-
-    return strdate;
-// document.write(date_with_timezone)
-}
-
-function SetTimeToServer(DateStr){
-
-    var d = new Date();
-    var timezone = d.getTimezoneOffset();
-    var date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
-    var date_with_timezone = new Date(+date + timezone * 6e4);
-    var minutes;
-    if(date_with_timezone.getMinutes() < 10){
-        minutes = '0'+ date_with_timezone.getMinutes();
-    }else{
-        minutes = date_with_timezone.getMinutes();
-    }
-
-
-    var str_date = date_with_timezone.getFullYear()+'-'+
-        GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
-        GetCorrectNumber(date_with_timezone.getDate()) +' '+
-        GetCorrectNumber(date_with_timezone.getHours()) +':' +
-        GetCorrectNumber(date_with_timezone.getMinutes());
-    return str_date;
 }
 
 // метод для корректного преобразования даты в строку
@@ -90,9 +10,9 @@ function SetTimeToServer(DateStr){
 // is_month - флаг месяца, js по умолчанию возвращает месяц от 0 до 11
 // is_min - флаг минут, округление до 00/10/20/30/40/50 минут в меньшую сторону
 function GetCorrectNumber(Number, is_month=0, is_min = 0){
-    var correct_date;
+    let correct_date;
 
-    if(is_month == 1){
+    if(is_month === 1){
         Number += 1;
     }
 
@@ -101,7 +21,6 @@ function GetCorrectNumber(Number, is_month=0, is_min = 0){
     }else{
         correct_date = Number;
     }
-
 
     return correct_date;
 }
@@ -422,6 +341,9 @@ $(document).ready(function() {
             resizable: false,
             modal: true,
             autoOpen: false,
+            close: function() {
+                $('.content_paginator', '#dialog').empty();
+            },
             position: {
                 my: 'center',
                 at: 'center',
@@ -1061,29 +983,7 @@ $(document).ready(function() {
             return;
         $(this).addClass('selected');
         $('[name="select_city"]', '.custom_select').val($(this).html());
-
-        // try {
-        //     set_center_by_city_name($(this).html());
-        //
-        //     if ($('#location').hasClass('event_map')) {
-        //         $.ajax({
-        //             url: '/main_app/get_event_map',
-        //             type: 'POST',
-        //             dataType: 'json',
-        //             data: {
-        //                 'city_name': $(this).html(),
-        //                 'city_id': $(this).data('city_id')
-        //             },
-        //             success: function (data) {
-        //                 data.forEach(function(item, i, arr) {
-        //                     add_bounds(item);
-        //                 });
-        //             }
-        //         });
-        //     }
-        // } catch (err) {
-        // }
-    })
+    });
 
     /**
      * Ajax для формы EventForm (Создание)

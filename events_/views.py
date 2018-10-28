@@ -2,7 +2,6 @@ import json
 import os
 from os import path as op
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
@@ -22,22 +21,23 @@ def index(request, id):
 
     event_id = id
     event_detail = get_object_or_404(Event, id=event_id)  # Получение эвента
-    try:
-        user = User.objects.get(id=request.user.id)  # Получение юзера
-    except User.DoesNotExist:
+    if request.user.is_authenticated:
+        user = request.user  # Получение юзера
+    else:
         user = False
 
-    if user != event_detail.creator_id and int(event_detail.active) == 3:
-        context = {
-            'error': 'Событие удалено'
-        }
-        return render_to_response('event_detail.html', context)
+    if user != event_detail.creator_id:
+        if int(event_detail.active) == 3:
+            context = {
+                'error': 'Событие удалено'
+            }
+            return render_to_response('event_detail.html', context)
 
-    if user != event_detail.creator_id and int(event_detail.active) == 4:
-        context = {
-            'error': 'Событие заблокировано'
-        }
-        return render_to_response('event_detail.html', context)
+        if int(event_detail.active) == 4:
+            context = {
+                'error': 'Событие заблокировано'
+            }
+            return render_to_response('event_detail.html', context)
 
     categories = event_detail.category.all()
 
@@ -94,7 +94,11 @@ def index(request, id):
         'error': False,
         'active': event_detail.active
     }
-    return render_to_response('event_detail.html', context)
+
+    if 'is_card_on_event_map' in request.GET:
+        return HttpResponse(json.dumps(render_to_string('events_/card.html', context)))
+    else:
+        return render_to_response('event_detail.html', context)
 
 
 def subsc_unsubsc(request):

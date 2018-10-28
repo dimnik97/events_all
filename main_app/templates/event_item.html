@@ -2,7 +2,6 @@
 {% load tz %}
 <div class="infinite-container">
     {% for event in events %}
-
         <div class="event_item_block event_item infinite-item" data-event_id="{{event.id}}"
              data-last_update="{{ event.last_update|date:"Y-m-d H:i:s" }}">
             <div class="event_info">
@@ -79,7 +78,6 @@
                 <img src="{{ event.event_avatar.reduced_url }}" class="event_item_avatar_img">
             </div>
         </div>
-
     {% empty %}
         {% if get_page_url != 'groups' %}
             <p>Событий по заданному фильтру не найдено, но вы можете создать свое событие</p>

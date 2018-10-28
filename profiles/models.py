@@ -204,10 +204,12 @@ class ProfileSubscribers(models.Model):
             subscribers_object = ProfileSubscribers.objects.filter(
                 Q(to_profile__user__last_name__icontains=request.POST['value'])
                 | Q(to_profile__user__first_name__icontains=request.POST['value']),
-                from_profile=user.profile)
+                from_profile=user.profile).select_related('from_profile__user__profileavatar'
+                                                          , 'to_profile__user__profileavatar')
             flag = True
         else:
-            subscribers_object = ProfileSubscribers.objects.filter(from_profile=user.profile)
+            subscribers_object = ProfileSubscribers.objects.filter(from_profile=user.profile) \
+                .select_related('from_profile__user__profileavatar', 'to_profile__user__profileavatar')
 
         subscribers = [
             subscriber.to_profile for subscriber in subscribers_object.all()
@@ -234,11 +236,14 @@ class ProfileSubscribers(models.Model):
         if 'value' in request.POST and 'search' in request.POST:
             from django.db.models import Q
             followers_object = ProfileSubscribers.objects.filter(Q(user__first_name__istartswith=request.POST['value'])
-                                               | Q(user__last_name__istartswith=request.POST['value']),
-                                               to_profile=user.profile)
+                                                                 |Q(user__last_name__istartswith=request.POST['value']),
+                                                                 to_profile=user.profile) \
+                .select_related('from_profile__user__profileavatar',
+                                'to_profile__user__profileavatar')
             flag = True
         else:
-            followers_object = ProfileSubscribers.objects.filter(to_profile=user.profile)
+            followers_object = ProfileSubscribers.objects.filter(to_profile=user.profile) \
+                .select_related('from_profile__user__profileavatar', 'to_profile__user__profileavatar')
 
         followers = [
             follower.to_profile for follower in followers_object.all()

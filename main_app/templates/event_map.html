@@ -2,8 +2,26 @@
 {% load staticfiles %}
 
 {% block content %}
+    <style>
+        .navbar {
+            margin-bottom: 0;
+        }
+        .event_map_filter_block {
+            position: absolute;
+            top: 70px;
+            left: 100px;
+        }
+        .event_card {
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background-color: white;
+            width: 300px;
+            height: 90vh;
+        }
+    </style>
 
-    <div id="map" class="full_size_map" style="width: 600px; height: 400px"></div>
+    <div id="map" class="full_size_map" style="width: -1px; height: 90vh"></div>
     <script>
         var is_create = false,
             is_edit = false,
@@ -25,7 +43,7 @@
 
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 
-    <form class="event_map_filter_block">
+    <form class="event_map_filter_block" >
         <div>
             <label>Свободный поиск</label>
             <input type="text" name="name" placeholder="поиск" class="find_groups" >
@@ -65,5 +83,8 @@
         </div>
         <button type='button' class="submit_event_map_filter">Найти</button>
     </form>
+
+    <div class="event_card">
+    </div>
 
 {% endblock %}

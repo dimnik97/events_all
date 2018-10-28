@@ -1,0 +1,98 @@
+{% if error == False %}
+    <div class="event_item" data-event_id="{{ event.id }}" id="event_{{ event.id }}" data-name="{{ event.name }}">
+        <h1>Событие: {{ event.name }}</h1>
+
+        Время:
+        <div class="event_time">
+        </div>
+        Дата:
+        <div class="event_date">
+        </div>
+        <script>
+            transform_event_date_start_end("{{ event.start_time|date:"c" }}", "{{ event.end_time|date:"c" }}", "{{event.id}}");
+        </script>
+        <br>
+        <br>
+
+        <p><img src="{{ event.event_avatar.image.url }}" width="200px" height="200px"></p>
+        {% if event.created_by_group %}
+            <p>Создано от группы: {{ event.created_by_group.name }}</p>
+        {% endif %}
+
+        Категории:
+        {% for item in categories %}
+            {{ item.name }}
+        {%  endfor %}
+        <br>
+
+        Описание: {{  event.description }} <br>
+        Город: {{  event.location_name }} <br>
+
+        Местоположение: {{  event.GEO }} <br>
+        <br>
+
+        {% if is_editor == True and user != False or is_creator == True and user != False %}
+            <button data-action="editevent"><a href="/events/edit/{{ event.id }}">Настройки</a></button>
+        {% else %}
+            {% if party_flag == True %}
+                <button class="subscribe_event" data-action="unsubscribe">Отписаться</button>
+            {% else %}
+                <button class="subscribe_event" data-action="subscribe">Пойти</button>
+            {% endif %}
+        {% endif %}
+
+        <br>
+        Создатель:
+        {% if event.created_by_group %}
+            <div>
+                <a href="/groups/{{ event.created_by_group_id }}">
+                    <img src="{{ event.created_by_group.groupavatar.mini_url }}" class="avatar_round">
+                </a>
+                <a class="username" href="/groups/{{ event.created_by_group_id }}">{{ event.created_by_group.name }}</a>
+            </div>
+        {% else %}
+            <div>
+                <a href="/profile/{{ item.person.id }}">
+                    <img src="{{ event.creator_id.profileavatar.mini_url }}" class="avatar_round">
+                </a>
+                <br>
+                <a href="/profile/{{ item.person.id }}"> {{ event.creator_id.first_name }} {{ event.creator_id.last_name }} </a>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <div>
+        <span data-url="/events/get_subscribers?event={{ event.id }}" class="see_all_event_subscribers">Подписчики события</span>
+        {% for item in subscribers %}
+            <div>
+                <a href="/profile/{{ item.person.id }}">
+                    <img src="{{ item.person.user.profileavatar.mini_url }}" class="avatar_round">
+                </a>
+                <br>
+                <a href="/profile/{{ item.person.id }}"> {{ item.person.user.first_name }}  {{ item.person.user.last_name }} </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="hidden templates_to_news">
+        <a class="user" href="/profile/{{ user.id }}"> {{ user.first_name }}  {{ user.first_name }} </a>
+        <a class="group" href="/profile/{{ user.id }}"> {{ user.first_name }}  {{ user.first_name }} </a>
+        <p class="time">Дата создания: </p>
+    </div>
+
+
+    <ul class="event_news">
+        <h2>Новости события</h2>
+        {{ news }}
+    </ul>
+
+    <div id="dialog" class="d_none">
+        <div class="content_paginator">
+        </div>
+    </div>
+
+    <div id="dialog_confirm" data-event_id="{{ event.id }}"></div>
+{% else %}
+    <br><span>{{ error }}</span>
+{% endif %}

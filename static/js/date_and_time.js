@@ -50,3 +50,37 @@ function addZero(i) {
     }
     return i;
 }
+
+function SetTimeOnline(DateStr, div_id) {
+    let $last_online_time = $('.online_time', div_id);
+    if (DateStr === 'online')
+        $last_online_time.html(DateStr);
+    else if (DateStr === 'Последний раз в сети менее 15 минут назад')
+        $last_online_time.html(DateStr);
+    $last_online_time.html('Последний раз в сети ' +  time_(DateStr));
+}
+
+function time_(DateStr) {
+    let x =  new Date((+DateStr.replace(',', '.')) * 1000),
+        arr=[
+            'Января',
+            'Февраля',
+            'Марта',
+            'Апреля',
+            'Мая',
+            'Июня',
+            'Июля',
+            'Августа',
+            'Сентября',
+            'Октября',
+            'Ноября',
+            'Декабря',
+        ];
+
+    let curr_date = x.getDate(),
+        curr_month = arr[x.getMonth() ],
+        curr_year = x.getFullYear(),
+        curr_hours = x.getHours(),
+        curr_minutes = x.getMinutes();
+    return curr_date + " " + curr_month + " " + curr_year + " " + curr_hours + ":" + curr_minutes;
+}
