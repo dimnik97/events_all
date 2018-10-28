@@ -18,12 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.views.generic import RedirectView
 
+import main_app.views
 from . import settings
 
 
 urlpatterns = [
+    path('', main_app.views.index, name='index'),
+    url(r'^map/$', main_app.views.event_map, name='map'),
+    url(r'^friends/$', main_app.views.friends, name='map'),
     path('admin/', admin.site.urls),
     path('main_app/', include('main_app.urls')),
     path('accounts/', include('allauth.urls')),

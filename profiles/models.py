@@ -149,7 +149,8 @@ class Profile(models.Model):
             'form': form,
             'form_private': form_private,
             "csrf_token": get_token(request),
-            'avatar': ProfileAvatar.objects.get(user=request.user.id)
+            'avatar': ProfileAvatar.objects.get(user=request.user.id),
+            'user': user
         }
         return context, False
 

@@ -1,3 +1,82 @@
+function SetTimeToUser(DateStr, div_id){
+    let d = new Date(),
+        timezone = d.getTimezoneOffset(),
+        date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1')),
+        x = new Date(+date - timezone * 6e4);
+    $('.event_time','#'+div_id).text(x);
+}
+/**
+ * Дата серверная - в часовой пояс клиента
+ *
+ */
+function time_(DateStr) {
+    let x =  new Date((+DateStr.replace(',', '.')) * 1000),
+
+        arr=[
+            'Января',
+            'Февраля',
+            'Марта',
+            'Апреля',
+            'Мая',
+            'Июня',
+            'Июля',
+            'Августа',
+            'Сентября',
+            'Октября',
+            'Ноября',
+            'Декабря',
+        ];
+
+    let curr_date = x.getDate(),
+        curr_month = arr[x.getMonth() ],
+        curr_year = x.getFullYear(),
+        curr_hours = x.getHours(),
+
+        curr_minutes = x.getMinutes();
+    return curr_date + " " + curr_month + " " + curr_year + " " + curr_hours + ":" + curr_minutes;
+}
+
+
+function SetTimeToUser_js_str(DateStr){
+    let d = new Date();
+    let timezone = d.getTimezoneOffset();
+    let date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
+    let date_with_timezone = new Date(+date - timezone * 6e4);
+
+
+    let strdate = date_with_timezone.getFullYear()+'-'+
+        GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
+        GetCorrectNumber(date_with_timezone.getDate()) +' '+
+        GetCorrectNumber(date_with_timezone.getHours()) +':' +
+        GetCorrectNumber(date_with_timezone.getMinutes());
+    strdate = strdate.substring(0, strdate.length-1) + "0";
+
+    return strdate;
+// document.write(date_with_timezone)
+}
+
+function SetTimeToServer(DateStr){
+
+    let d = new Date();
+    let timezone = d.getTimezoneOffset();
+    let date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
+    let date_with_timezone = new Date(+date + timezone * 6e4);
+    let minutes;
+    if (date_with_timezone.getMinutes() < 10) {
+        minutes = '0'+ date_with_timezone.getMinutes();
+    } else {
+        minutes = date_with_timezone.getMinutes();
+    }
+
+    let str_date = date_with_timezone.getFullYear()+'-'+
+        GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
+        GetCorrectNumber(date_with_timezone.getDate()) +' '+
+        GetCorrectNumber(date_with_timezone.getHours()) +':' +
+        GetCorrectNumber(date_with_timezone.getMinutes());
+    return str_date;
+}
+
+
 function SetTimeChats(DateStr, div_id) {
     $('.date_create', div_id).text(time_(DateStr));
 }
@@ -1437,30 +1516,6 @@ $(document).ready(function() {
             $('.date_filter').remove();
         }
     });
-
-    // get_subscribers_to_autocomplete();  TODO Посмотреть что с этим
-    function get_subscribers_to_autocomplete() {
-        let $add_users_autocomplete = $('.add_users_autocomplete'), url='';
-
-        if ($add_users_autocomplete.data('is_group') === true) {
-            url = '&group_id=' +  $add_users_autocomplete.data('id');
-        } else if ($add_users_autocomplete.data('is_event') === true) {
-            url = '&event=' +  $add_users_autocomplete.data('id');
-        }
-
-        $.ajax({
-            url: '/profile/get_subscribers?action=checkbox' + url,
-            type: 'GET',
-            success: function (data) {
-                $('.subscribers', $add_users_autocomplete).html(data);
-                $('.added_users').empty();
-                $(':checkbox', $add_users_autocomplete).off('click').on('click', function () {
-                    add_to_chat($(this));
-                });
-            }
-        });
-    }
-
 
     $('body').on('click', '[data-like="like"]', function () {
         let $this = $(this),

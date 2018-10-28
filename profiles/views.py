@@ -22,7 +22,7 @@ def my_profile(request):
 
 
 @login_required(login_url='/accounts/login/')
-def detail(request, id):   # TODO переделать, 4 запроса, серьезно?
+def detail(request, id):
     user = request.user  # Залогиненный пользователь
     cur_user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
     avatar, created = ProfileAvatar.objects.get_or_create(user=cur_user)  # Аватар

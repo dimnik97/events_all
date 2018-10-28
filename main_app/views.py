@@ -27,6 +27,23 @@ def index(request):
     return render_to_response('main_app/index.html', context)
 
 
+# TODO Переделать
+def friends(request):
+    user = request.user
+    category_list = EventCategory.objects.all()
+
+    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
+
+    context = {
+        'user': user,
+        'category_list': category_list,
+        'city_list': city_list,
+        'user_city': Users.get_user_locations(request, need_ip=True),
+    }
+
+    return render_to_response('main_app/index.html', context)
+
+
 # Получение данных на карту событий
 def event_map(request):
     user = request.user

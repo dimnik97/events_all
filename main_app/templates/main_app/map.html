@@ -1,0 +1,90 @@
+{% extends "main_template.html" %}
+{% load staticfiles %}
+
+{% block content %}
+    <style>
+        .navbar {
+            margin-bottom: 0;
+        }
+        .event_map_filter_block {
+            position: absolute;
+            top: 70px;
+            left: 100px;
+        }
+        .event_card {
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background-color: white;
+            width: 300px;
+            height: 90vh;
+        }
+    </style>
+
+    <div id="map" class="full_size_map" style="width: -1px; height: 90vh"></div>
+    <script>
+        var is_create = false,
+            is_edit = false,
+            is_view = false,
+            event_map = true;
+
+        var first_bounds = [];
+        {% for event in events %}
+            {% if event.geo_point %}
+                first_bounds[{{ forloop.counter0 }}] = {
+                    'name': '{{ event.name }}',
+                    'lat': '{{ event.geo_point.lat }}',
+                    'lng': '{{ event.geo_point.lng }}',
+                    'image': '{{ event.event_avatar.mini_url }}'
+                };
+            {% endif %}
+        {% endfor %}
+    </script>
+
+    <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
+
+    <form class="event_map_filter_block" >
+        <div>
+            <label>Свободный поиск</label>
+            <input type="text" name="name" placeholder="поиск" class="find_groups" >
+        </div>
+        <div>
+            <label>Категория</label>
+            <select id="category" name="category">
+                <option value="" selected>Все</option>
+                {% for category in category_list %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Город</label>
+            <div id="location" class="custom_select">
+                <input type="text" placeholder="поиск" class="find_city">
+                <div class="custom_select_items">
+                    <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
+                    {% for city in city_list %}
+                        <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div>
+            <label>Дата начала</label>
+            <select id="date">
+                <option value="0">За все время</option>
+                <option value="1">Сегодня</option>
+                <option value="2">Завтра</option>
+                <option value="3">На этой неделе</option>
+                <option value="4">В этом месяце</option>
+                <option value="5">В следующем месяце</option>
+                <option value="6">Выбрать дату</option>
+            </select>
+        </div>
+        <button type='button' class="submit_event_map_filter">Найти</button>
+    </form>
+
+    <div class="event_card">
+    </div>
+
+{% endblock %}
