@@ -36,7 +36,7 @@ def detail(request, id):   # TODO переделать, 4 запроса, сер
 
     from django.utils import timezone
     if (timezone.now() - cur_user.profile.last_activity).seconds > 1800:
-        is_online = cur_user.profile.last_activity
+        is_online = cur_user.profile.last_activity.timestamp()
     elif (timezone.now() - cur_user.profile.last_activity).seconds > 900:
         is_online = 'Последний раз в сети менее 15 минут назад'
     else:

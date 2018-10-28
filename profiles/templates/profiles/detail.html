@@ -1,6 +1,5 @@
 {% extends "main_template.html" %}
 {% load staticfiles %}
-{% load chats_filters %}
 
 {% block content %}
     <div class="row main_content_block">
@@ -44,7 +43,8 @@
 
                             <span data-url="/profile/get_subscribers?cur_user={{ cur_user.id }}"
                                   class="subscribe_count ta-l all_subscribers">
-                                <p class="header">Подписки</p><p class="count">{{ subscribers}}</p>
+                                <p class="header">Подписки</p>
+                                <p class="count">{{ subscribers}}</p>
                             </span>
                             <span data-url="/profile/get_followers?cur_user={{ cur_user.id }}"
                                   class="subscribe_count all_followers ta-l">

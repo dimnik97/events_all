@@ -31,9 +31,9 @@ def likes(event_id):
 
 @register.filter
 def like(event_id, user):
-    try:
+    try:  # если неавторизован
         if EventLikes.objects.filter(event_id=event_id, user=user).exists():
-            return 'src=/static/img/star.svg data-like=unlike'   # Лайк стоит убрать Хардкод # TODO
-        return 'src=/static/img/star_empty.svg data-like=like'   # Лайк стоит, убрать Хардкод # TODO
+            return 'src=/static/img/star.svg data-like=unlike'   # Лайк стоит        убрать Хардкод # TODO
+        return 'src=/static/img/star_empty.svg data-like=like'   # Лайк стоит        убрать Хардкод # TODO
     except:
-        return 'src=/static/img/star_empty.svg data-like=like'   # Лайк не стоит убрать Хардкод # TODO
+        return 'src=/static/img/star_empty.svg data-like=like'   # Лайк не стоит     убрать Хардкод # TODO

@@ -57,7 +57,10 @@ function SetTimeOnline(DateStr, div_id) {
         $last_online_time.html(DateStr);
     else if (DateStr === 'Последний раз в сети менее 15 минут назад')
         $last_online_time.html(DateStr);
-    $last_online_time.html('Последний раз в сети ' +  time_(DateStr));
+    else {
+        $last_online_time.html('Последний раз в сети ' +  time_(DateStr));
+    }
+
 }
 
 function time_(DateStr) {

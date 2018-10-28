@@ -1,12 +1,9 @@
 from django import template
-import datetime
 
 from events_all import helper
 from events_all.helper import convert_base
-from groups.models import Membership
 
 register = template.Library()
-
 
 # Если сообщение исходящее - меняем имя отправителя на имя пользователя
 # TODO Как будет нечего делать - заменить эти 3 метода на один большой
