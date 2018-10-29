@@ -1314,7 +1314,7 @@ $(document).ready(function() {
     $('.see_all_event_subscribers').on('click', function () {
         $( "#dialog" ).dialog({
             title: 'Подписчики события',
-            height: '700',
+            height: '400',
             width: '500',
             draggable: false,
             resizable: false,
@@ -1331,6 +1331,12 @@ $(document).ready(function() {
                     }
                 }
             },
+            open: function () {
+                $('.black_bg').show();
+            },
+            close: function(){
+                $('.black_bg').hide();
+            }
         }).dialog('open');
 
         let url = $(this).data('url');

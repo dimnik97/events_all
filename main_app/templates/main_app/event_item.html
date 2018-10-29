@@ -51,15 +51,17 @@
                         </span>
                     {% endif %}
 
-                    <div class="subscribe_info_block">
+
+                </div>
+                <div class="subscribe_info_block">
                         <span class="button_block">
                             {% if event.id|is_subscribe:request.user %}
-                                <button class="subscribe_event_btn subscribe_event" data-action="unsubscribe">Отписаться</button>
+                                <button class="purple_custom_btn subscribe_event" data-action="unsubscribe">Отписаться</button>
                             {% else %}
-                                <button class="subscribe_event_btn subscribe_event" data-action="subscribe">Присоединиться</button>
+                                <button class="purple_custom_btn subscribe_event" data-action="subscribe">Присоединиться</button>
                             {% endif %}
                         </span>
-                        <span class="stat_block">
+                    <span class="stat_block">
                             <span class="event_stat_item">
                                 <img {{ event.id|like:request.user }} class="event_stat_icon" alt="">
                                 <span class="like_count">{{ event.id|likes }}</span>
@@ -71,7 +73,6 @@
                                 <img src="/static/img/eye.svg" class="event_stat_icon" alt="">  {{ event.id|view }}
                             </span>
                         </span>
-                    </div>
                 </div>
             </div>
             <div class="event_avatar">
