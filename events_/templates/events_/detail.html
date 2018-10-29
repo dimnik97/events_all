@@ -6,7 +6,11 @@
     {% if error == False %}
         <script type="text/javascript" src="https://vk.com/js/api/share.js?95" charset="windows-1251"></script>
         <div class="event_item" data-event_id="{{ event.id }}" id="event_{{ event.id }}" data-name="{{ event.name }}">
-            <h1>Событие: {{ event.name }}</h1>
+            <h1>Событие: {{ event.name }}
+                {% if event.active == '2' %}
+                    (Закрытое)
+                {% endif %}
+            </h1>
 
             Время:
             <div class="event_time">

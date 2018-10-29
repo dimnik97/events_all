@@ -171,7 +171,8 @@ def edit(request, id=None):
         'right_side': right_side,
         'invited': invited,
         'sends': sends,
-        'group': group
+        'group': group,
+        'user': request.user
     }
     return render_to_response('groups/edit.html', context)
 
@@ -200,6 +201,7 @@ def create(request, id=None):
         'roles': roles,
         'form': form,
         "csrf_token": get_token(request),
+        'user': request.user
     }
 
     return render_to_response('groups/create.html', context)

@@ -24,23 +24,24 @@
                     </select>
                 </div>
                 <div>
-                    <div class="main_filter_city_block_btn width225_center toogler_arrow" data-toggle="collapse" data-target="#hide-me">
-                        <span>Город</span>
-                        <img src="../static/img/chevrondown.svg" class="popup_header_menu_down" alt="">
-                        <img src="../static/img/chevronup.svg" class="popup_header_menu_up d_none" alt="">
-                    </div>
-                    <div id="hide-me" class="collapse in hide_area_filter">
-                        <div id="location" class="custom_select custom_select_city">
-                            <input type="text" placeholder="поиск" class="find_city">
-                            <div class="custom_select_items">
-                                <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
-                                {% for city in city_list %}
-                                    <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
-                                {% endfor %}
+                    {% if filter_city %}
+                        <div class="main_filter_city_block_btn width225_center toogler_arrow" data-toggle="collapse" data-target="#hide-me">
+                            <span>Город</span>
+                            <img src="../static/img/chevrondown.svg" class="popup_header_menu_down" alt="">
+                            <img src="../static/img/chevronup.svg" class="popup_header_menu_up d_none" alt="">
+                        </div>
+                        <div id="hide-me" class="collapse in hide_area_filter">
+                            <div id="location" class="custom_select custom_select_city">
+                                <input type="text" placeholder="поиск" class="find_city">
+                                <div class="custom_select_items">
+                                    <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
+                                    {% for city in city_list %}
+                                        <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
-                    </div>
-
+                    {% endif %}
                 </div>
                 <div>
                     <label>Дата начала</label>
@@ -64,7 +65,7 @@
         find_events();
 
         function find_events() {
-            let url = '/main_app/get_infinite_events';
+            let url = '/main_app/{{ url }}';
             $.ajax({
                 url: url,
                 type: 'POST',

@@ -17,8 +17,6 @@ from .models import Event, Event_avatar, EventNews, EventMembership, EventCatego
 
 
 def index(request, id):
-    Event.get_friends_events(request)
-
     event_id = id
     event_detail = get_object_or_404(Event, id=event_id)  # Получение эвента
     if request.user.is_authenticated:
@@ -233,7 +231,8 @@ def create(request):
         "csrf_token": get_token(request),
         'city_list': CityTable.all_city_exclude_user_city(user_city),
         'user_city': user_city,
-        'categories': categories
+        'categories': categories,
+        'user': request.user
     }
     return render_to_response('events_/create.html', context)
 
@@ -385,7 +384,7 @@ def like(request):
 # Удаляем лайк (удаление из закладки)
 def unlike(request):
     try:
-        EventLikes.objects.filter(event_id=request.POST['event_id'], user=request.user).delete()  # TODO заменить на гет
+        EventLikes.objects.get(event_id=request.POST['event_id'], user=request.user).delete()
         return HttpResponse(200)
     except:
         return HttpResponse(400)
