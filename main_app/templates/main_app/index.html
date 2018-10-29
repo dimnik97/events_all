@@ -16,7 +16,7 @@
                     <input type="text" name="name" placeholder="поиск" class="find_groups main_search_input width225_center" >
                 </div>
                 <div class="margin-b-25">
-                    <select id="category" name="category" class="main_category_select width225_center">
+                    <select id="category" name="category" class="main_custom_select width225_center">
                         <option value="" selected>Категория</option>
                         {% for category in category_list %}
                             <option value="{{ category.id }}">{{ category.name }}</option>
@@ -42,11 +42,28 @@
                             </div>
                         </div>
                     {% endif %}
+                <div class="margin-b-25">
+                    <div class="main_filter_city_block_btn width225_center toogler_arrow" data-toggle="collapse" data-target="#hide-me">
+                        <span>Город</span>
+                        <img src="../static/img/chevrondown.svg" class="open_accord_item d_none accord_item_img" alt="">
+                        <img src="../static/img/chevronup.svg" class="close_accord_item  accord_item_img" alt="">
+                    </div>
+                    <div id="hide-me" class="collapse in hide_area_filter">
+                        <div id="location" class="custom_select custom_select_city">
+                            <input type="text" placeholder="поиск" class="find_city">
+                            <div class="custom_select_items">
+                                <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
+                                {% for city in city_list %}
+                                    <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+>>>>>>> eaad03d5af2aa86144f6144d97565b3d4102c8cc
                 </div>
-                <div>
-                    <label>Дата начала</label>
-                    <select id="date">
-                        <option value="0">За все время</option>
+                <div class="margin-b-25">
+                    <select id="date" class="main_custom_select width225_center">
+                        <option value="0">Дата: За все время</option>
                         <option value="1">Сегодня</option>
                         <option value="2">Завтра</option>
                         <option value="3">На этой неделе</option>
@@ -57,7 +74,7 @@
                 </div>
             </form>
 
-            <button class="submit_event_filter">Найти</button>
+            <button class="submit_event_filter grey_custom_btn">Найти</button>
         </div>
     </div>
 
@@ -156,15 +173,17 @@
             });
 
             $('.toogler_arrow').on('click', function(){
-                $('.popup_header_menu_down', $(this)).hide();
-                $('.popup_header_menu_up', $(this)).show();
+                if($(this).hasClass('collapsed')){
+                    $('.open_accord_item', $(this)).hide();
+                    $('.close_accord_item', $(this)).show();
+                }else{
+                    $('.open_accord_item', $(this)).show();
+                    $('.close_accord_item', $(this)).hide();
+                }
+
 
             });
 
-            $('.toogler_arrow').on('click', function(){
-                $('.popup_header_menu_up', $(this)).hide();
-                $('.popup_header_menu_down', $(this)).show();
-            });
         });
     </script>
 

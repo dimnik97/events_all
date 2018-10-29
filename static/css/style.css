@@ -340,7 +340,7 @@ li.dialog_row {
 }
 
 .custom_select .selected {
-    color: red;
+    color: red!important;
 }
 
 .is-invalid {
@@ -468,6 +468,7 @@ p {
     margin-top: 30px;
     border-left: #7971EA 3px solid;
     height: 50px;
+    padding-top: 13px;
 }
 
 .header_event_info .event_time{
@@ -545,13 +546,15 @@ p {
     margin-bottom: 36px;
 }
 
-.subscribe_event_btn{
+
+.purple_custom_btn{
     width: 146px;
     height: 30px;
     background-color: #7971EA;
     border-radius: 15px;
     color: white;
 }
+
 
 .event_item_block{
     border: 1px solid #EEEEEE;
@@ -606,7 +609,7 @@ p {
     margin-bottom: 25px;
 }
 
-.main_category_select{
+.main_custom_select{
     background: white;
     border: none;
     width: 225px;
@@ -632,6 +635,7 @@ p {
 
 .hide_area_filter{
     background-color: #F8F8F8;
+    padding-top: 20px;
 }
 
 .find_city{
@@ -660,4 +664,118 @@ p {
 .custom_select_city .custom_select_items span{
     margin-bottom: 10px;
     color: #B5B5B5;
+}
+
+.accord_item_img{
+    width: 15px;
+}
+
+.grey_custom_btn{
+    height: 24px;
+    width: 100px;
+    border-radius: 15px;
+    margin-left: 50%;
+    transform: translate(-50%, 0);
+    border: none;
+    background-color: #EEEEEE;
+}
+
+.event_detail_avatar{
+    margin-right: 20px;
+}
+
+.event_detail_avatar img{
+    width: 280px;
+}
+
+.d-flex{
+    display: flex;
+}
+
+.event_info_detail{
+    width: 567px;
+}
+
+.event_name_detail{
+    margin-top: 30px;
+}
+
+.event_description_detail{
+    overflow-y: unset;
+    height: unset;
+}
+
+.event_item_block_detail{
+    border: unset;
+    margin-top: unset;
+}
+
+.detail_map_event{
+    height: 250px;
+    margin-top: 10px;
+}
+
+.event_location_detail{
+    margin-bottom: 10px;
+}
+
+.creator_avatar_detail img{
+    width: 50px;
+}
+
+.subscribers_detail_block{
+    margin-top: 30px;
+}
+
+.text_a_r{
+    text-align: right;
+}
+
+.subscriber_item_detail img{
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+    margin-left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.subscribers_detail_block{
+    margin-left: 45px;
+}
+
+.f-s-15{
+    font-size: 15px;
+}
+
+.subscribers_block_line{
+    margin-top: 20px;
+}
+
+.subscriber_item_detail{
+    width: 95px;
+    text-align: center;
+    margin-right: 50px;
+}
+
+.news_block{
+    margin-top: 50px;
+}
+
+.ui-dialog{
+    z-index: 2000;
+    border: unset!important;
+}
+
+.ui-corner-all{
+    border-radius: unset!important;
+    border: unset!important;
+}
+
+.black_bg{
+    background-color: rgba(57, 62, 70, 0.7);
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 1000;
+    display: none;
 }
