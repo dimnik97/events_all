@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import models
 from PIL import Image
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.functional import curry
 from django.db.models import Q
@@ -133,7 +133,7 @@ class Event(models.Model):
         q_objects_2 = Q()
         q_objects = Event.filter_event(request, q_objects)
 
-        if request.user.is_authenticated: # инача будет ошибка
+        if request.user.is_authenticated:  # инача будет ошибка
             members = Membership.objects.filter(person=request.user.profile, group__type=2,
                                                 role__role__in=['admin', 'subscribers', 'editor'])
             groups_name = list()
@@ -360,7 +360,7 @@ class EventMembership(models.Model):
     def unsubscribe(cls, event, user):
         cls.objects.get(event=event, person=user.profile).delete()
 
-    # Список подписанных на событие
+    # Список подписанных на событие  TODO закрытые события
     @staticmethod
     def get_subscribers(request):
         if 'event' in request.GET:
@@ -372,28 +372,18 @@ class EventMembership(models.Model):
             event = Event.objects.get(id=event_id)
             if 'value' in request.POST and 'search' in request.POST:
                 from django.db.models import Q
-                subscribers = EventMembership.objects.filter(Q(person__user__last_name__icontains=request.POST['value']) | Q(
-                    person__user__first_name__icontains=request.POST['value']), event=event)
-
-                subscribers_object = subscribers
-                subscribers = [
-                    subscriber.person for subscriber in subscribers_object.all()
-                ]
+                subscribers_object = EventMembership.objects.filter(Q(person__user__last_name__icontains=request.POST['value']) | Q(
+                    person__user__first_name__icontains=request.POST['value']), event=event,
+                    role__role__in=['admin', 'editor', 'subscribers'])
                 flag = True
             else:
-                subscribers_object = event.members
-                subscribers = [
-                    subscriber for subscriber in subscribers_object.all()
-                ]
+                subscribers_object = EventMembership.objects.filter(
+                    event=event, role__role__in=['admin', 'editor', 'subscribers'])
+            subscribers = [
+                subscriber.person for subscriber in subscribers_object.all()
+            ]
 
-            page = request.GET.get('page', 1)
-            paginator = Paginator(subscribers, 20)
-            try:
-                subscribers = paginator.page(page)
-            except PageNotAnInteger:
-                subscribers = paginator.page(1)
-            except EmptyPage:
-                subscribers = paginator.page(paginator.num_pages)
+            subscribers = helper.helper_paginator(request=request, p_object=subscribers, count=20)
 
             return {
                 'flag': flag,
@@ -403,6 +393,39 @@ class EventMembership(models.Model):
                 'type': 'subscribers',
                 'is_profile': False
             }
+
+    @staticmethod
+    def user_manager(request):
+        if 'event' in request.GET:
+            event_id = request.GET.get('event', 1)
+            if 'type' in request.GET:
+                type = request.GET['type']
+                flag = False
+
+                event = Event.objects.get(id=event_id)
+                if 'value' in request.POST and 'search' in request.POST:
+                    from django.db.models import Q
+                    subscribers_object = EventMembership.objects.filter(
+                        Q(person__user__last_name__icontains=request.POST['value']) | Q(
+                            person__user__first_name__icontains=request.POST['value']), event=event, role__role=type)
+                    flag = True
+                else:
+                    subscribers_object = EventMembership.objects.filter(
+                        event=event, role__role=type)
+                subscribers = [
+                    subscriber.person for subscriber in subscribers_object.all()
+                ]
+
+                subscribers = helper.helper_paginator(request=request, p_object=subscribers, count=20)
+
+                return {
+                    'flag': flag,
+                    'items': subscribers,
+                    'user_id': event_id,
+                    'type': 'subscribers',
+                    'is_profile': False
+                }
+        raise Http404
 
 
 class EventNews(models.Model):

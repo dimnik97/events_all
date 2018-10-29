@@ -8,6 +8,8 @@ urlpatterns = [
     url(r'^change_avatar', views.change_avatar, name='change_avatar'),
     url(r'^change_mini', views.change_mini, name='change_mini'),
     url(r'^get_subscribers$', views.get_subscribers, name='get_subscribers'),
+
+    url(r'^user_manager$', views.user_manager, name='user_manager'),
     url(r'^change_default_image$', views.change_default_image, name='change_default_image'),
     url(r'^get_images_by_categories$', views.get_images_by_categories, name='get_images_by_categories'),
     url(r'^delete_event$', views.delete_event, name='delete_event'),  # Удаление события

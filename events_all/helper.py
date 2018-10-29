@@ -101,9 +101,9 @@ def dictfetchall(cursor):
     ]
 
 
-def helper_paginator(request, p_object):
+def helper_paginator(request, p_object, count=20):
     page = request.GET.get('page', 1)
-    paginator = Paginator(p_object, 20)
+    paginator = Paginator(p_object, count)
     try:
         p_object = paginator.page(page)
     except PageNotAnInteger:

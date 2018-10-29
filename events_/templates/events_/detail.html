@@ -19,12 +19,29 @@
                             transform_event_date_start_end("{{ event.start_time|date:"c" }}", "{{ event.end_time|date:"c" }}", "{{event.id}}");
                         </script>
                     </div>
-                    <div class="event_name event_name_detail">
+                    <div class="event_name event_name_detail">   {# TODO Это h1 должен же быть, для SEO #}
                         {{ event.name }}
                         {% if event.active == '2' %}
                             (Закрытое)
                         {% endif %}
+
                     </div>
+                    {% if is_editor == True and user != False or is_creator == True and user != False %}
+                        <span style="font-size: 30px;">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ...</span>  {# На эти три точки поп ап, как на дизайне групп #}
+                            {# А это в поп ап #}
+                            <div>
+                                <span data-url="/events/user_manager?event={{ event.id }}&type=send"
+                                      class="event_send" >Приглашенные</span>
+                            </div>
+                            <div>
+                                <span data-url="/events/user_manager?event={{ event.id }}&type=invite"
+                                      class="event_invite">Запрос на подписку</span>
+                            </div>
+                            <div>
+                                <span class=""><a href="/events/edit/{{ event.id }}">Настройки</a></span>
+                            </div>
+                            {# А это в поп ап #}
+                    {% endif %}
                     <div class="event_description event_description_detail">{{ event.description }}</div>
 
 

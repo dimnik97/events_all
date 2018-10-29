@@ -23,12 +23,12 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div>
-                    {% if filter_city %}
+                {% if filter_city %}
+                    <div class="margin-b-25">
                         <div class="main_filter_city_block_btn width225_center toogler_arrow" data-toggle="collapse" data-target="#hide-me">
                             <span>Город</span>
-                            <img src="../static/img/chevrondown.svg" class="popup_header_menu_down" alt="">
-                            <img src="../static/img/chevronup.svg" class="popup_header_menu_up d_none" alt="">
+                            <img src="../static/img/chevrondown.svg" class="open_accord_item d_none accord_item_img" alt="">
+                            <img src="../static/img/chevronup.svg" class="close_accord_item  accord_item_img" alt="">
                         </div>
                         <div id="hide-me" class="collapse in hide_area_filter">
                             <div id="location" class="custom_select custom_select_city">
@@ -41,26 +41,8 @@
                                 </div>
                             </div>
                         </div>
-                    {% endif %}
-                <div class="margin-b-25">
-                    <div class="main_filter_city_block_btn width225_center toogler_arrow" data-toggle="collapse" data-target="#hide-me">
-                        <span>Город</span>
-                        <img src="../static/img/chevrondown.svg" class="open_accord_item d_none accord_item_img" alt="">
-                        <img src="../static/img/chevronup.svg" class="close_accord_item  accord_item_img" alt="">
                     </div>
-                    <div id="hide-me" class="collapse in hide_area_filter">
-                        <div id="location" class="custom_select custom_select_city">
-                            <input type="text" placeholder="поиск" class="find_city">
-                            <div class="custom_select_items">
-                                <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
-                                {% for city in city_list %}
-                                    <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
->>>>>>> eaad03d5af2aa86144f6144d97565b3d4102c8cc
-                </div>
+                {% endif %}
                 <div class="margin-b-25">
                     <select id="date" class="main_custom_select width225_center">
                         <option value="0">Дата: За все время</option>

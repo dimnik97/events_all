@@ -63,7 +63,8 @@ def index(request, id):
         }
         return render_to_response('events_/detail.html', context)
 
-    subscribers = EventMembership.objects.filter(event=event_detail)[:5]
+    subscribers = EventMembership.objects.filter(event=event_detail,
+                                                 role__role__in=['admin', 'editor', 'subscribers'])[:5]
 
     news = EventNews.objects.filter(news_event=event_detail).order_by('-create_time')
     form = CreateEventNews()
@@ -305,6 +306,14 @@ def get_subscribers(request):
         return render(request, 'profiles/subscribers.html', context)
     else:
         return render(request, 'profiles/search_subscribers_items.html', context)
+
+
+def user_manager(request):
+    context = EventMembership.user_manager(request)
+    if not context['flag']:
+        return render(request, 'events_/user_manager.html', context)
+    else:
+        return render(request, 'events_/search_user_manager_items.html', context)
 
 
 # Восстановить или удалить событие
