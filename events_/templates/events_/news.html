@@ -1,25 +1,30 @@
 {% for item in news %}
-    <li data-id="{{ item.id }}">
-
-        {% if item.news_group %}
-            <a href="{{ item.news_group.get_absolute_url }}"> {{ item.news_group.name }}</a>
-        {% else %}
-            <a href="/profile/{{ item.news_creator.id }}"> {{ item.news_creator.first_name }}  {{ item.news_creator.last_name }} </a>
-        {% endif %}
-
-        <div class="text">{{ item.text|capfirst|linebreaksbr }} </div>
-{#        {%  if item.news_image %}#}
-{#            <img src="{{ item.news_image.url }}" width="100px" height="100px">#}
-{#        {% endif %}#}
-        Дата создания:
-        <div class="news_date">
+    <div class="news_item" data-id="{{ item.id }}">
+        <div class="time_name_line">
+            <span class="news_owner_name">
+                {% if item.news_group %}
+                    <a href="{{ item.news_group.get_absolute_url }}"> {{ item.news_group.name }}</a>
+                {% else %}
+                    <a href="/profile/{{ item.news_creator.id }}"> {{ item.news_creator.first_name }}  {{ item.news_creator.last_name }} </a>
+                {% endif %}
+            </span>
+            <span class="news_date fl-r">
+            </span>
         </div>
+
+        <div class="text news_description">{{ item.text|capfirst|linebreaksbr }} </div>
+        {#        {%  if item.news_image %}#}
+        {#            <img src="{{ item.news_image.url }}" width="100px" height="100px">#}
+        {#        {% endif %}#}
+
         <script>
             transform_news_date("{{ item.create_time|date:"c" }}", "{{item.id}}");
         </script>
         {% if can_change_news %}
-            <p style="color:red" class="delete_news">Удалить</p>
-            <p style="color:red" class="edit_news">Редактировать</p>
+            <div class="news_action_icons">
+                <img src="/static/img/delete.svg" class="delete_news fl-r" alt="">
+{#                <p style="color:red" class="edit_news">Редактировать</p>#}
+            </div>
         {% endif %}
-    </li>
+    </div>
 {% endfor %}

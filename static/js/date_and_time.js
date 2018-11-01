@@ -40,7 +40,7 @@ function transform_news_date(iso_date, news_id) {
     let date_start = new Date(iso_date), result;
     result = date_start.getDate() + ' ' + arr[date_start.getMonth()] +
         ' ' + addZero(date_start.getHours()) + ':' + addZero(date_start.getMinutes());
-    let $parent = $('li[data-id="'+news_id+'"]');
+    let $parent = $('div[data-id="'+news_id+'"]');
     $('.news_date', $parent).html(result);
 }
 

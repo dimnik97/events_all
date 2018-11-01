@@ -11710,7 +11710,7 @@ $.widget( "ui.dialog", {
 			"ui-dialog-titlebar": "ui-corner-all"
 		},
 		closeOnEscape: true,
-		closeText: "Close",
+		closeText: "X",
 		draggable: true,
 		hide: null,
 		height: "auto",
