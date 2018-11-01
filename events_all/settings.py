@@ -137,14 +137,14 @@ host = '127.0.0.1'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'NAME': 'test9',
-        # 'USER': 'postgreadmin',
-        # 'PASSWORD': '4321',
-        # 'HOST': 'localhost',
-        'NAME': 'local_2',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': host,
+        'NAME': 'test9',
+        'USER': 'postgreadmin',
+        'PASSWORD': '4321',
+        'HOST': 'localhost',
+        # 'NAME': 'local_2',
+        # 'USER': 'postgres',
+        # 'PASSWORD': '',
+        # 'HOST': host,
         'PORT': '5432',
     }
 }
@@ -204,7 +204,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 60
-LOGIN_REDIRECT_URL = "/main_app/"
+LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/main_app/"
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
