@@ -583,7 +583,7 @@ $(document).ready(function() {
             selector: $('#dialog_confirm'),
             title: 'Подтвердите действие',
             height: '100',
-            width: '200', buttons: buttons
+            width: '400', buttons: buttons
         });
     });
 
@@ -1295,7 +1295,7 @@ $(document).ready(function() {
                 }
             }
         ];
-        custom_dialogs({selector: $( "#dialog_confirm" ), title: 'Подтвердите действие', width: '200', height: '100',
+        custom_dialogs({selector: $( "#dialog_confirm" ), title: 'Подтвердите действие', width: '400', height: '100',
             buttons: buttons});
     });
 
@@ -1344,7 +1344,7 @@ $(document).ready(function() {
                     }
                 }
             ];
-        custom_dialogs({selector: $( "#dialog_confirm" ), title: 'Подтвердите действие', width: '200', height: '100',
+        custom_dialogs({selector: $( "#dialog_confirm" ), title: 'Подтвердите действие', width: '300', height: '200',
             buttons: buttons});
     });
 

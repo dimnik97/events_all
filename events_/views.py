@@ -95,7 +95,8 @@ def index(request, id):
         "news": render_to_string('events_/news.html', {'news': news, 'can_change_news': can_change_news}),
         'categories': categories,
         'error': False,
-        'active': event_detail.active
+        'active': event_detail.active,
+        'request': request
     }
 
     if 'is_card_on_event_map' in request.GET:

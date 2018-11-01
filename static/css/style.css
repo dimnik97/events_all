@@ -518,7 +518,7 @@ p {
 }
 
 .location_icon{
-    margin-right: 18px;
+    margin-right: 9px;
 }
 
 .creator_avatar{
@@ -694,7 +694,8 @@ p {
 }
 
 .event_name_detail{
-    margin-top: 30px;
+    margin-top: 17px;
+    margin-bottom: 36px;
 }
 
 .event_description_detail{
@@ -878,4 +879,8 @@ p {
 
 .news_item{
     margin-bottom: 50px;
+}
+
+.detail_category {
+    color: #7B7B7B;
 }

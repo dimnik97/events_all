@@ -21,11 +21,11 @@ function transform_event_date_start_end(iso_date_start, iso_date_end=null, event
     result_time = result_time + ' до ' + addZero(date_end.getHours()) + ':' + addZero(date_end.getMinutes());
 
     if (date_start.getDate() !== date_end.getDate()) {
-        result_date = result_date + '-' + date_end.getDate();
+        result_date = result_date + '-' + date_end.getDate() + ' ';
     }
 
     if (arr[date_start.getMonth()] === arr[date_end.getMonth()]) {
-        result_date = result_date + arr[date_start.getMonth()];
+        result_date = result_date + ' ' + arr[date_start.getMonth()];
     } else {
         result_date = result_date + ' ' + arr[date_start.getMonth()] + ' -' + arr[date_end.getMonth()];
     }

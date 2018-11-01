@@ -12,7 +12,8 @@ from groups.models import Group
 
 
 class CreateEventNews(forms.Form):
-    text = forms.CharField(required=False, widget=forms.Textarea(attrs={'onkeyup':'1textarea_resize(event, 15, 2)'}), max_length=1000, label='Новость') #TODO 1 в onkeyup - заглушка, нужно переделать
+    text = forms.CharField(required=False, widget=forms.Textarea(attrs={'onkeyup': '1textarea_resize(event, 15, 2)'}),
+                           max_length=1000, label='Новость') #TODO 1 в onkeyup - заглушка, нужно переделать
     event_id = forms.CharField(required=False, widget=forms.HiddenInput(), max_length=30, label='event_id')
     news = forms.CharField(required=False, widget=forms.HiddenInput(), max_length=30, label='edit_id')
 
