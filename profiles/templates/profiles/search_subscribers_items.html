@@ -1,14 +1,13 @@
- {% for item in items %}
-        <div class="infinite-item">
-            <a href="/profile/{{ item.user.id }}">
-                <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
-            </a>
-            <a class="username" href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
-            {% if action == 'context_menu' %}
-                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
-            {% elif action == 'checkbox' %}
-                <input type="checkbox" name="checkbox_{{ item.user.id }}" value="{{ item.user.id }}">
-            {% endif %}
-        </div>
-    {% endfor %}
-</div>
+{% for item in items %}
+    <div class="infinite-item">
+        <a href="/profile/{{ item.user.id }}">
+            <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
+        </a>
+        <a class="username" href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+        {% if action == 'context_menu' %}
+            <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
+        {% elif action == 'checkbox' %}
+            <input type="checkbox" name="checkbox_{{ item.user.id }}" value="{{ item.user.id }}">
+        {% endif %}
+    </div>
+{% endfor %}

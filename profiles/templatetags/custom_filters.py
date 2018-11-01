@@ -30,6 +30,22 @@ def likes(event_id):
 
 
 @register.filter
+def ev_send(event_id):
+    cnt = EventMembership.objects.filter(event_id=event_id, role__role='send').count()
+    if cnt == 0:
+        cnt = ''
+    return cnt
+
+
+@register.filter
+def ev_inv(event_id):
+    cnt = EventMembership.objects.filter(event_id=event_id, role__role='invite').count()
+    if cnt == 0:
+        cnt = ''
+    return cnt
+
+
+@register.filter
 def like(event_id, user):
     try:  # если неавторизован
         if EventLikes.objects.filter(event_id=event_id, user=user).exists():

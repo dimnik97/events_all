@@ -1,0 +1,18 @@
+<div class="infinite-container_users">
+    {% for item in items %}
+        <div class="infinite-item">
+            <a href="/profile/{{ item.user.id }}">
+                <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
+            </a>
+            <a class="username" href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+            {% if action == 'context_menu' %}
+                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% if items.has_next %}
+    <a class="infinite-more-link_users"
+       href="/profile/view?page={{ items.next_page_number }}">Загрузка
+    </a>
+{% endif %}

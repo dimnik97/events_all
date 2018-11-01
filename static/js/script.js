@@ -563,43 +563,28 @@ $(document).ready(function() {
      *
      */
     $('.delete_group', '.tab-content').on('click', function () {
-        $( "#dialog_confirm" ).dialog({
-            title: 'Подтвердите действие',
-            height: '100',
-            width: '200',
-            draggable: false,
-            resizable: false,
-            modal: true,
-            autoOpen: false,
-            buttons: [
-                {
-                    text: "Да",
-                    icon: "ui-icon-heart",
-                    click: function() {
-                        delete_group();
-                    }
-                },
-                {
-                    text: "Нет",
-                    icon: "ui-icon-heart",
-                    click: function() {
-                        $( this ).dialog( "close" );
-                    }
-                }
-            ],
-            position: {
-                my: 'center',
-                at: 'center',
-                collision: 'fit',
-                using: function(pos) {
-                    let topOffset = $(this).css(pos).offset().top;
-                    if (topOffset < 0) {
-                        $(this).css('top', pos.top - topOffset);
-                    }
+        let buttons = [
+            {
+                text: "Да",
+                icon: "ui-icon-heart",
+                click: function() {
+                    delete_group();
                 }
             },
-
-        }).dialog('open');
+            {
+                text: "Нет",
+                icon: "ui-icon-heart",
+                click: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        ];
+        custom_dialogs({
+            selector: $('#dialog_confirm'),
+            title: 'Подтвердите действие',
+            height: '100',
+            width: '200', buttons: buttons
+        });
     });
 
     /**
@@ -1272,34 +1257,8 @@ $(document).ready(function() {
      * Подписчики события
      *
      */
-    // TODO ПЕРЕДЕЛАТь
     $('.see_all_event_subscribers').on('click', function () {
-        $( "#dialog" ).dialog({
-            title: 'Подписчики события',
-            height: '400',
-            width: '500',
-            draggable: false,
-            resizable: false,
-            modal: true,
-            autoOpen: false,
-            position: {
-                my: 'center',
-                at: 'center',
-                collision: 'fit',
-                using: function(pos) {
-                    let topOffset = $(this).css(pos).offset().top;
-                    if (topOffset < 0) {
-                        $(this).css('top', pos.top - topOffset);
-                    }
-                }
-            },
-            open: function () {
-                $('.black_bg').show();
-            },
-            close: function(){
-                $('.black_bg').hide();
-            }
-        }).dialog('open');
+        custom_dialogs({title: 'Подписчики события', width: '500', height: '400'});
 
         let url = $(this).data('url');
         $.ajax({
@@ -1545,7 +1504,11 @@ $(document).ready(function() {
             autoOpen: false,
             beforeClose: beforeClose_,
             close: function() {
-                $('.content_paginator', '#dialog').empty();
+                $('.content_paginator', $selector).empty();
+                $('.black_bg').hide();
+            },
+            open: function () {
+                $('.black_bg').show();
             },
             buttons: buttons,
             position: {

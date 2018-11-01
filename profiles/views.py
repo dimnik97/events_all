@@ -144,3 +144,18 @@ def custom_fields_for_signup(request):
         'user_city': user_city
     }
     return HttpResponse(render_to_string('profiles/custom_fields_for_signup.html', context=context))
+
+
+# Список всех пользователей
+@login_required(login_url='/accounts/login/')
+def view(request):
+    items = Profile.get_all_users(request)
+    context = {
+        'items': items,
+        'user': request.user,
+    }
+    if request.is_ajax():
+        return render_to_response('profiles/search_subscribers_items.html', context)
+        # return HttpResponse(json.dumps(render_to_string('profiles/search_subscribers_items.html')))
+
+    return render_to_response('profiles/view.html', context)

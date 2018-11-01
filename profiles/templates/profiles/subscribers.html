@@ -18,18 +18,18 @@
 {% if items.has_next %}
     {% if type == 'subscribers' %}
         <a class="infinite-more-link"
-           href="/profile/get_subscribers?user={{ user_id }}&page={{ items.next_page_number }}">More
+           href="/profile/get_subscribers?user={{ user_id }}&page={{ items.next_page_number }}">Загрузка
         </a>
     {% elif type == 'followers' %}
         <a class="infinite-more-link"
-           href="/profile/get_followers?user={{ user_id }}&page={{ items.next_page_number }}">More
+           href="/profile/get_followers?user={{ user_id }}&page={{ items.next_page_number }}">Загрузка
         </a>
     {% endif %}
 {% endif %}
 
 <script>
     {#TODO Тут что-то вообще хреново получилось, надо переделать, #}
-    {#TODO вынести в скрипт, посмотреть чтобы работала паджинация, потимизировать по запросам #}
+    {#TODO вынести в скрипт, посмотреть чтобы работала паджинация, поотимизировать по запросам #}
     /**
      * Поиск подписчика
      *

@@ -1,4 +1,6 @@
 import datetime
+
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
@@ -153,6 +155,20 @@ class Profile(models.Model):
             'user': user
         }
         return context, False
+
+    @staticmethod
+    def get_all_users(request):
+        q_objects = Q()
+        q_objects.add(Q(active='1'), Q.AND)
+
+        if 'value' in request.POST and 'search' in request.POST:
+            q_objects.add(Q(to_profile__user__first_name__icontains=request.POST['value']), Q.AND)
+            q_objects.add(Q(to_profile__user__last_name__icontains=request.POST['value']), Q.AND)
+
+        users = Profile.objects.filter(q_objects).\
+            select_related('user', 'user__profileavatar').order_by('user__first_name')  # Берем только активных пользователей
+        ret_objects = helper.helper_paginator(request, users, count=2)
+        return ret_objects
 
     # Возвращает абсолютный URL
     def get_absolute_url(self):

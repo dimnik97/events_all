@@ -27,13 +27,15 @@ def index(request, id):
     if user != event_detail.creator_id:
         if int(event_detail.active) == 3:
             context = {
-                'error': 'Событие удалено'
+                'error': 'Событие удалено',
+                'user': user,
             }
             return render_to_response('events_/detail.html', context)
 
         if int(event_detail.active) == 4:
             context = {
-                'error': 'Событие заблокировано'
+                'error': 'Событие заблокировано',
+                'user': user,
             }
             return render_to_response('events_/detail.html', context)
 
@@ -59,7 +61,9 @@ def index(request, id):
 
     if int(event_detail.active) == 2 and party_flag is False:
         context = {
-            'error': 'Зыкрытое событие, нет доступа'
+            'error': 'Зыкрытое событие, нет доступа',
+            'type': 'close',
+            'user': user,
         }
         return render_to_response('events_/detail.html', context)
 
@@ -394,6 +398,15 @@ def like(request):
 def unlike(request):
     try:
         EventLikes.objects.get(event_id=request.POST['event_id'], user=request.user).delete()
+        return HttpResponse(200)
+    except:
+        return HttpResponse(400)
+
+
+# Простановка лайка (добавление в закладки)
+def send(request):
+    try:
+        EventMembership.objects.create()
         return HttpResponse(200)
     except:
         return HttpResponse(400)
