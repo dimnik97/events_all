@@ -1,0 +1,106 @@
+<input type="text" placeholder="Начните вводить" class="find_people {{ type }}" data-user_id="{{ user_id }}">
+<div class="infinite-container">
+    {% for item in items %}
+        <div class="infinite-item">
+            <a href="/profile/{{ item.user.id }}">
+                <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
+            </a>
+            <a class="username" href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+            {% if action == 'context_menu' %}
+                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
+            {% elif action == 'checkbox' %}
+                <input type="checkbox" name="checkbox_{{ item.user.id }}" value="{{ item.user.id }}">
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+{% if items.has_next %}
+    {% if type == 'subscribers' %}
+        <a class="infinite-more-link"
+           href="/profile/get_subscribers?user={{ user_id }}&page={{ items.next_page_number }}">More
+        </a>
+    {% elif type == 'followers' %}
+        <a class="infinite-more-link"
+           href="/profile/get_followers?user={{ user_id }}&page={{ items.next_page_number }}">More
+        </a>
+    {% endif %}
+{% endif %}
+
+<script>
+    {#TODO Тут что-то вообще хреново получилось, надо переделать, #}
+    {#TODO вынести в скрипт, посмотреть чтобы работала паджинация, потимизировать по запросам #}
+    /**
+     * Поиск подписчика
+     *
+     */
+    $('.find_people').on('input', function () {
+        let url = '',
+            user_id = $('.find_people').data('user_id'),
+            $this = $(this);
+        {% if is_profile == False %}
+            if ($(this).hasClass('followers')) {
+                url = '/events/get_followers?event=' + user_id + '&action={{ action }}';
+            } else if ($(this).hasClass('subscribers')){
+                url = '/events/get_subscribers?event=' + user_id + '&action={{ action }}';
+            }
+        {% else %}
+            if ($(this).hasClass('followers')) {
+                url = '/profile/get_followers?user=' + user_id + '&action={{ action }}';
+            } else if ($(this).hasClass('subscribers')){
+                url = '/profile/get_subscribers?user=' + user_id + '&action={{ action }}';
+            }
+        {% endif %}
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+                'search': true,
+                'value': $(this).val()
+            },
+            success: function (data) {
+                if (data) {
+                    $this.parent().find('.infinite-item', '.infinite-container').remove();
+                    $this.parent().find('.infinite-container').append(data);
+
+                    $('.user', '.added_users').each(function () {
+                        $('[name=checkbox_'+$(this).find('span').data('id')+']').attr("checked","checked");
+                    });
+                    $(':checkbox', '.add_users_autocomplete').off('click').on('click', function () {
+                        add_to_chat($(this));
+                    });
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    });
+
+
+    {#TODO А это вообще верх тупизма #}
+    /**
+     * Обработка чекбоксов для получения подписчиков
+     *
+     * Как работает можно посмотреть на "Создании чатов"
+     *
+     */
+    function add_to_chat($this) {
+        if ($this.is(':checked')) {
+            let username = $this.parent().find('.username').html(),
+                user_id = '"' + $this.val() + '"',
+                user_item = '<span class="inside_mark" data-id='+user_id+'>'+ username +'</span>',
+                user = '<div class="user">'+ user_item +'<span data-id=' + user_id + ' class="delete_user">x</span></div>';
+            $('.added_users').append(user);
+
+            $('.user span.delete_user', '.added_users').off('click').on('click', function () {
+                id = $(this).data('id');
+                $('[name=checkbox_' + id + ']').attr('checked', false);
+                $(this).closest('.user').remove();
+            });
+        } else {
+            let id = $this.val();
+            $('*[data-id='+ id +']', '.added_users').closest('.user').remove();
+        }
+    }
+</script>

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import models
 from PIL import Image
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.functional import curry
 from django.db.models import Q
@@ -16,7 +16,7 @@ from groups.models import Group, Membership, AllRoles
 import datetime
 from django.utils.timezone import utc
 
-from profiles.models import Profile
+from profiles.models import Profile, ProfileSubscribers
 
 
 class EventCategory(models.Model):
@@ -99,6 +99,7 @@ class Event(models.Model):
     # status - ended / active
     @staticmethod
     def get_ended_or_active_user_events(request, user, status):
+        # TODO ИСключить закрытые эвенты
         q_objects = Q()
         q_objects.add(Q(eventmembership__person=user.profile), Q.AND)
         q_objects.add(Q(status__name=status), Q.AND)
@@ -130,27 +131,9 @@ class Event(models.Model):
     def get_events(request, last_update=None, is_simple=False):
         q_objects = Q()
         q_objects_2 = Q()
+        q_objects = Event.filter_event(request, q_objects)
 
-        if 'category' in request.POST and request.POST['category'] != '':
-            q_objects.add(Q(category=request.POST['category']), Q.AND)
-
-        if 'location' in request.POST and request.POST['location'] != '':
-            if int(request.POST['location']) > 0:
-                q_objects.add(Q(location=request.POST['location']), Q.AND)
-
-        if 'name' in request.POST and request.POST['name'] != '':
-            q_objects.add(Q(name__icontains=request.POST['name']), Q.AND)
-
-        if 'time_code' in request.POST:
-            if int(request.POST['time_code']) > 0:
-                start_time, end_time = Event.get_filter_time(request)
-                q_objects_time = Q()
-                q_objects_time.add(Q(start_time__gte=start_time), Q.AND)
-                q_objects_time.add(Q(start_time__lte=end_time), Q.AND)
-                q_objects_time.add(Q(end_time__gte=end_time), Q.OR)  # Для того, чтобы показывать незавершенные события
-                q_objects.add(q_objects_time, Q.AND)
-
-        if request.user.is_authenticated: # инача будет ошибка
+        if request.user.is_authenticated:  # инача будет ошибка
             members = Membership.objects.filter(person=request.user.profile, group__type=2,
                                                 role__role__in=['admin', 'subscribers', 'editor'])
             groups_name = list()
@@ -178,20 +161,58 @@ class Event(models.Model):
             return None
         return events
 
+    @staticmethod
+    def filter_event(request, q_objects):
+        if 'category' in request.POST and request.POST['category'] != '':
+            q_objects.add(Q(category=request.POST['category']), Q.AND)
+
+        if 'location' in request.POST and request.POST['location'] != '':
+            if int(request.POST['location']) > 0:
+                q_objects.add(Q(location=request.POST['location']), Q.AND)
+
+        if 'name' in request.POST and request.POST['name'] != '':
+            q_objects.add(Q(name__icontains=request.POST['name']), Q.AND)
+
+        if 'time_code' in request.POST:
+            if int(request.POST['time_code']) > 0:
+                start_time, end_time = Event.get_filter_time(request)
+                q_objects_time = Q()
+                q_objects_time.add(Q(start_time__gte=start_time), Q.AND)
+                q_objects_time.add(Q(start_time__lte=end_time), Q.AND)
+                q_objects_time.add(Q(end_time__gte=end_time), Q.OR)  # Для того, чтобы показывать незавершенные события
+                q_objects.add(q_objects_time, Q.AND)
+        return q_objects
+
+    @staticmethod
+    def get_friend_events(request):
+        # TODO Есть дубли
+        # берем всех, на кого подписан пользователь
+        subs = [subs.to_profile.user.id for subs in ProfileSubscribers.objects.filter(from_profile=request.user.profile)]
+        # берем группы пользователя
+        members = Membership.objects.filter(person=request.user.profile,
+                                            role__role__in=['admin', 'subscribers', 'editor'])
+        groups_name = list()
+        for member in members:
+            groups_name.append(str(member.group.id))
+
+        from django.db.models import Q
+        q_objects = Q()
+        q_objects_2 = Q()
+        q_objects = Event.filter_event(request, q_objects)
+
+        q_objects.add(Q(active__in=['1', '2']), Q.AND)  # Если активное или закрытое
+        q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)  # или группы
+        q_objects_2.add(Q(creator_id__in=subs), Q.OR)  # или пользователи
+        q_objects.add(q_objects_2, Q.AND)
+
+        events = Event.event_query(q_objects).distinct()
+        return events
+
     # События группы
     @staticmethod
     def get_group_events(request, group):
         q_objects = Q()
         q_objects.add(Q(created_by_group=group), Q.AND)
-        q_objects.add(Q(active__in=['1', '2', '4']), Q.AND)  # Не включать в выборку удаленные события
-        events = Event.event_query(q_objects)
-        return events
-
-    # События группы
-    @staticmethod
-    def get_friends_events(request):
-        Event.objects.filter(creator_id=123)
-        q_objects = Q()
         q_objects.add(Q(active__in=['1', '2', '4']), Q.AND)  # Не включать в выборку удаленные события
         events = Event.event_query(q_objects)
         return events
@@ -213,18 +234,9 @@ class Event(models.Model):
                 order_by('-last_update')
 
     @staticmethod
-    def firend_and_group_events(self):
-
-        pass
-        # from operator import attrgetter
-        # result_list = sorted(
-        #     chain(page_list, article_list, post_list),
-        #     key=attrgetter('date_created'))
-
-    @staticmethod
     def paginator(request, events):
         page = request.GET.get('page', 1)
-        paginator = Paginator(events, 5)
+        paginator = Paginator(events, 10)
         try:
             events = paginator.page(page)
         except PageNotAnInteger:
@@ -348,7 +360,7 @@ class EventMembership(models.Model):
     def unsubscribe(cls, event, user):
         cls.objects.get(event=event, person=user.profile).delete()
 
-    # Список подписанных на событие
+    # Список подписанных на событие  TODO закрытые события
     @staticmethod
     def get_subscribers(request):
         if 'event' in request.GET:
@@ -360,28 +372,18 @@ class EventMembership(models.Model):
             event = Event.objects.get(id=event_id)
             if 'value' in request.POST and 'search' in request.POST:
                 from django.db.models import Q
-                subscribers = EventMembership.objects.filter(Q(person__user__last_name__icontains=request.POST['value']) | Q(
-                    person__user__first_name__icontains=request.POST['value']), event=event)
-
-                subscribers_object = subscribers
-                subscribers = [
-                    subscriber.person for subscriber in subscribers_object.all()
-                ]
+                subscribers_object = EventMembership.objects.filter(Q(person__user__last_name__icontains=request.POST['value']) | Q(
+                    person__user__first_name__icontains=request.POST['value']), event=event,
+                    role__role__in=['admin', 'editor', 'subscribers'])
                 flag = True
             else:
-                subscribers_object = event.members
-                subscribers = [
-                    subscriber for subscriber in subscribers_object.all()
-                ]
+                subscribers_object = EventMembership.objects.filter(
+                    event=event, role__role__in=['admin', 'editor', 'subscribers'])
+            subscribers = [
+                subscriber.person for subscriber in subscribers_object.all()
+            ]
 
-            page = request.GET.get('page', 1)
-            paginator = Paginator(subscribers, 20)
-            try:
-                subscribers = paginator.page(page)
-            except PageNotAnInteger:
-                subscribers = paginator.page(1)
-            except EmptyPage:
-                subscribers = paginator.page(paginator.num_pages)
+            subscribers = helper.helper_paginator(request=request, p_object=subscribers, count=20)
 
             return {
                 'flag': flag,
@@ -391,6 +393,39 @@ class EventMembership(models.Model):
                 'type': 'subscribers',
                 'is_profile': False
             }
+
+    @staticmethod
+    def user_manager(request):
+        if 'event' in request.GET:
+            event_id = request.GET.get('event', 1)
+            if 'type' in request.GET:
+                type = request.GET['type']
+                flag = False
+
+                event = Event.objects.get(id=event_id)
+                if 'value' in request.POST and 'search' in request.POST:
+                    from django.db.models import Q
+                    subscribers_object = EventMembership.objects.filter(
+                        Q(person__user__last_name__icontains=request.POST['value']) | Q(
+                            person__user__first_name__icontains=request.POST['value']), event=event, role__role=type)
+                    flag = True
+                else:
+                    subscribers_object = EventMembership.objects.filter(
+                        event=event, role__role=type)
+                subscribers = [
+                    subscriber.person for subscriber in subscribers_object.all()
+                ]
+
+                subscribers = helper.helper_paginator(request=request, p_object=subscribers, count=20)
+
+                return {
+                    'flag': flag,
+                    'items': subscribers,
+                    'user_id': event_id,
+                    'type': 'subscribers',
+                    'is_profile': False
+                }
+        raise Http404
 
 
 class EventNews(models.Model):

@@ -17,8 +17,6 @@ from .models import Event, Event_avatar, EventNews, EventMembership, EventCatego
 
 
 def index(request, id):
-    Event.get_friends_events(request)
-
     event_id = id
     event_detail = get_object_or_404(Event, id=event_id)  # Получение эвента
     if request.user.is_authenticated:
@@ -65,7 +63,8 @@ def index(request, id):
         }
         return render_to_response('events_/detail.html', context)
 
-    subscribers = EventMembership.objects.filter(event=event_detail)[:5]
+    subscribers = EventMembership.objects.filter(event=event_detail,
+                                                 role__role__in=['admin', 'editor', 'subscribers'])[:5]
 
     news = EventNews.objects.filter(news_event=event_detail).order_by('-create_time')
     form = CreateEventNews()
@@ -233,7 +232,8 @@ def create(request):
         "csrf_token": get_token(request),
         'city_list': CityTable.all_city_exclude_user_city(user_city),
         'user_city': user_city,
-        'categories': categories
+        'categories': categories,
+        'user': request.user
     }
     return render_to_response('events_/create.html', context)
 
@@ -306,6 +306,14 @@ def get_subscribers(request):
         return render(request, 'profiles/subscribers.html', context)
     else:
         return render(request, 'profiles/search_subscribers_items.html', context)
+
+
+def user_manager(request):
+    context = EventMembership.user_manager(request)
+    if not context['flag']:
+        return render(request, 'events_/user_manager.html', context)
+    else:
+        return render(request, 'events_/search_user_manager_items.html', context)
 
 
 # Восстановить или удалить событие
@@ -385,7 +393,7 @@ def like(request):
 # Удаляем лайк (удаление из закладки)
 def unlike(request):
     try:
-        EventLikes.objects.filter(event_id=request.POST['event_id'], user=request.user).delete()  # TODO заменить на гет
+        EventLikes.objects.get(event_id=request.POST['event_id'], user=request.user).delete()
         return HttpResponse(200)
     except:
         return HttpResponse(400)

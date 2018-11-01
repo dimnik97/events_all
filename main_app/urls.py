@@ -14,6 +14,7 @@ urlpatterns = [
      url(r'^get_events_map$', views.get_events_map, name='get_events_map'),
      # Ленты
      url(r'^get_group_events$', views.get_group_events, name='get_group_events'),  # Лента группы, через view
+     url(r'^get_friend_events$', views.get_friend_events, name='get_friend_events'),  # Лента группы, через view
      url(r'^active_user_events$', views.active_user_events, name='active_user_events'),  # Лента активных евентов юзера
      url(r'^ended_user_events$', views.ended_user_events, name='ended_user_events'),  # Лента завершенных евентов юзера
      url(r'^user_events$', views.user_events, name='user_events'),  # Лента всех эвентов пользователя

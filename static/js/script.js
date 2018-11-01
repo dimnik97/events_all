@@ -107,6 +107,7 @@ function GetCorrectNumber(Number, is_month=0, is_min = 0){
 
 
 $(document).ready(function() {
+    var $body = $('body');
     /**
      * Отправка данных
      *
@@ -231,7 +232,7 @@ $(document).ready(function() {
      * функция для подписки/отписки на событие
      *
      */
-    $('body').on('click', '.subscribe_event',  function(){
+    $body.on('click', '.subscribe_event',  function(){
         var event_id = $(this).closest("div.event_item").data('event_id'),
             atcion_type = $(this).data('action'),
             $this = $(this);
@@ -303,7 +304,7 @@ $(document).ready(function() {
      * Мод. Subscribers
      *
      */
-    $('body').on('click', '.add_to_friend', function(){
+    $body.on('click', '.add_to_friend', function(){
         var user_id = $(this).data('user_id'),
             action = $(this).data('action'),
             $this = $(this);
@@ -412,29 +413,7 @@ $(document).ready(function() {
      *
      */
     $('.all_subscribers, .all_followers').on('click', function () {
-        $( "#dialog" ).dialog({
-            title: 'Подписчики',
-            height: '700',
-            width: '500',
-            draggable: false,
-            resizable: false,
-            modal: true,
-            autoOpen: false,
-            close: function() {
-                $('.content_paginator', '#dialog').empty();
-            },
-            position: {
-                my: 'center',
-                at: 'center',
-                collision: 'fit',
-                using: function(pos) {
-                    let topOffset = $(this).css(pos).offset().top;
-                    if (topOffset < 0) {
-                        $(this).css('top', pos.top - topOffset);
-                    }
-                }
-            },
-        }).dialog('open');
+        custom_dialogs({});
 
         let url = $(this).data('url');
         $.ajax({
@@ -457,34 +436,16 @@ $(document).ready(function() {
         let url = $(this).data('url'),
             title = $(this).html();
 
-        $( "#dialog_img" ).dialog({
-            title: title,
-            height: '700',
-            width: '700',
-            draggable: false,
-            resizable: false,
-            modal: true,
-            autoOpen: false,
-            beforeClose: function(){
-                $('.help_image_div').imgAreaSelect({
-                    remove: true
-                });
-                $('#output_image').imgAreaSelect({
-                    remove: true
-                });
-            },
-            position: {
-                my: 'center',
-                at: 'center',
-                collision: 'fit',
-                using: function(pos) {
-                    let topOffset = $(this).css(pos).offset().top;
-                    if (topOffset < 0) {
-                        $(this).css('top', pos.top - topOffset);
-                    }
-                }
-            },
-        }).dialog('open');
+        let beforeClose_ = function(){
+            $('.help_image_div').imgAreaSelect({
+                remove: true
+            });
+            $('#output_image').imgAreaSelect({
+                remove: true
+            });
+        };
+
+        custom_dialogs({selector: $( "#dialog_img" ), title: title, beforeClose_: beforeClose_});
 
         $.ajax({
             url: url,
@@ -688,7 +649,7 @@ $(document).ready(function() {
      * Выделение сообщений
      *
      */
-    $('body').on('click', '.message_block', function () {
+    $body.on('click', '.message_block', function () {
         let $message_block = $('.message_block');
         $message_block.removeClass('selected_message');
         $message_block.find('.additional_block').hide();
@@ -708,7 +669,7 @@ $(document).ready(function() {
      * Обработка редактирования сообщений
      *
      */
-    $('body').on('click', '.edit_message', function () {
+    $body.on('click', '.edit_message', function () {
         let $message_block = $(this).closest('.message_block'),
             id_message = $message_block.attr('message_id'),
             message_text = $message_block.find('.message').text(),
@@ -723,7 +684,7 @@ $(document).ready(function() {
      * Обработка удаления сообщений
      *
      */
-    $('body').on('click', '.delete_message', function () {
+    $body.on('click', '.delete_message', function () {
         let message_id = $(this).closest('.message_block').attr('message_id');
         $.ajax({
             url: '/chats/delete_message',
@@ -804,7 +765,7 @@ $(document).ready(function() {
      * Навешивает обработчики на cancel
      * Обработчики на чекбоксы
      */
-    $('body').on('click', '.add_to_chat', function () {
+    $body.on('click', '.add_to_chat', function () {
         $('.add_chat_wrapper').show();
         $('.add_to_chat').hide();
         $.ajax({
@@ -869,7 +830,7 @@ $(document).ready(function() {
      * На выходе результат
      *
      */
-    $('body').on('click', '.leave_room', function () {
+    $body.on('click', '.leave_room', function () {
         var room_id = $('.messages', '.messages_wrapper').data('room_id');
         $.ajax({
             url: '/chats/decline_room',
@@ -893,7 +854,7 @@ $(document).ready(function() {
      * На выходе результат в виде обьекта
      *
      */
-    $('body').on('click', '.delete_from_chat', function () {
+    $body.on('click', '.delete_from_chat', function () {
         $('.delete_from_chat_wrapper').show();
         $('.cancel', '.deleted_users').off('click').on('click', function () {
             $('.delete_from_chat_wrapper').hide();
@@ -1311,6 +1272,7 @@ $(document).ready(function() {
      * Подписчики события
      *
      */
+    // TODO ПЕРЕДЕЛАТь
     $('.see_all_event_subscribers').on('click', function () {
         $( "#dialog" ).dialog({
             title: 'Подписчики события',
@@ -1352,36 +1314,6 @@ $(document).ready(function() {
         });
     });
 
-
-    /**
-     * Диалоговое окно
-     *
-     */
-    function confirm_dialog(buttons) {
-        $( "#dialog_confirm" ).dialog({
-            title: 'Подтвердите действие',
-            height: '100',
-            width: '200',
-            draggable: false,
-            resizable: false,
-            modal: true,
-            autoOpen: false,
-            buttons: buttons,
-            position: {
-                my: 'center',
-                at: 'center',
-                collision: 'fit',
-                using: function(pos) {
-                    let topOffset = $(this).css(pos).offset().top;
-                    if (topOffset < 0) {
-                        $(this).css('top', pos.top - topOffset);
-                    }
-                }
-            },
-
-        }).dialog('open');
-    }
-
     /**
      * удаление события
      *
@@ -1404,7 +1336,8 @@ $(document).ready(function() {
                 }
             }
         ];
-        confirm_dialog(buttons);
+        custom_dialogs({selector: $( "#dialog_confirm" ), title: 'Подтвердите действие', width: '200', height: '100',
+            buttons: buttons});
     });
 
     /**
@@ -1452,7 +1385,8 @@ $(document).ready(function() {
                     }
                 }
             ];
-        confirm_dialog(buttons);
+        custom_dialogs({selector: $( "#dialog_confirm" ), title: 'Подтвердите действие', width: '200', height: '100',
+            buttons: buttons});
     });
 
     /**
@@ -1498,7 +1432,7 @@ $(document).ready(function() {
             success: function (data) {
                 if (data) {
                     let parent = $('.content_paginator_events');
-                    $(data).find('.event_item').each(function (key, value) {
+                    $(data).find('.event_item').each(function () {
                         let id  = $(this).data('event_id');
                         $('[data-event_id = "'+id+'"]', parent).remove();
                         $('.infinite-container', parent).prepend($(this))
@@ -1523,7 +1457,7 @@ $(document).ready(function() {
         }
     });
 
-    $('body').on('click', '[data-like="like"]', function () {
+    $body.on('click', '[data-like="like"]', function () {
         let $this = $(this),
             event_id = $this.closest('.event_item_block').data('event_id');
         $.ajax({
@@ -1548,7 +1482,7 @@ $(document).ready(function() {
     });
 
 
-    $('body').on('click', '[data-like="unlike"]', function () {
+    $body.on('click', '[data-like="unlike"]', function () {
         let $this = $(this),
             event_id = $this.closest('.event_item_block').data('event_id');
         $.ajax({
@@ -1573,6 +1507,60 @@ $(document).ready(function() {
     });
 
 
+    /**
+     * Показать приглашенных или с запросом на подписку
+     *
+     */
+    $('.event_send, .event_invite').on('click', function () {
+        custom_dialogs({});
 
+        let url = $(this).data('url');
+        $.ajax({
+            url: url,
+            success: function (data) {
+                $('.content_paginator', '#dialog').html(data);
+                debugger;
+                new Waypoint.Infinite({
+                    element: $('.infinite-container', '.content_paginator')[0],
+                    reverse: true
+                });
+            }
+        });
+    });
+
+    function custom_dialogs(option) {
+        let $selector = option.selector || $('#dialog'); // если  0,"", false то присвоит 200
+        let title = option.title || 'Подписчики';
+        let height = option.height || '700';
+        let width = option.width || '500';
+        let beforeClose_ = option.beforeClose_ || '';
+        let buttons = option.buttons || '';
+
+        $selector.dialog({
+            title: title,
+            height: height,
+            width: width,
+            draggable: false,
+            resizable: false,
+            modal: true,
+            autoOpen: false,
+            beforeClose: beforeClose_,
+            close: function() {
+                $('.content_paginator', '#dialog').empty();
+            },
+            buttons: buttons,
+            position: {
+                my: 'center',
+                at: 'center',
+                collision: 'fit',
+                using: function(pos) {
+                    let topOffset = $(this).css(pos).offset().top;
+                    if (topOffset < 0) {
+                        $(this).css('top', pos.top - topOffset);
+                    }
+                }
+            },
+        }).dialog('open');
+    }
 
 });

@@ -6,7 +6,6 @@ from django.template.loader import render_to_string
 from django.views.generic import FormView
 
 from cities_.models import CityTable
-from events_.models import Event
 from groups.models import Group
 from images_custom.models import PhotoEditor
 from profiles.forms import ImageUploadForm
@@ -31,8 +30,6 @@ def detail(request, id):
     followers = ProfileSubscribers.objects.filter(to_profile=cur_user.profile).count()  # Количество подписок
     friend_flag = 'remove' if ProfileSubscribers.objects.filter(from_profile=user.profile,  # Добавлен в друзья?
                                                                 to_profile=cur_user.profile).count() else 'add'
-
-    Event.get_friends_events(request)
 
     from django.utils import timezone
     if (timezone.now() - cur_user.profile.last_activity).seconds > 1800:
