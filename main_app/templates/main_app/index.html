@@ -26,11 +26,11 @@
                 {% if filter_city %}
                     <div class="margin-b-25">
                         <div class="main_filter_city_block_btn width225_center toogler_arrow" data-toggle="collapse" data-target="#hide-me">
-                            <span>Город</span>
+                            <span class="city_label">Город</span>
                             <img src="../static/img/chevrondown.svg" class="open_accord_item d_none accord_item_img" alt="">
                             <img src="../static/img/chevronup.svg" class="close_accord_item  accord_item_img" alt="">
                         </div>
-                        <div id="hide-me" class="collapse in hide_area_filter">
+                        <div id="hide-me" class="collapse hide_area_filter">
                             <div id="location" class="custom_select custom_select_city">
                                 <input type="text" placeholder="поиск" class="find_city">
                                 <div class="custom_select_items">
@@ -61,6 +61,11 @@
     </div>
 
     <script>
+
+        $(function() {
+            $('select').selectize();
+        });
+
         find_events();
 
         function find_events() {
