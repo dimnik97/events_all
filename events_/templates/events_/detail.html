@@ -173,8 +173,11 @@
             </div>
             <div id="dialog_confirm" data-event_id="{{ event.id }}"></div>
         {% else %}
-            <button class="btn btn-grey"><a href="/">Назад ко всем событиям</a></button>
-            <br><span>{{ error }}</span>
+            <div class="error_page">
+                <h3 style="color: #7971EA">{{ event.name }}</h3>
+                <h4>{{ error }}</h4>
+                <button class="purple_custom_btn">Отправить заявку</button>
+            </div>
         {% endif %}
     </div>
 

@@ -896,3 +896,17 @@ p {
 .main_custom_select .selectize-dropdown {
     margin-left: 50%;
 }
+
+input, button {outline:none;}
+
+.error_page {
+    margin-left: 25%;
+}
+.purple_custom_btn a{
+    color: white;
+}
+.main_filter_block .purple_custom_btn{
+    margin-left: 20%;
+    margin-bottom: 20px;
+    margin-top: 45px;
+}

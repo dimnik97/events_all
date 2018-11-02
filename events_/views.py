@@ -29,6 +29,7 @@ def index(request, id):
             context = {
                 'error': 'Событие удалено',
                 'user': user,
+                'event': event_detail,
             }
             return render_to_response('events_/detail.html', context)
 
@@ -36,6 +37,7 @@ def index(request, id):
             context = {
                 'error': 'Событие заблокировано',
                 'user': user,
+                'event': event_detail,
             }
             return render_to_response('events_/detail.html', context)
 
@@ -64,6 +66,7 @@ def index(request, id):
             'error': 'Зыкрытое событие, нет доступа',
             'type': 'close',
             'user': user,
+            'event': event_detail,
         }
         return render_to_response('events_/detail.html', context)
 
