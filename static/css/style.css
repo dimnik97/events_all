@@ -1084,3 +1084,22 @@ input, button {outline:none;}
     margin-bottom: 1px;
 }
 /* Стили на кастомный селект */
+.selectize-input.dropdown-active {
+  -webkit-border-radius: 15px 15px 0 0!important;
+  -moz-border-radius: 15px 15px 0 0!important;
+  border-radius: 15px 15px 0 0!important;
+}
+.signin_signup_content .selectize-input {
+    border: 1px solid #EEEEEE;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    padding-left: 15px;
+    padding-top: 0;
+    padding-bottom: 0;
+    max-height: 30px;
+}
+
+.selectize-input .item {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}

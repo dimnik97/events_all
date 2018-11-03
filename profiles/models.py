@@ -283,7 +283,7 @@ class ProfileAvatar(models.Model):
     image = models.ImageField(
         upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
         # upload_to=helper.ImageHelper.upload_to,
-        default='avatar/default/avatar.svg')
+        default='avatar/default/img.jpg')
 
     class Meta:
         verbose_name = 'Аватары'

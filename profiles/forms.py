@@ -34,12 +34,13 @@ class SignupForm(forms.Form):
         user.profile.phone = self.cleaned_data['phone']
         user.profile.gender = self.cleaned_data['gender']
         user.profile.birth_date = self.cleaned_data['birth_date']
-        city = request.POST['select_city']
-        user.profile.location_name = city
-        try:
-            user.profile.location = CityTable.objects.get(city=city)
-        except CityTable.DoesNotExist:
-            pass
+        if 'select_city' in request.POST:
+            try:
+                city = CityTable.objects.get(city_id=request.POST['select_city'])
+                user.profile.location = city
+                user.profile.location_name = city.city
+            except CityTable.DoesNotExist:
+                pass
 
         from profiles.models import ProfileAvatar, UserSettings
         ProfileAvatar.objects.create(user=user)

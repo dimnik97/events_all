@@ -135,7 +135,8 @@ $(document).ready(function() {
             f_first_name = false,
             f_last_name = false,
             f_phone = false,
-            f_sex = false;
+            f_sex = false,
+            f_birthday = false;
 
         if ( first_name.val().length < 1 ) {
             first_name.before('<div class="invalid-feedback"> ' + 'Поле имя не заполнено' + '</div>');
@@ -161,13 +162,13 @@ $(document).ready(function() {
         if ( birthday.val().length < 1 ) {
             birthday.before('<div class="invalid-feedback"> ' + 'Укажите ваш день рождения' + '</div>');
             birthday.addClass('is-invalid');
-            birthday = true;
+            f_birthday = true;
         }
 
         return (f_first_name ||
             f_last_name ||
             f_phone ||
-            f_sex || birthday);
+            f_sex || f_birthday);
     }
 
     /**

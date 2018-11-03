@@ -56,11 +56,8 @@
                 </div>
                 {% endfor %}
                 <div class="form-group field_d_none">
-                    <div id="location" class="custom_select">
-                        <input type="text" placeholder="Начните вводить" class="find_city" >
-                        <input type="hidden" name="select_city">
-                        <div class="custom_select_items"></div>
-                    </div>
+                    <select id="select-state" name="select_city" placeholder="Начните вводить...">
+                    </select>
                 </div>
                 <div class="div_next_step">
                     <button type="button" class="next_step">Следующий шаг</button>
@@ -75,51 +72,26 @@
             <div class="hr"></div>
             <script>
                 $.ajax({
-                    url: '/profile/custom_fields_for_signup',
+                    url: '/cities_/get_cities',
                     type: 'POST',
                     success: function (data) {
                         if (data) {
-                            $('.custom_select_items', '.custom_select').append(data);
-                            $('[name="select_city"]', '.custom_select').val($('.selected', '.custom_select_items').html());
+                            $('#select-state').html(data).selectize();
                         } else {
                             // TODO заполнить error
                         }
                     }
                 });
+                let $gender = $('#id_gender');
+                $gender.removeClass('form-control');
+                $gender.selectize();
+                $gender.siblings('.selectize-control').css('padding-bottom', '15px');
 
                 $('#id_birth_date').datetimepicker({
                     timepicker:false,
                     format: "d-m-Y",
                     autoclose: true,
 
-                });
-                $(function() {
-                    $('select').selectize();
-                });
-
-                var xhr;
-                var select_state, $select_state;
-                var select_city, $select_city;
-
-                $select_state = $('#select-state').selectize({
-                    onChange: function(value) {
-                        if (!value.length) return;
-                        select_city.disable();
-                        select_city.clearOptions();
-                        select_city.load(function(callback) {
-                            xhr && xhr.abort();
-                            xhr = $.ajax({
-                                url: 'http://www.corsproxy.com/api.sba.gov/geodata/primary_city_links_for_state_of/' + value + '.json',
-                                success: function(results) {
-                                    select_city.enable();
-                                    callback(results);
-                                },
-                                error: function() {
-                                    callback();
-                                }
-                            })
-                        });
-                    }
                 });
             </script>
         </div>
