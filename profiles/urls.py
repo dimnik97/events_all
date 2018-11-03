@@ -4,8 +4,8 @@ from profiles import views, forms
 urlpatterns = [
     url(r'^(?P<id>[0-9]+)$', views.detail, name='detail'),  # детальный профиль
     url(r'^$', views.my_profile, name='detail'),  # для редиректа на свой профиль
-    url(r'^edit/$', views.edit_view, name='edit'),  # редактирование профиля
-    url(r'^view$', views.view, name='view'),  # Список всех пользователей
+    url(r'^edit$', views.edit_view, name='edit'),  # редактирование профиля
+    url(r'^view/$', views.view, name='view'),  # Список всех пользователей
     url(r'^change_avatar', views.Edit.change_avatar, name='change_avatar'),  # Смена аватара
     url(r'^change_mini', views.Edit.change_mini, name='change_mini'),  # Смена миниатюры
     url(r'^save_image', views.Edit.save_image, name='save_image'),  # Сохранение картинки

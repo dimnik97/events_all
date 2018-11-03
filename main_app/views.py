@@ -50,14 +50,14 @@ def event_map(request):
     category_list = EventCategory.objects.all()
     # Не забыть про закрытые эвенты
 
-    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
-    city = Users.get_user_locations(request, need_ip=True)
+    user_city = Users.get_user_locations(request, need_ip=True)  # город либо через IP либо через установленный
+    city_list = CityTable.all_city_exclude_user_city(user_city)
 
     context = {
         'user': user,
         'category_list': category_list,
         'city_list': city_list,
-        'user_city': city,
+        'user_city': user_city,
     }
 
     return render_to_response('main_app/map.html', context)

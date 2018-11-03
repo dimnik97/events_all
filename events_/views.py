@@ -129,7 +129,7 @@ def subsc_unsubsc(request):
         return HttpResponse(str(401))  # Не авторизован
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def change_avatar(request):
     if request.method == 'POST' and request.is_ajax():
         return PhotoEditor.load_image(request)
@@ -142,7 +142,7 @@ def change_avatar(request):
     return render(request, 'profiles/change_avatar.html', context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def change_mini(request):
     if request.method == 'POST' and request.is_ajax():
         return PhotoEditor.load_image(request)
@@ -162,7 +162,7 @@ def change_mini(request):
     return render(request, 'profiles/change_mini.html', context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def edit(request, id, group_id=None):
     user = request.user
     try:
@@ -206,14 +206,15 @@ def edit(request, id, group_id=None):
             'categories': list(set(categories) - set(selected_categories)),
             'selected_categories': selected_categories,
             'active': event.active,
-            'id': event.id
+            'id': event.id,
+            'user': request.user
         }
 
         return render_to_response('events_/edit.html', context)
     raise Http404
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def create(request):
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES, request.GET)
@@ -246,7 +247,7 @@ def create(request):
     return render_to_response('events_/create.html', context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def change_default_image(request):
     result = {
         'image': 'default.png',
@@ -293,7 +294,7 @@ def change_default_image(request):
         return HttpResponse(json.dumps(result))
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def get_images_by_categories(request):   # TODO Вынести в класс работы с изображениями
     if 'categories' in request.POST:
         category = request.POST['categories']

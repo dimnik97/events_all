@@ -11,7 +11,7 @@ import json
 from chats.models import ChatMessage, Room, RoomMembers
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def home(request):
     # TODO паджинация
     chat_type = 'error'
@@ -59,7 +59,7 @@ def get_dialogs(request):
     return render(request, 'chats/dialogs_template.html', context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def room(request):
     user = request.user
     room_members = list()

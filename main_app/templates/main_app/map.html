@@ -51,7 +51,7 @@
         <div>
             <label>Категория</label>
             <select id="category" name="category">
-                <option value="" selected>Все</option>
+                <option value="all" selected>Все</option>
                 {% for category in category_list %}
                     <option value="{{ category.id }}">{{ category.name }}</option>
                 {% endfor %}

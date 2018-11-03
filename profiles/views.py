@@ -16,13 +16,13 @@ from allauth.account.forms import LoginForm, SignupForm
 
 
 # Редирект на аккаунт пользователя
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def my_profile(request):
     url = '/profile/' + str(request.user.id)
     return redirect(url)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def detail(request, id):
     user = request.user  # Залогиненный пользователь
     cur_user = get_object_or_404(User, id=id)  # Отвечает за юзера, который отобразится в профиле
@@ -55,7 +55,7 @@ def detail(request, id):
 
 
 # Добавление или удаление подписки
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def add_or_remove_friends(request):
     if request.is_ajax():
         try:
@@ -75,7 +75,7 @@ def add_or_remove_friends(request):
         raise Http404
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def edit_view(request):
     context, is_validate = Profile.edit(request)
     if is_validate is True:
@@ -149,7 +149,7 @@ def custom_fields_for_signup(request):
 
 
 # Список всех пользователей
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def view(request):
     items = Profile.get_all_users(request)
     context = {

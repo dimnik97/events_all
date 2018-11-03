@@ -262,7 +262,7 @@ $(document).ready(function() {
                         $this.data('action', 'subscribe');
                     }
                 } else if (parseInt(data) === 401) {
-                    window.location.replace('/accounts/login/?next=');
+                    window.location.replace('/accounts/signup-or-login/?next=');
                 }
             }
         });
@@ -1383,7 +1383,7 @@ $(document).ready(function() {
      *
      */
     $('.event_news').on('click', '.edit_news', function () {
-        let $news = $(this).closest('li'), news_id = $news.data('id');
+        let $news = $(this).closest('.news_item'), news_id = $news.data('id');
         $('#id_text', '.news-form').val($('div.text', $news).html().replace(/<br\s*[\/]?>/gi, "\n")); // выставляем \n вместо br
         $('#id_news', '.news-form').val(news_id);
     });
@@ -1441,7 +1441,7 @@ $(document).ready(function() {
                     let count = parseInt($this.siblings('.like_count').html());
                     $this.siblings('.like_count').html(count + 1);
                 } else if (data === 400) {
-                    window.location.replace('/accounts/login/?next=');
+                    window.location.replace('/accounts/signup-or-login/?next=');
                 }
             }
         });
@@ -1466,7 +1466,7 @@ $(document).ready(function() {
                     let count = parseInt($this.siblings('.like_count').html());
                     $this.siblings('.like_count').html(count - 1);
                 } else if (data === 400) {
-                    window.location.replace('/accounts/login/?next=');
+                    window.location.replace('/accounts/signup-or-login/?next=');
                 }
             }
         });

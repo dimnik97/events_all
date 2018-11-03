@@ -13,7 +13,7 @@ from images_custom.models import PhotoEditor
 from profiles.forms import ImageUploadForm
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def detail(request, id):
     context = Group.verification_of_rights(request, id)
     if context['status']:
@@ -43,7 +43,7 @@ def detail(request, id):
 
 
 # Список всех групп
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def view(request):
     is_my = False
     if 'id' in request.GET:  # Если нет id, то ошибка
@@ -109,7 +109,7 @@ def get_invite(request):
         return
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def edit(request, id=None):
     if request.method == 'POST':
         form = GroupsForm(request.POST)
@@ -177,7 +177,7 @@ def edit(request, id=None):
     return render_to_response('groups/edit.html', context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/signup-or-login/')
 def create(request, id=None):
     if request.method == 'POST':
         form = GroupsForm(request.POST)
@@ -236,7 +236,7 @@ def subscribe_group(request):
         else:
             raise Http404
     else:
-        return redirect('/accounts/login')
+        return redirect('/accounts/signup-or-login')
 
 
 # Поиск подписчика по имени или фамилии

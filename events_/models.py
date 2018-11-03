@@ -103,11 +103,10 @@ class Event(models.Model):
         q_objects = Q()
         q_objects.add(Q(eventmembership__person=user.profile), Q.AND)
         q_objects.add(Q(status__name=status), Q.AND)
-        if request.user != user:
-            q_objects.add(Q(active='1'),
-                          Q.AND)  # Не включать в выборку закрытые, удаленные и заблокированные события
+        if str(request.user.id) == user:
+            q_objects.add(Q(active__in=['1', '2', '3', '4']), Q.AND)  # Не включать в выборку закрытые, удаленные и заблокированные события
         else:
-            q_objects.add(Q(active__in=['1', '2', '4']), Q.AND)  # Не включать в выборку удаленные события
+            q_objects = Event.is_in_groups(request, q_objects)
 
         events = Event.event_query(q_objects)
         return events
@@ -117,11 +116,10 @@ class Event(models.Model):
     def get_user_events(request, user):
         q_objects = Q()
         q_objects.add(Q(creator_id=user), Q.AND)
-        # q_objects.add(Q(status__name='active'), Q.AND)
-        if request.user != user:
-            q_objects.add(Q(active='1'), Q.AND)  # Не включать в выборку закрытые, удаленные и заблокированные события
+        if str(request.user.id) == user:
+            q_objects.add(Q(active__in=['1', '2', '3', '4']), Q.AND)  # Не включать в выборку закрытые, удаленные и заблокированные события
         else:
-            q_objects.add(Q(active__in=['1', '2', '4']), Q.AND)  # Не включать в выборку удаленные события
+            q_objects = Event.is_in_groups(request, q_objects)
 
         events = Event.event_query(q_objects)
         return events
@@ -130,26 +128,8 @@ class Event(models.Model):
     @staticmethod
     def get_events(request, last_update=None, is_simple=False):
         q_objects = Q()
-        q_objects_2 = Q()
         q_objects = Event.filter_event(request, q_objects)
-
-        if request.user.is_authenticated:  # инача будет ошибка
-            members = Membership.objects.filter(person=request.user.profile, group__type=2,
-                                                role__role__in=['admin', 'subscribers', 'editor'])
-            groups_name = list()
-            for member in members:
-                groups_name.append(str(member.group.id))
-
-            if len(groups_name) > 0:
-                q_objects.add(Q(active__in=['1', '2']), Q.AND)  # Если активное или закрытое
-                q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)  # Я есть в группе
-                q_objects_2.add(Q(created_by_group__isnull=True), Q.OR)
-                q_objects_2.add(Q(created_by_group__type='1'), Q.OR)
-                q_objects.add(q_objects_2, Q.AND)  # TODO открытые события всегда отображать
-            else:
-                q_objects.add(Q(active='1'), Q.AND)
-        else:
-            q_objects.add(Q(active='1'), Q.AND)
+        q_objects = Event.is_in_groups(request, q_objects)
 
         try:
             if last_update:
@@ -182,6 +162,30 @@ class Event(models.Model):
                 q_objects_time.add(Q(end_time__gte=end_time), Q.OR)  # Для того, чтобы показывать незавершенные события
                 q_objects.add(q_objects_time, Q.AND)
         return q_objects
+
+    # Возвращает часть запроса поиска евентов с учетом групп, в которых он состоит
+    @staticmethod
+    def is_in_groups(request, q_objects):
+        q_objects_2 = Q()
+        if request.user.is_authenticated:  # инача будет ошибка
+            members = Membership.objects.filter(person=request.user.profile, group__type=2,
+                                                role__role__in=['admin', 'subscribers', 'editor'])
+            groups_name = list()
+            for member in members:
+                groups_name.append(str(member.group.id))
+
+            if len(groups_name) > 0:
+                q_objects.add(Q(active__in=['1', '2']), Q.AND)  # Если активное или закрытое
+                q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)  # Я есть в группе
+                q_objects_2.add(Q(created_by_group__isnull=True), Q.OR)
+                q_objects_2.add(Q(created_by_group__type='1'), Q.OR)
+                q_objects.add(q_objects_2, Q.AND)  # TODO открытые события всегда отображать
+            else:
+                q_objects.add(Q(active='1'), Q.AND)
+        else:
+            q_objects.add(Q(active='1'), Q.AND)
+        return  q_objects
+
 
     @staticmethod
     def get_friend_events(request):

@@ -1,10 +1,10 @@
 from django.conf.urls import url
-from events_ import views, forms
+from events_ import views
 
 urlpatterns = [
     url(r'^(?P<id>[0-9]+)$', views.index, name='index'),  # Детальная эвента
     url(r'edit/(?P<id>[0-9]+)$', views.edit, name='edit'),  # Реадактирование эвента
-    url(r'create/$', views.create, name='create'),  # Создание профиля
+    url(r'create$', views.create, name='create'),  # Создание профиля
     url(r'^change_avatar', views.change_avatar, name='change_avatar'),  # Смена аватара
     url(r'^change_mini', views.change_mini, name='change_mini'),  # Смена миниатюры
     url(r'^get_subscribers$', views.get_subscribers, name='get_subscribers'),  # Получение подписчиков события

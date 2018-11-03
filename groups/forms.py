@@ -8,7 +8,7 @@ class GroupsForm(forms.Form):
     id = forms.IntegerField(required=False, widget=forms.HiddenInput(), label='Название группы')
     name = forms.CharField(required=True, max_length=100, label='Название группы')
     status = forms.CharField(required=False, max_length=100, label='Краткое описание')
-    description = forms.CharField(required=False, max_length=1000, label='Описание')
+    description = forms.CharField(required=False, max_length=1000, widget=forms.Textarea(), label='Описание')
     CHOICES_С = (('1', 'Открытая'),
                  ('2', 'Закрытая'))
     type = forms.ChoiceField(widget=forms.Select, choices=CHOICES_С, label='Тип группы', required=False)

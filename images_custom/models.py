@@ -12,7 +12,7 @@ from events_all import helper, settings
 class PhotoEditor:
     # Берем с пользователя картинку и записываем во временную папку
     # return Урл на картинку, размеры, коэффициент соотношения сторон
-    @login_required(login_url='/accounts/login/')
+    @login_required(login_url='/accounts/signup-or-login/')
     def load_image(self):
         request = self
         if 'load_image' in request.FILES:

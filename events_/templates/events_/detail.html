@@ -128,13 +128,12 @@
                             <div data-url="/events/get_subscribers?event={{ event.id }}" class=" f-s-15 see_all_event_subscribers text_a_r">Подписчики события</div>
                             <div class="subscribers_block_line d-flex f-s-15">
                                 {% for item in subscribers|slice:":4" %}
-
                                     <div class="subscriber_item_detail">
-                                        <a href="/profile/{{ item.person.id }}">
+                                        <a href="/profile/{{ item.person.user.id }}">
                                             <img src="{{ item.person.user.profileavatar.mini_url }}" class="avatar_round">
                                         </a>
                                         <br>
-                                        <a href="/profile/{{ item.person.id }}"> {{ item.person.user.first_name }}<br>{{ item.person.user.last_name }} </a>
+                                        <a href="/profile/{{ item.person.user.id }}"> {{ item.person.user.first_name }}<br>{{ item.person.user.last_name }} </a>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -160,7 +159,13 @@
                             {% endif %}
 
                             <div class="event_news">
-                                {{ news }}
+                                {% if news %}
+                                    {{ news }}
+                                {% else %}
+                                    <div class="empty_news_item">
+                                        <span>У данного события еще не появились новости</span>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         <div id="dialog" class="d_none">

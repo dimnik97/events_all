@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.vk',
+    'allauth.socialaccount.providers.twitter',
+    # 'allauth.socialaccount.providers.facebook',
     'django_ipgeobase',
     'widget_tweaks',
     'channels',
