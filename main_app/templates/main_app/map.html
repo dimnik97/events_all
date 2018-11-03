@@ -46,7 +46,7 @@
     <form class="event_map_filter_block" >
         <div>
             <label>Свободный поиск</label>
-            <input type="text" name="name" placeholder="поиск" class="find_groups" >
+            <input type="text" name="name" placeholder="Начните вводить" class="find_groups" >
         </div>
         <div>
             <label>Категория</label>
@@ -60,7 +60,7 @@
         <div>
             <label>Город</label>
             <div id="location" class="custom_select">
-                <input type="text" placeholder="поиск" class="find_city">
+                <input type="text" placeholder="Начните вводить" class="find_city">
                 <div class="custom_select_items">
                     <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
                     {% for city in city_list %}

@@ -137,7 +137,7 @@ def get_followers(request):
 
 
 def custom_fields_for_signup(request):
-    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
+    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')[:30]
     user_city = Users.get_user_locations(request)
     context = {
         'city_list': city_list,

@@ -13,7 +13,7 @@
             <button class="purple_custom_btn"><a href="/events/create">Создать событие +</a></button>
             <form class="event_filter_block">
                 <div class="margin-b-25">
-                    <input type="text" name="name" placeholder="поиск" class="find_groups main_search_input width225_center" >
+                    <input type="text" name="name" placeholder="Начните вводить" class="find_groups main_search_input width225_center" >
                 </div>
                 <div class="margin-b-25">
                     <select id="category" name="category" class="main_custom_select width225_center z_index_selectize">
@@ -32,7 +32,7 @@
                         </div>
                         <div id="hide-me" class="collapse hide_area_filter">
                             <div id="location" class="custom_select custom_select_city">
-                                <input type="text" placeholder="поиск" class="find_city">
+                                <input type="text" placeholder="Начните вводить" class="find_city">
                                 <div class="custom_select_items">
                                     <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
                                     {% for city in city_list %}

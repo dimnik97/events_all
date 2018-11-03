@@ -14,14 +14,14 @@ from profiles.models import Users
 def index(request):
     user = request.user
     category_list = EventCategory.objects.all()
-
-    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
+    user_city = Users.get_user_locations(request, need_ip=False)  # город либо через IP либо через установленный
+    city_list = CityTable.all_city_exclude_user_city(user_city)
 
     context = {
         'user': user,
         'category_list': category_list,
         'city_list': city_list,
-        'user_city': Users.get_user_locations(request, need_ip=False),  # город либо через IP либо через установленный
+        'user_city': user_city,
         'url': 'get_infinite_events',
         'filter_city': True
     }

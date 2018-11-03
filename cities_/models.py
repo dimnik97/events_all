@@ -31,5 +31,5 @@ class CityTable(models.Model):
     @staticmethod
     def all_city_exclude_user_city(user_city):
         return CityTable.objects.filter(city__isnull=False).\
-            values('city', 'city_id').order_by('city').exclude(city=user_city.city)
+            values('city', 'city_id').order_by('city').exclude(city=user_city.city)[:30]
 

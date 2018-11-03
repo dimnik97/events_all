@@ -151,7 +151,6 @@ function add_bounds(bounds) {
 // Создание метки.
 function createPlacemark(coords) {
     return new ymaps.Placemark(coords, {
-        iconCaption: 'поиск...'
     }, {
         preset: 'islands#violetDotIconWithCaption',
         draggable: true,

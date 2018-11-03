@@ -331,7 +331,6 @@ li.dialog_row {
 }
 
 .custom_select_items {
-    display: inline-grid;
     max-height: 100px;
     overflow: scroll;
 }
@@ -339,11 +338,6 @@ li.dialog_row {
 .custom_select .selected {
     color: #7971EA!important;
 }
-
-.is-invalid {
-    border: 1px solid red;
-}
-
 .main_content_block{
     width: 950px;
     margin-top: 30px;
@@ -660,16 +654,9 @@ p {
     transform: translate(-50%, 0);
     margin-top: 10px;
 }
-
-.custom_select_city .custom_select_items span{
-    margin-bottom: 10px;
-    color: #B5B5B5;
-}
-
 .accord_item_img{
     width: 15px;
 }
-
 .grey_custom_btn{
     height: 24px;
     width: 140px;
@@ -937,3 +924,163 @@ input, button {outline:none;}
 .z_index_selectize_two {
     z-index: 998;
 }
+.signin_signup_content {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    background: url('/static/svg/background.svg') 100% 200% no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+.signin_signup_content .logo {
+    position: absolute;
+    top: 0;
+    margin-top: 2%;
+}
+.signin_signup_content .logo p {
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    line-height: normal;
+    font-size: 24px;
+    color: #7971EA;
+    margin-left: 25%;
+}
+.signin_signup_content .case_for_form {
+    position: relative;
+    top: 0;
+    background-color: white;
+    width: auto;
+    min-width: 445px;
+    min-height: 515px;
+    height: auto;
+}
+.nav-tabs {
+    border-bottom: none;
+}
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+    background-color: inherit;
+    border: none;
+    color: #7971EA;
+}
+.nav-tabs>li.active {
+    border-bottom: 2px solid #7971EA;
+}
+.nav-tabs>li>a:hover {
+    border-color: inherit;
+}
+.nav>li>a:focus, .nav>li>a:hover {
+    text-decoration: inherit;
+    background-color: inherit;
+}
+.nav-tabs>li>a {
+    border: none;
+    font-size: 18px;
+    color: #B5B5B5;
+}
+.nav-tabs>li.active>a {
+    color: #7971EA;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+.case_for_form .nav {
+    position: relative;
+    margin-left: 25%;
+    margin-top: 10%;
+}
+.signin_signup_content form {
+    position: relative;
+    top: 0;
+    margin-top: 10%;
+    left: 72px;
+    max-width: 300px;
+}
+.signin_signup_content form div {
+    max-width: 300px;
+}
+.signin_signup_content form input {
+    border-radius: 15px;
+    height: 30px;
+    border: 1px solid #EEEEEE;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding-left: 15px;
+    margin-bottom: 30px;
+}
+.signin_signup_content .next_step{
+    display: block;
+    margin: 0 auto;
+}
+.signin_signup_content .prev_step, .signup{
+    display: none;
+    margin: 0 auto;
+}
+.signin_signup_content .next_step, .prev_step {
+    text-decoration: underline;
+    color: #7971EA;
+    background-color: white;
+    border: none;
+}
+.signin_signup_content form input::placeholder {
+    color: #7971EA;
+}
+.signin_signup_content form input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    color: #7971EA;
+}
+.signin_signup_content form input::-moz-placeholder { /* Firefox 19+ */
+    color: #7971EA;
+}
+.signin_signup_content form input:-ms-input-placeholder { /* IE 10+ */
+    color: #7971EA;
+}
+.signin_signup_content form input:-moz-placeholder { /* Firefox 18- */
+    color: #7971EA;
+}
+.is-invalid {
+    border: 1px solid #a94442!important;
+    margin-bottom: 15px!important;
+}
+.invalid-feedback {
+    margin-bottom: 5px;
+    color: #a94442;
+}
+.signin_signup_content .hr {
+    width: 300px;
+    left: 17%;
+    position: relative;
+    margin-top: 25px;
+    border-bottom: 1px solid #EEEEEE;
+}
+#id_birth_date {
+    background-image: url("/static/svg/calendar.svg");
+    background-repeat: no-repeat;
+    background-size: 18px, 50%;
+    background-position: center right; /* legacy browser support */
+    background-position: center right 10px, center right 38px;
+}
+.signin_signup_content .find_city {
+    width: 300px;
+}
+/* Стили на кастомный селект */
+.custom_select input{
+    margin-bottom: 5px!important;
+}
+.custom_select_items {
+    min-height: 100px;
+    margin-left: 10px;
+    background-color: #F8F8F8;
+    margin-bottom: 10px;
+}
+.custom_select .select_item {
+    display: block;
+    height: 17px!important;
+    font-size: 14px;
+    margin-bottom: 1px;
+}
+/* Стили на кастомный селект */

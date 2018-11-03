@@ -131,23 +131,24 @@ $(document).ready(function() {
         let first_name  = $('#id_first_name'),
             last_name  = $('#id_last_name'),
             phone = $("#id_phone"),
+            birthday = $("#id_birth_date"),
             f_first_name = false,
             f_last_name = false,
             f_phone = false,
             f_sex = false;
 
         if ( first_name.val().length < 1 ) {
-            first_name.after('<div class="invalid-feedback"> ' + 'Поле имя не заполнено' + '</div>');
+            first_name.before('<div class="invalid-feedback"> ' + 'Поле имя не заполнено' + '</div>');
             first_name.addClass('is-invalid');
             f_first_name = true;
         }
         if ( last_name.val().length < 1 ) {
-            last_name.after('<div class="invalid-feedback"> ' + 'Поле фамилии не заполнено' + '</div>');
+            last_name.before('<div class="invalid-feedback"> ' + 'Поле фамилии не заполнено' + '</div>');
             last_name.addClass('is-invalid');
             f_last_name = true;
         }
         if ( phone.val().length < 1 ) {
-            phone.after('<div class="invalid-feedback"> ' + 'Поле телефон не заполнено' + '</div>');
+            phone.before('<div class="invalid-feedback"> ' + 'Поле телефон не заполнено' + '</div>');
             phone.addClass('is-invalid');
             f_phone = true;
         } else {
@@ -157,11 +158,16 @@ $(document).ready(function() {
                 f_phone = true;
             }
         }
+        if ( birthday.val().length < 1 ) {
+            birthday.before('<div class="invalid-feedback"> ' + 'Укажите ваш день рождения' + '</div>');
+            birthday.addClass('is-invalid');
+            birthday = true;
+        }
 
         return (f_first_name ||
             f_last_name ||
             f_phone ||
-            f_sex);
+            f_sex || birthday);
     }
 
     /**
@@ -189,16 +195,16 @@ $(document).ready(function() {
 
                 if (json.email !== undefined) {
                     $('#id_email').addClass('is-invalid');
-                    $('#id_email').after('<div class="invalid-feedback"> ' + json.email + '</div>');
+                    $('#id_email').before('<div class="invalid-feedback"> ' + json.email + '</div>');
                 }
                 if (json.password1 !== undefined) {
                     $('#id_password1').addClass('is-invalid');
-                    $('#id_password1').after('<div class="invalid-feedback"> ' + json.password1.split("'")[1] + '</div>');
+                    $('#id_password1').before('<div class="invalid-feedback"> ' + json.password1.split("'")[1] + '</div>');
                 }
                 else {
                     $('.field_d_none').addClass('form-group').removeClass('field_d_none');
-                    $('.first_step, .next_step').hide();
-                    $('.prev_step, .signup').show();
+                    $('.first_step, .next_step').css('display', 'none');
+                    $('.prev_step, .signup').css('display', 'block');
                 }
             },
             error : function(xhr,errmsg,err) {

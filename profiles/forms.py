@@ -6,20 +6,24 @@ from cities_.models import CityTable
 
 class SignupForm(forms.Form):
     first_name = forms.CharField(
-        required=True, max_length=30, label='Имя', help_text='field_d_none'
+        required=True, max_length=30, label='Имя', help_text='field_d_none',
+        widget=forms.TextInput(attrs={'placeholder': 'Имя'})
     )
     last_name = forms.CharField(
-        required=True, max_length=30, label='Фамилия', help_text='field_d_none'
+        required=True, max_length=30, label='Фамилия', help_text='field_d_none',
+        widget=forms.TextInput(attrs={'placeholder': 'Фамилия'})
     )
+    phone = forms.CharField(required=True, max_length=30, help_text='field_d_none',
+                            widget=forms.TextInput(attrs={'placeholder': 'Телефонный номер'}),
+                            label='Телефонный номер (необязательно)')
     GENDER = (('1', 'Мужской'), ('2', 'Женский'))
+    gender = forms.ChoiceField(required=True, help_text='field_d_none',
+                               label='Пол', widget=forms.Select, choices=GENDER)
     birth_date = forms.DateField(required=True,
                                  label='Дата рождения',
                                  help_text='field_d_none',
+                                 widget=forms.TextInput(attrs={'placeholder': 'Дата рождения'}),
                                  input_formats=['%d-%m-%Y'])
-    phone = forms.CharField(required=False, max_length=30, help_text='field_d_none',
-                            label='Телефонный номер (необязательно)')
-    gender = forms.ChoiceField(required=False, help_text='field_d_none',
-                               label='Пол', widget=forms.Select, choices=GENDER)
 
     city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')
 
