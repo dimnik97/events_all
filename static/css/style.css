@@ -1030,6 +1030,7 @@ input, button {outline:none;}
     color: #7971EA;
     background-color: white;
     border: none;
+    font-size: 19px;
 }
 .signin_signup_content form input::placeholder {
     color: #7971EA;
@@ -1119,4 +1120,16 @@ input, button {outline:none;}
 }
 .signin_signup_content .form-group {
     font-size: 14px;
+}
+.social_providers {
+    font-size: 14px;
+    color: #B5B5B5;
+    text-align: center;
+}
+.social_providers .soc_icons{
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+.social_providers a{
+    padding-right: 8px;
 }

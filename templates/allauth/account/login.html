@@ -72,7 +72,6 @@
                             <button type="button" class="prev_step">Назад</button>
                         </div>
                     </form>
-                    <div class="hr"></div>
                     <script>
                         $.ajax({
                             url: '/cities_/get_cities',
@@ -117,6 +116,29 @@
                     <script>
                         $('.login').find('label:lt(2)').remove();
                     </script>
+                </div>
+                <div class="hr"></div>
+                <div class="social_providers">
+                    <span>Войти через</span>
+                    <div class="soc_icons">
+                        {% load socialaccount %}
+                        {% get_providers as socialaccount_providers %}
+
+                        {% for provider in socialaccount_providers %}
+                            {% if provider.id == "openid" %}
+                                {% for brand in provider.get_brands %}
+                                    <a title="{{brand.name}}" class="{{provider.id}} {{brand.id}}"
+                                       href="{% provider_login_url provider.id openid=brand.openid_url process=process %}">
+                                        {{brand.name}}
+                                    </a>
+                                {% endfor %}
+                            {% endif %}
+                            <a title="{{provider.name}}" class="{{provider.id}}"
+                               href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">
+                                <img src="/static/svg/{{provider.name}}.svg" width="30" height="30">
+                            </a>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
