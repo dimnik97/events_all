@@ -11,6 +11,8 @@ from images_custom.models import PhotoEditor
 from profiles.forms import ImageUploadForm
 from profiles.models import Profile, ProfileAvatar, Users, ProfileSubscribers
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
+from allauth.account.views import *
+from allauth.account.forms import LoginForm, SignupForm
 
 
 # Редирект на аккаунт пользователя
@@ -159,3 +161,19 @@ def view(request):
         # return HttpResponse(json.dumps(render_to_string('profiles/search_subscribers_items.html')))
 
     return render_to_response('profiles/view.html', context)
+
+
+class JointLoginSignupView(LoginView):
+    form_class = LoginForm
+    signup_form = SignupForm
+
+    def __init__(self, **kwargs):
+        super(JointLoginSignupView, self).__init__(*kwargs)
+
+    def get_context_data(self, **kwargs):
+        ret = super(JointLoginSignupView, self).get_context_data(**kwargs)
+        ret['signupform'] = get_form_class(app_settings.FORMS, 'signup', self.signup_form)
+        return ret
+
+
+login = JointLoginSignupView.as_view()

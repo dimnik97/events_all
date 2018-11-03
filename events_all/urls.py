@@ -13,6 +13,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
@@ -20,6 +22,7 @@ from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 import main_app.views
+from profiles.views import JointLoginSignupView
 from . import settings
 
 
@@ -36,6 +39,8 @@ urlpatterns = [
     path('events/', include('events_.urls')),
     path('chats/', include('chats.urls')),
     path('cities_/', include('cities_.urls')),
+    url(r'^accounts/signup-or-login/', JointLoginSignupView.as_view(),
+        name='signup_or_login'),
     # url(r'^$', RedirectView.as_view(url='/main_app')),
 ]
 

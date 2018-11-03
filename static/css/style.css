@@ -1017,11 +1017,15 @@ input, button {outline:none;}
     display: block;
     margin: 0 auto;
 }
-.signin_signup_content .prev_step, .signup{
+.signin_signup_content .signin, .forget_pass {
+    display: block;
+    margin: 0 auto;
+}
+.signin_signup_content .prev_step, .signup {
     display: none;
     margin: 0 auto;
 }
-.signin_signup_content .next_step, .prev_step {
+.signin_signup_content .next_step, .prev_step, .forget_pass{
     text-decoration: underline;
     color: #7971EA;
     background-color: white;
@@ -1085,9 +1089,9 @@ input, button {outline:none;}
 }
 /* Стили на кастомный селект */
 .selectize-input.dropdown-active {
-  -webkit-border-radius: 15px 15px 0 0!important;
-  -moz-border-radius: 15px 15px 0 0!important;
-  border-radius: 15px 15px 0 0!important;
+    -webkit-border-radius: 15px 15px 0 0!important;
+    -moz-border-radius: 15px 15px 0 0!important;
+    border-radius: 15px 15px 0 0!important;
 }
 .signin_signup_content .selectize-input {
     border: 1px solid #EEEEEE;
@@ -1102,4 +1106,17 @@ input, button {outline:none;}
 .selectize-input .item {
     padding-top: 5px;
     padding-bottom: 5px;
+}
+#id_remember {
+    display: inline-block;
+    width: 30px;
+    position: relative;
+    top: 8px;
+    margin-bottom: 10px;
+}
+#id_password {
+    margin-bottom: 15px;
+}
+.signin_signup_content .form-group {
+    font-size: 14px;
 }

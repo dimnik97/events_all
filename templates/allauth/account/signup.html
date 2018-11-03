@@ -1,8 +1,9 @@
 {% extends "account/base.html" %}
 
 {% load i18n %}
+{% load account socialaccount %}
 
-{% block head_title %}{% trans "Signup" %}{% endblock %}
+{% block title %}Вход в систему и регистрация Join me{% endblock %}
 
 {% block main_col %}
 {% endblock %}
@@ -17,83 +18,146 @@
                 <li class="active"><a data-toggle="tab" href="#panel1">Регистрация</a></li>
                 <li><a data-toggle="tab" href="#panel2">Войти</a></li>
             </ul>
-            <form method="post" novalidate method="POST" id="signup" action="{% url 'account_signup' %}">
-                {% csrf_token %}
-                {% load widget_tweaks %}
+            <div class="tab-content">
+                <div id="panel1" class="tab-pane fade in active">
+                    <form method="post" novalidate method="POST" id="signup" action="{% url 'account_signup' %}">
+                        {% csrf_token %}
+                        {% load widget_tweaks %}
 
-                {% for hidden_field in form.hidden_fields %}
-                    {{ hidden_field }}
-                {% endfor %}
-
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
+                        {% for hidden_field in form.hidden_fields %}
+                            {{ hidden_field }}
                         {% endfor %}
-                    </div>
-                {% endif %}
 
-                {% for field in form.visible_fields %}
-                    {% if field.help_text  %}
-                        <div class={{ field.help_text }} >
-                    {% else %}
-                        <div class='first_step' >
-                    {% endif %}
-                {% if form.is_bound %}
-                    {% if field.errors %}
-                        {% render_field field class="form-control is-invalid" %}
-                        {% for error in field.errors %}
-                            <div class="invalid-feedback">
-                                {{ error }}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
                             </div>
+                        {% endif %}
+
+                        {% for field in form.visible_fields %}
+                            {% if field.help_text  %}
+                                <div class={{ field.help_text }} >
+                            {% else %}
+                                <div class='first_step' >
+                            {% endif %}
+                        {% if form.is_bound %}
+                            {% if field.errors %}
+                                {% render_field field class="form-control is-invalid" %}
+                                {% for error in field.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                {% render_field field class="form-control is-valid" %}
+                            {% endif %}
+                        {% else %}
+                            {% render_field field class="form-control" %}
+                        {% endif %}
+                        </div>
                         {% endfor %}
+                        <div class="form-group field_d_none">
+                            <select id="select-state" name="select_city" placeholder="Начните вводить...">
+                            </select>
+                        </div>
+                        <div class="div_next_step">
+                            <button type="button" class="next_step">Продолжить</button>
+                        </div>
+                        <div class="div_signup">
+                            <button type="button" class="signup purple_custom_btn">Регистрация</button>
+                        </div>
+                        <div class="div_prev_step">
+                            <button type="button" class="prev_step">Назад</button>
+                        </div>
+                    </form>
+                    <div class="hr"></div>
+                    <script>
+                        $.ajax({
+                            url: '/cities_/get_cities',
+                            type: 'POST',
+                            success: function (data) {
+                                if (data) {
+                                    $('#select-state').html(data).selectize();
+                                } else {
+                                    // TODO заполнить error
+                                }
+                            }
+                        });
+                        let $gender = $('#id_gender');
+                        $gender.removeClass('form-control');
+                        $gender.selectize();
+                        $gender.siblings('.selectize-control').css('padding-bottom', '15px');
+
+                        $('#id_birth_date').datetimepicker({
+                            timepicker:false,
+                            format: "d-m-Y",
+                            autoclose: true,
+
+                        });
+                    </script>
+                </div>
+                <div id="panel2" class="tab-pane fade">
+                    <h1>{% trans "Sign In" %}</h1>
+
+                    {% get_providers as socialaccount_providers %}
+
+                    {% if socialaccount_providers %}
+                        <p>{% blocktrans with site.name as site_name %}Please sign in with one
+                            of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
+                            for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
+
+                        <div class="socialaccount_ballot">
+
+                            <ul class="socialaccount_providers">
+                                {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+                            </ul>
+
+                            <div class="login-or">{% trans 'or' %}</div>
+
+                        </div>
+
+                        {% include "socialaccount/snippets/login_extra.html" %}
+
                     {% else %}
-                        {% render_field field class="form-control is-valid" %}
+                        <p>{% blocktrans %}If you have not created an account yet, then please
+                            <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
                     {% endif %}
-                {% else %}
-                    {% render_field field class="form-control" %}
-                {% endif %}
-                </div>
-                {% endfor %}
-                <div class="form-group field_d_none">
-                    <select id="select-state" name="select_city" placeholder="Начните вводить...">
-                    </select>
-                </div>
-                <div class="div_next_step">
-                    <button type="button" class="next_step">Следующий шаг</button>
-                </div>
-                <div class="div_signup">
-                    <button type="button" class="signup purple_custom_btn">Регистрация</button>
-                </div>
-                <div class="div_prev_step">
-                    <button type="button" class="prev_step">Назад</button>
-                </div>
-            </form>
-            <div class="hr"></div>
-            <script>
-                $.ajax({
-                    url: '/cities_/get_cities',
-                    type: 'POST',
-                    success: function (data) {
-                        if (data) {
-                            $('#select-state').html(data).selectize();
-                        } else {
-                            // TODO заполнить error
-                        }
-                    }
-                });
-                let $gender = $('#id_gender');
-                $gender.removeClass('form-control');
-                $gender.selectize();
-                $gender.siblings('.selectize-control').css('padding-bottom', '15px');
+                    <div class="content">
+                        {% if socialaccount_providers %}
+                            <p>{% blocktrans with site.name as site_name %}Please sign in with one
+                                of your existing third party accounts. Or, <a href="{{ signup_url }}">sign up</a>
+                                for a {{ site_name }} account and sign in below:{% endblocktrans %}</p>
 
-                $('#id_birth_date').datetimepicker({
-                    timepicker:false,
-                    format: "d-m-Y",
-                    autoclose: true,
+                            <div class="socialaccount_ballot">
 
-                });
-            </script>
+                                <ul class="socialaccount_providers">
+                                    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+                                </ul>
+
+                                <div class="login-or">{% trans 'or' %}</div>
+
+                            </div>
+
+                            {% include "socialaccount/snippets/login_extra.html" %}
+
+                        {% else %}
+                            <p>{% blocktrans %}If you have not created an account yet, then please
+                                <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
+                        {% endif %}
+                        <form class="login" method="POST" action="{% url 'account_login' %}">
+                            {% csrf_token %}
+                            {% include 'includes/bootstrap4_form.html' with form=form %}
+                            {% if redirect_field_value %}
+                                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                            {% endif %}
+                            <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+                            <button class="primaryAction btn btn-primary signin" type="submit">{% trans "Sign In" %}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
