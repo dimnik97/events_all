@@ -16,8 +16,8 @@
                     <input type="text" name="name" placeholder="поиск" class="find_groups main_search_input width225_center" >
                 </div>
                 <div class="margin-b-25">
-                    <select id="category" name="category" class="main_custom_select width225_center">
-                        <option value="" selected>Категория</option>
+                    <select id="category" name="category" class="main_custom_select width225_center z_index_selectize">
+                        <option value="all" selected>Категория</option>
                         {% for category in category_list %}
                             <option value="{{ category.id }}">{{ category.name }}</option>
                         {% endfor %}
@@ -44,8 +44,8 @@
                     </div>
                 {% endif %}
                 <div class="margin-b-25">
-                    <select id="date" class="main_custom_select width225_center">
-                        <option value="0">Дата: За все время</option>
+                    <select id="date" class="main_custom_select width225_center z_index_selectize_two">
+                        <option value="0">За все время</option>
                         <option value="1">Сегодня</option>
                         <option value="2">Завтра</option>
                         <option value="3">На этой неделе</option>

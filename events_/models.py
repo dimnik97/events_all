@@ -163,7 +163,7 @@ class Event(models.Model):
 
     @staticmethod
     def filter_event(request, q_objects):
-        if 'category' in request.POST and request.POST['category'] != '':
+        if 'category' in request.POST and request.POST['category'] != 'all':
             q_objects.add(Q(category=request.POST['category']), Q.AND)
 
         if 'location' in request.POST and request.POST['location'] != '':
