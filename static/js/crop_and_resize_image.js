@@ -40,7 +40,7 @@ $('body').on('change', '#id_load_image', function (e) {
                     orig_width = response.image_info.width;
                     if (coefficient < 1) {
                         $image_.css('width', 'auto').css('height', max_height);
-                    } else if (coefficient == 1){
+                    } else if (coefficient === 1){
                         $image_.css('width', max_width).css('height', max_height);
                     } else if (coefficient > 1) {
                         $image_.css('width', max_width).css('height', 'auto');
@@ -63,6 +63,7 @@ $('body').on('change', '#id_load_image', function (e) {
                         $image_.show();
                         imgAreaSelect_($help_image_div, '1:1');
                         $reset_.show();
+                        $('.to_second_step').css('display', 'block');
                     };
                     img.src = response.link;
                     $('.rotate_buttons').show();
@@ -201,6 +202,7 @@ function reset_all() {
     $div_output_image.append('<img id="output_image"/>');
     $uploader.append('<div class="help_image_div"></div>');
     $('.help_image_div').css('z-index', 0);
+    $('.to_second_step').hide();
     $reset_.hide();
 }
 

@@ -75,7 +75,7 @@
                     <script>
                         $.ajax({
                             url: '/cities_/get_cities',
-                            type: 'POST',
+                            type: 'GET',
                             success: function (data) {
                                 if (data) {
                                     $('#select-state').html(data).selectize();

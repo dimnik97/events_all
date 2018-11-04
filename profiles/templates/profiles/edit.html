@@ -6,15 +6,12 @@
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <input name="type" class="d_none" value="main_info">
-            <div class="form-group">
-                <div id="location" class="custom_select">
-                    <label>Город</label>
-                    <input type="text" placeholder="Начните вводить" class="find_city" >
-                    <input type="hidden" name="select_city">
-                    <div class="custom_select_items"></div>
-                </div>
+            <div class="form-group ">
+                <select id="select-state" name="select_city" placeholder="Начните вводить...">
+                </select>
             </div>
-            <button type="button" class="btn btn-primary" id="edit_profile_form">Submit</button>
+            <span class="confirm_edit"><p></p></span>
+            <button type="button" class="purple_custom_btn" id="edit_profile_form">Сохранить</button>
         </form>
         <hr>
         Настройки приватности (Добавить подсказки при наведении)
@@ -22,22 +19,24 @@
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form_private %}
             <input name="type" class="d_none" value="settings">
-            <button type="button" class="btn btn-primary" id="settings">Submit</button>
+            <button type="button" class="purple_custom_btn" id="settings">Сохранить</button>
         </form>
-        <p><a class="button secondaryAction" href="/accounts/password/change/">Смена пароля</a></p>
-        <p><a class="button secondaryAction" href="/accounts/email/">Смена Email</a></p>
-        Хотите выйти из аккаунта?
-        <p><a class="btn btn-primary" href="/accounts/logout/">logout</a></p>
+        <p><a class="prev_step" href="/accounts/password/change/">Смена пароля</a></p>
+        <p><a class="prev_step" href="/accounts/email/">Смена Email</a></p>
+        <p><a class="btn btn-primary" href="/accounts/logout/">Выйти из аккаунта</a></p>
     </div>
 
     <script>
+        let $gender = $('#id_gender');
+        $gender.removeClass('form-control');
+        $gender.selectize();
+        $gender.siblings('.selectize-control').css('padding-bottom', '15px');
         $.ajax({
-            url: '/profile/custom_fields_for_signup',
-            type: 'POST',
+            url: '/cities_/get_cities?no_need_ip=true',
+            type: 'GET',
             success: function (data) {
                 if (data) {
-                    $('.custom_select_items', '.custom_select').append(data);
-                    $('[name="select_city"]', '.custom_select').val($('.selected', '.custom_select_items').html());
+                    $('#select-state').html(data).selectize();
                 } else {
                     // TODO заполнить error
                 }

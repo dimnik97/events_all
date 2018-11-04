@@ -41,7 +41,8 @@
                     {% else %}
                         <span class="creator_avatar">
                             <a href="/profile/{{ event.creator_id_id }}">
-                                <img src="{{ event.creator_id.profileavatar.mini_url }}" class="creator_avatar_img">
+                                <img src="{{ event.creator_id.profileavatar.mini_url }}" class="creator_avatar_img"
+                                alt="{{ event.creator_id.first_name }} {{ event.creator_id.last_name }}">
                             </a>
                         </span>
                         <span class="location_nameг">
@@ -50,8 +51,6 @@
                             </a>
                         </span>
                     {% endif %}
-
-
                 </div>
                 <div class="subscribe_info_block">
                         <span class="button_block">
@@ -76,7 +75,7 @@
                 </div>
             </div>
             <div class="event_avatar">
-                <img src="{{ event.event_avatar.reduced_url }}" class="event_item_avatar_img">
+                <img src="{{ event.event_avatar.reduced_url }}" class="event_item_avatar_img" alt="{{ event.name }}">
             </div>
         </div>
     {% empty %}

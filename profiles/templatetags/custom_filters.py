@@ -34,6 +34,8 @@ def ev_send(event_id):
     cnt = EventMembership.objects.filter(event_id=event_id, role__role='send').count()
     if cnt == 0:
         cnt = ''
+    else:
+        cnt = '(' + str(cnt) + ')'
     return cnt
 
 
@@ -42,6 +44,8 @@ def ev_inv(event_id):
     cnt = EventMembership.objects.filter(event_id=event_id, role__role='invite').count()
     if cnt == 0:
         cnt = ''
+    else:
+        cnt = '(' + str(cnt) + ')'
     return cnt
 
 

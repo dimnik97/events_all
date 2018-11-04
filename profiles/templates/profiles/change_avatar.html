@@ -1,4 +1,5 @@
 <div class="CropImageModule_wrapper" data-url="{{ url }}" data-save_url="{{ save_url }}">
+    <h5>Выбранная область будет отображаться на странице</h5>
     <div class="uploader" >
         <div id='div_output_image'>
             <img id='output_image'/>
@@ -14,9 +15,12 @@
         </div>
     </div>
     <div><p id="file_info"></p></div>
-    <button class="btn reset_" onclick="reset_all()">Выбрать другое</button>
-    <button class="btn to_first_step" onclick="reset_all()">Назад</button>
-    <button class="btn to_second_step">Далее</button>
+    <div style="display: block; margin: 0 auto;">
+        <button class="purple_custom_btn to_second_step" type="submit">Сохранить</button>
+    </div>
+    <div class="div_signup">
+        <button class="secondaryAction forget_pass reset_" onclick="reset_all()">Выбрать другое</button>
+    </div>
     <div class="imgAreaSelect"></div>
 </div>
 <div class="imgareaselect_wrapper"></div>

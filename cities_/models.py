@@ -34,8 +34,11 @@ class CityTable(models.Model):
 
     @staticmethod
     def get_cities(request):
+        need_ip = True
+        if 'no_need_ip' in request.GET:
+            need_ip = False
         from profiles.models import Users
-        user_city = Users.get_user_locations(request, need_ip=True)  # город либо через IP либо через установленный
+        user_city = Users.get_user_locations(request, need_ip=need_ip)  # город либо через IP либо через установленный
         city_list = CityTable.all_city_exclude_user_city(user_city)
         context = {
             'city_list': city_list,

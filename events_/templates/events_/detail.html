@@ -8,7 +8,7 @@
         {% if error == False %}
             <div class="main_scroll_block d-flex">
                 <div class="event_detail_avatar">
-                    <img src="{{ event.event_avatar.image.url }}" >
+                    <img src="{{ event.event_avatar.image.url }}" alt="{{ event.name }}">
                 </div>
 
                 <div class="event_item_block event_item_block_detail event_item infinite-item" data-event_id="{{event.id}}"
@@ -28,30 +28,16 @@
                             </script>
                         </div>
                         <div class="event_name event_name_detail">
-                            {{ event.name }}
-                            {% if event.active == '2' %}
-                                (Закрытое)
-                            {% endif %}
+                            <h1>{{ event.name }}
+                                {% if event.active == '2' %}
+                                    (Закрытое)
+                                {% endif %}
+                            </h1>
                         </div>
                         {% if is_editor == True and user != False or is_creator == True and user != False %}
-                            <span style="font-size: 30px;">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ...</span>
-                            {# На эти три точки поп ап, как на дизайне групп #}
-                            {# А это в поп ап #}
-                            <div>
-                                 <span data-url="/events/user_manager?event={{ event.id }}&type=send"
-                                       class="event_send" >Приглашенные {{ event.id|ev_send }}</span>
-                            </div>
-                            <div>
-                                 <span data-url="/events/user_manager?event={{ event.id }}&type=invite"
-                                       class="event_invite">Запрос на подписку {{ event.id|ev_inv }}</span>
-                            </div>
-                            <div>
-                                <span class=""><a href="/events/edit/{{ event.id }}">Настройки</a></span>
-                            </div>
-                            {# А это в поп ап #}
+                            <button class="context-menu-one"><img src="/static/svg/points.svg"></button>
                         {% endif %}
-
-
+                        <h2>Описание события</h2>
                         <div class="event_description event_description_detail">{{ event.description }}</div>
 
                         <div class="subscribe_info_block">
@@ -140,11 +126,10 @@
                         </div>
 
                         <div class="news_block">
-
                             <div class="header_news_detail_title"><p>Новости события</p></div>
                             {# ФОРМА ДЛЯ СОЗДАНИЯ НОВОСТИ #}
                             {% if is_editor == True or is_creator == True %}
-                                <span class="error_news"></span>  {# TODO Это для ошибок при создании новостей #}
+                                <div class="error_news"></div>
                                 <div class="news-form">
                                     <form method="post" novalidate
                                           id="news_create_form"
@@ -152,18 +137,17 @@
                                           action="/events/create_news">
                                         {% csrf_token %}
                                         {% include 'includes/bootstrap4_form.html' with form=news_form %}
-                                        <button type="submit" class="btn no_style_btn btn-primary"><img src="/static/img/plus.svg" alt=""
+                                        <button type="submit" class="btn no_style_btn btn-primary"><img src="/static/svg/send.svg" alt=""
                                                                                                         class="add_news_icon"></button>
                                     </form>
                                 </div>
                             {% endif %}
-
                             <div class="event_news">
                                 {% if news %}
                                     {{ news }}
                                 {% else %}
                                     <div class="empty_news_item">
-                                        <span>У данного события еще не появились новости</span>
+                                        <span>У данного этого еще не появились новости</span>
                                     </div>
                                 {% endif %}
                             </div>
@@ -173,15 +157,18 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
             <div id="dialog_confirm" data-event_id="{{ event.id }}"></div>
         {% else %}
             <div class="error_page">
                 <h3 style="color: #7971EA">{{ event.name }}</h3>
-                <h4>{{ error }}</h4>
-                <button class="purple_custom_btn">Отправить заявку</button>
+                {% if not is_send_request %}
+                    <h4>{{ error }}</h4>
+                    <button class="purple_custom_btn event_send_request" data-event_id="{{ event.id }}">Отправить заявку</button>
+                {% else %}
+                    <h4>Заявка отправлена</h4>
+                {% endif %}
             </div>
         {% endif %}
     </div>
@@ -200,5 +187,46 @@
                 obj_height = min_line_height;
             obj.style.height = obj_height + 'px';
         }
+
+
+
+        /**
+         * Контекстное меню
+         *
+         */
+        $.contextMenu({
+            selector: '.context-menu-one',
+            trigger: 'left',
+            callback: function(key, options) {
+                switch(key) {
+                    case 'send':
+                        user_manager("/events/user_manager?event={{ event.id }}&type=send");
+                        break;
+
+                    case 'invite':
+                        user_manager("/events/user_manager?event={{ event.id }}&type=invite");
+                        break;
+
+                    case 'edit':
+                        window.location.replace('/events/edit/{{ event.id }}');
+                        break;
+                }
+            },
+            items: {
+                {% if event.active == '2' %}
+                    "send": {
+                        name: "Приглашенные {{ event.id|ev_send }}",
+                    },
+                    "invite": {
+                        name: "Запрос на подписку {{ event.id|ev_inv }}",
+                    },
+                    "sep1": "---------",
+                {% endif %}
+                "edit": {
+                    name: "Настройки",
+                }
+            }
+        });
+
     </script>
 {% endblock %}

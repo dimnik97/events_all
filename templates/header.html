@@ -4,19 +4,55 @@
 {% bootstrap_javascript %}
 {% bootstrap_css %}
 
+
 <script type="text/javascript" src="{% static 'js/plagins/jquery.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/csrf_token.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/date_and_time.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/plagins/jquery.datetimepicker.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/plagins/selectize.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/plagins/contextmenu/jquery.contextMenu.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/plagins/contextmenu/jquery.ui.position.min.js' %}"></script>
+
 {# YANDEX карта #}
 <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 {# YANDEX карта #}
+
+
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
       integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-<link rel="stylesheet" media="all" href={% static "css/style.css" %} type="text/css">
 <link rel="stylesheet" media="all" href={% static "css/plagins/jquery.datetimepicker.css" %} type="text/css">
 <link rel="stylesheet" media="all" href={% static "css/plagins/jquery-ui.css" %} type="text/css">
 <link rel="stylesheet" media="all" href={% static "css/plagins/jquery-ui.theme.css" %} type="text/css">
 <link rel="stylesheet" type="text/css" href={% static "css/plagins/imgareaselect-default.css" %} />
 <link rel="stylesheet" type="text/css" href="{% static "css/plagins/selectize.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "css/plagins/contextmenu/jquery.contextMenu.min.css" %}" />
+<link rel="stylesheet" media="all" href={% static "css/style.css" %} type="text/css">
+{#<!-- Yandex.Metrika counter -->#}
+{#<script type="text/javascript" >#}
+{#    (function (d, w, c) {#}
+{#        (w[c] = w[c] || []).push(function() {#}
+{#            try {#}
+{#                w.yaCounter50995658 = new Ya.Metrika2({#}
+{#                    id:50995658,#}
+{#                    clickmap:true,#}
+{#                    trackLinks:true,#}
+{#                    accurateTrackBounce:true,#}
+{#                    webvisor:true#}
+{#                });#}
+{#            } catch(e) { }#}
+{#        });#}
+{##}
+{#        var n = d.getElementsByTagName("script")[0],#}
+{#            s = d.createElement("script"),#}
+{#            f = function () { n.parentNode.insertBefore(s, n); };#}
+{#        s.type = "text/javascript";#}
+{#        s.async = true;#}
+{#        s.src = "https://mc.yandex.ru/metrika/tag.js";#}
+{##}
+{#        if (w.opera == "[object Opera]") {#}
+{#            d.addEventListener("DOMContentLoaded", f, false);#}
+{#        } else { f(); }#}
+{#    })(document, window, "yandex_metrika_callbacks2");#}
+{#</script>#}
+{#<noscript><div><img src="https://mc.yandex.ru/watch/50995658" style="position:absolute; left:-9999px;" alt="" /></div></noscript>#}
+{#<!-- /Yandex.Metrika counter -->#}

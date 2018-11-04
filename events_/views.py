@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from cities_.models import CityTable
 from events_.forms import EventForm, CreateEventNews
 from events_all.helper import parse_from_error_to_json
-from groups.models import Group
+from groups.models import Group, AllRoles
 from images_custom.models import PhotoEditor
 from profiles.forms import ImageUploadForm
 from .models import Event, Event_avatar, EventNews, EventMembership, EventCategory, EventLikes, EventViews
@@ -56,7 +56,9 @@ def index(request, id):
     party_flag = '',  # если пользователь уже подписан на выбранное событие
     if not is_creator and user is not False:
         try:
-            if EventMembership.objects.get(person=user.profile, event=event_detail):
+            if EventMembership.objects.get(person=user.profile,
+                                           event=event_detail,
+                                           role__role__in=['admin', 'subscribers', 'editor']):
                 party_flag = True
         except EventMembership.DoesNotExist:
             party_flag = False
@@ -67,6 +69,7 @@ def index(request, id):
             'type': 'close',
             'user': user,
             'event': event_detail,
+            'is_send_request': EventMembership.objects.filter(event_id=event_id, person=request.user.profile).exists()
         }
         return render_to_response('events_/detail.html', context)
 
@@ -323,6 +326,19 @@ def user_manager(request):
         return render(request, 'events_/user_manager.html', context)
     else:
         return render(request, 'events_/search_user_manager_items.html', context)
+
+
+def event_send_request(request):
+    if 'event_id' in request.POST:
+        event_id = request.POST['event_id']
+        try:
+            if not EventMembership.objects.filter(event_id=event_id, person=request.user.profile).exists():
+                EventMembership.objects.create(event_id=event_id, person=request.user.profile, role=AllRoles.objects.get(role='subscribers'))
+                return HttpResponse(str(200))
+            return HttpResponse('Пользователь уже отправил запрос')
+        except:
+            return HttpResponse('Error')
+    return HttpResponse('Не передан необходимый параметр')
 
 
 # Восстановить или удалить событие

@@ -6,10 +6,12 @@
                 <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
             </a>
             <a class="username" href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
-            {% if action == 'context_menu' %}
+            {% if type == 'invite' %}
+                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Принять</button>
+                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отказать</button>
+            {% elif type == 'send' %}
+                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Принять</button>
                 <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
-            {% elif action == 'checkbox' %}
-                <input type="checkbox" name="checkbox_{{ item.user.id }}" value="{{ item.user.id }}">
             {% endif %}
         </div>
     {% endfor %}
@@ -63,44 +65,10 @@
                 if (data) {
                     $this.parent().find('.infinite-item', '.infinite-container').remove();
                     $this.parent().find('.infinite-container').append(data);
-
-                    $('.user', '.added_users').each(function () {
-                        $('[name=checkbox_'+$(this).find('span').data('id')+']').attr("checked","checked");
-                    });
-                    $(':checkbox', '.add_users_autocomplete').off('click').on('click', function () {
-                        add_to_chat($(this));
-                    });
                 } else {
                     // TODO заполнить error
                 }
             }
         });
     });
-
-
-    {#TODO А это вообще верх тупизма #}
-    /**
-     * Обработка чекбоксов для получения подписчиков
-     *
-     * Как работает можно посмотреть на "Создании чатов"
-     *
-     */
-    function add_to_chat($this) {
-        if ($this.is(':checked')) {
-            let username = $this.parent().find('.username').html(),
-                user_id = '"' + $this.val() + '"',
-                user_item = '<span class="inside_mark" data-id='+user_id+'>'+ username +'</span>',
-                user = '<div class="user">'+ user_item +'<span data-id=' + user_id + ' class="delete_user">x</span></div>';
-            $('.added_users').append(user);
-
-            $('.user span.delete_user', '.added_users').off('click').on('click', function () {
-                id = $(this).data('id');
-                $('[name=checkbox_' + id + ']').attr('checked', false);
-                $(this).closest('.user').remove();
-            });
-        } else {
-            let id = $this.val();
-            $('*[data-id='+ id +']', '.added_users').closest('.user').remove();
-        }
-    }
 </script>

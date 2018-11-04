@@ -105,6 +105,65 @@ function GetCorrectNumber(Number, is_month=0, is_min = 0){
 }
 
 
+/**
+ * Показать приглашенных или с запросом на подписку
+ *
+ */
+function user_manager(url) {
+    custom_dialogs({});
+    $.ajax({
+        url: url,
+        success: function (data) {
+            $('.content_paginator', '#dialog').html(data);
+            new Waypoint.Infinite({
+                element: $('.infinite-container', '.content_paginator')[0],
+                reverse: true
+            });
+        }
+    });
+}
+/**
+ * Диалоги
+ *
+ */
+function custom_dialogs(option) {
+    let $selector = option.selector || $('#dialog'); // если  0,"", false то присвоит 200
+    let title = option.title || 'Подписчики';
+    let height = option.height || '700';
+    let width = option.width || '500';
+    let beforeClose_ = option.beforeClose_ || '';
+    let buttons = option.buttons || '';
+
+    $selector.dialog({
+        title: title,
+        height: height,
+        width: width,
+        draggable: false,
+        resizable: false,
+        modal: true,
+        autoOpen: false,
+        beforeClose: beforeClose_,
+        close: function() {
+            $('.content_paginator', $selector).empty();
+            $('.black_bg').hide();
+        },
+        open: function () {
+            $('.black_bg').show();
+        },
+        buttons: buttons,
+        position: {
+            my: 'center',
+            at: 'center',
+            collision: 'fit',
+            using: function(pos) {
+                let topOffset = $(this).css(pos).offset().top;
+                if (topOffset < 0) {
+                    $(this).css('top', pos.top - topOffset);
+                }
+            }
+        },
+    }).dialog('open');
+}
 
 $(document).ready(function() {
     var $body = $('body');
@@ -406,6 +465,10 @@ $(document).ready(function() {
         $('input').removeClass('is-invalid');
         $('.invalid-feedback').remove();
         if (data !== '200') {
+            if (data === true) {
+                $('.confirm_edit p').append('Успешно сохранено');
+                return
+            }
             let errors = data;
             for (let i = 0; i < errors.length; i++) {
                 let $field = $form.find(errors[i].key);
@@ -452,7 +515,7 @@ $(document).ready(function() {
             });
         };
 
-        custom_dialogs({selector: $( "#dialog_img" ), title: title, beforeClose_: beforeClose_});
+        custom_dialogs({selector: $( "#dialog_img" ), title: 'Смена аватара', beforeClose_: beforeClose_, width: '570'});
 
         $.ajax({
             url: url,
@@ -1472,65 +1535,23 @@ $(document).ready(function() {
         });
     });
 
-
     /**
-     * Показать приглашенных или с запросом на подписку
+     *  Отправить запрос на подписку
      *
      */
-    $('.event_send, .event_invite').on('click', function () {
-        custom_dialogs({});
-
-        let url = $(this).data('url');
+    $('.event_send_request').on('click', function () {
+        let event_id = $(this).data('event_id');
         $.ajax({
-            url: url,
+            url: '/events/event_send_request',
+            type: 'POST',
+            data: {
+                'event_id': event_id
+            },
+            dataType: 'json',
             success: function (data) {
-                $('.content_paginator', '#dialog').html(data);
-                debugger;
-                new Waypoint.Infinite({
-                    element: $('.infinite-container', '.content_paginator')[0],
-                    reverse: true
-                });
+                $('.event_send_request').remove();
+
             }
         });
     });
-
-    function custom_dialogs(option) {
-        let $selector = option.selector || $('#dialog'); // если  0,"", false то присвоит 200
-        let title = option.title || 'Подписчики';
-        let height = option.height || '700';
-        let width = option.width || '500';
-        let beforeClose_ = option.beforeClose_ || '';
-        let buttons = option.buttons || '';
-
-        $selector.dialog({
-            title: title,
-            height: height,
-            width: width,
-            draggable: false,
-            resizable: false,
-            modal: true,
-            autoOpen: false,
-            beforeClose: beforeClose_,
-            close: function() {
-                $('.content_paginator', $selector).empty();
-                $('.black_bg').hide();
-            },
-            open: function () {
-                $('.black_bg').show();
-            },
-            buttons: buttons,
-            position: {
-                my: 'center',
-                at: 'center',
-                collision: 'fit',
-                using: function(pos) {
-                    let topOffset = $(this).css(pos).offset().top;
-                    if (topOffset < 0) {
-                        $(this).css('top', pos.top - topOffset);
-                    }
-                }
-            },
-        }).dialog('open');
-    }
-
 });

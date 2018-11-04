@@ -51,7 +51,9 @@ class SignupForm(forms.Form):
 class EditProfile(forms.Form):
     first_name = forms.CharField(required=True, max_length=30, label='Имя')
     last_name = forms.CharField(required=True, max_length=30, label='Фамилия')
-    description = forms.CharField(required=False, max_length=2000, widget=forms.Textarea(), label='Пара слов обо мне')
+    description = forms.CharField(required=False, max_length=2000,
+                                  widget=forms.Textarea(attrs={'placeholder': 'Напишите немного о себе'}),
+                                  label='Пара слов обо мне')
     birth_date = forms.DateField(required=True, label='Дата рождения', input_formats=['%d-%m-%Y'])
     phone = forms.CharField(required=False, max_length=30, label='Телефонный номер')
 
@@ -67,12 +69,13 @@ class EditProfile(forms.Form):
         user.profile.description = self.cleaned_data['description']
         user.profile.phone = self.cleaned_data['phone']
         user.profile.birth_date = self.cleaned_data['birth_date']
-        city = request.POST['select_city']
-        user.profile.location_name = city
-        try:
-            user.profile.location = CityTable.objects.get(city=city)
-        except CityTable.DoesNotExist:
-            pass
+        if 'select_city' in request.POST:
+            try:
+                city = CityTable.objects.get(city_id=request.POST['select_city'])
+                user.profile.location = city
+                user.profile.location_name = city.city
+            except CityTable.DoesNotExist:
+                pass
         # user.profile.birth_date = self.cleaned_data['birth_date']
         user.profile.gender = self.cleaned_data['gender']
         user.save()
@@ -96,7 +99,7 @@ class EditUserSettings(forms.Form):
     def save(self, request):
         user = request.user
         user.usersettings.messages = self.cleaned_data['messages']
-        user.usersettings.birth_date = self.cleaned_data['birth_date']
+        # user.usersettings.birth_date = self.cleaned_data['birth_date']
         user.usersettings.invite = self.cleaned_data['invite']
         # user.usersettings.near_invite = self.cleaned_data['near_invite']
         user.usersettings.save()

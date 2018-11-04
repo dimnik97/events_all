@@ -20,8 +20,6 @@ body{
 button {
     font-size: 12px;
 }
-
-
 .avatar_round {
     width: 40px;
     height: 40px;
@@ -57,11 +55,13 @@ body {
 }
 
 .uploader {
+    display: block;
+    margin: 0 auto;
     position: relative;
     overflow: hidden;
     width: 500px;
     height: 500px;
-    background: #f3f3f3;
+    background: #F8F8F8;
     border: 2px dashed #e8e8e8;
 }
 
@@ -106,6 +106,9 @@ body {
 }
 
 #div_output_image, #div_output_image_mini {
+    background: url('/static/svg/drag_and_drop.svg') 100% 200% no-repeat;
+    background-position: center;
+    background-size: 200px 200px;
     position: relative;
     height: 500px;
     width: 500px
@@ -480,6 +483,11 @@ p {
     margin-left: 45px;
 }
 
+.event_name h1{
+    font-size: 24px;
+    max-width: 475px;
+}
+
 .event_description{
     font-size: 16px;
     color: #7B7B7B;
@@ -821,6 +829,7 @@ p {
 .no_style_btn{
     background: white!important;
     border: none!important;
+    margin-left: 5px;
 }
 
 .news-form label{
@@ -836,7 +845,8 @@ p {
     width: 485px;
     height: 38px;
     border-radius: 25px;
-    border: 1px Solid #C4C4C4;
+    border: 1px Solid white;
+    box-shadow: 0px 5px 13px rgba(0,0,0,0.15);
 }
 
 .time_name_line{
@@ -1141,4 +1151,60 @@ input, button {outline:none;}
 .empty_news_item {
     text-align: center;
     padding-bottom: 30px;
+}
+.context-menu-item {
+    font-size: 14px;
+    padding-bottom: 5px;
+}
+.context-menu-hover {
+    background-color: #7971EA!important;
+}
+.context-menu-one {
+    background-color: #EEEEEE;
+    border: none;
+    border-radius: 12px;
+    width: 40px;
+    float: right;
+    position: relative;
+    bottom: 58px;
+}
+.event_info_detail h2{
+    margin-left: 45px;
+    font-size: 18px;
+    color: #7971EA;
+}
+
+input {
+    border-radius: 15px;
+    height: 30px;
+    border: 1px solid #EEEEEE;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding-left: 15px;
+    margin-bottom: 30px;
+}
+h5 {
+    text-align: center;
+}
+.to_second_step {
+    display: none;
+}
+.to_second_step {
+    display: none;
+    position: relative;
+    margin: 0 auto;
+    top: 20px;
+    margin-bottom: 30px;
+}
+#file_info {
+    text-align: center;
+    font-size: 15px;
+}
+
+.confirm_edit {
+    font-size: 16px;
+    color: #7971EA;
+}
+.error_news {
+    margin-bottom: 10px;
+    color: #a94442;
 }

@@ -8,7 +8,8 @@
                 {% if user and user.id == cur_user.id %}
                     <img class="change_avatar" data-url="/profile/change_avatar" src="/static/img/editing.svg">
                 {% endif %}
-                <img class="profile_main_avatar" src="{{ avatar.reduced_url }}">
+                <img class="profile_main_avatar" src="{{ avatar.reduced_url }}"
+                     alt="{{ cur_user.first_name }} {{ cur_user.last_name }}">
             </div>
 
             <div class="row">

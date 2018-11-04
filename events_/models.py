@@ -167,6 +167,7 @@ class Event(models.Model):
     @staticmethod
     def is_in_groups(request, q_objects):
         q_objects_2 = Q()
+        q_objects_3 = Q()
         if request.user.is_authenticated:  # инача будет ошибка
             members = Membership.objects.filter(person=request.user.profile, group__type=2,
                                                 role__role__in=['admin', 'subscribers', 'editor'])
@@ -175,17 +176,20 @@ class Event(models.Model):
                 groups_name.append(str(member.group.id))
 
             if len(groups_name) > 0:
-                q_objects.add(Q(active__in=['1', '2']), Q.AND)  # Если активное или закрытое
+                q_objects_2.add(Q(active__in=['1', '2']), Q.AND)  # Если активное или закрытое
                 q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)  # Я есть в группе
-                q_objects_2.add(Q(created_by_group__isnull=True), Q.OR)
-                q_objects_2.add(Q(created_by_group__type='1'), Q.OR)
+
+                q_objects_3.add(Q(created_by_group__isnull=True), Q.OR)
+                q_objects_3.add(Q(active='1'), Q.AND)
+                q_objects_3.add(Q(created_by_group__type='1'), Q.OR)
+
+                q_objects_2.add(q_objects_3, Q.OR)  # TODO открытые события всегда отображать
                 q_objects.add(q_objects_2, Q.AND)  # TODO открытые события всегда отображать
             else:
                 q_objects.add(Q(active='1'), Q.AND)
         else:
             q_objects.add(Q(active='1'), Q.AND)
-        return  q_objects
-
+        return q_objects
 
     @staticmethod
     def get_friend_events(request):
@@ -426,8 +430,8 @@ class EventMembership(models.Model):
                     'flag': flag,
                     'items': subscribers,
                     'user_id': event_id,
-                    'type': 'subscribers',
-                    'is_profile': False
+                    'is_profile': False,
+                    'type': type
                 }
         raise Http404
 
