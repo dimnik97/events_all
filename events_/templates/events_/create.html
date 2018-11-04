@@ -3,90 +3,108 @@
 
 {% block content %}
     <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
-    <div class="content">
+    <div class="content" style="padding-bottom: 200px;">
         <form method="post" enctype="multipart/form-data" id="event_form_create" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <div class="form-group">
-                <label>Категории(макс 3 категории)</label>
-                <span id="categories" class="custom_multiply_select"></span><br>
-                <div class="custom_multiply_select_items" style="display: inline-grid;">
+                <select id="select-tools" multiple>
+                    <option value="" disabled selected>Выберите категории</option>
                     {% for category in categories %}
-                        <span class="multiply_select_item" data-categories_id="{{ category.id }}"
-                              data-categories_description="{{ category.description }}">{{ category.name }}</span>
+                        <option value="{{ category.description }}">{{ category.name }}</option>
                     {% endfor %}
-                </div>
+                </select>
             </div>
-            <div class="form-group">
-                <label>Город</label>
-                <div id="location" class="custom_select">
-                    <input type="text" placeholder="Начните вводить" class="find_city">
-                    <div class="custom_select_items">
-                        <span class='select_item selected'
-                              data-city_id="{{ user_city.city_id }}">{{ user_city.city }}</span>
-                        {% for city in city_list %}
-                            <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
+            <div class="form-group ">
+                <select id="select-state" name="select_city" placeholder="Начните вводить...">
+                </select>
             </div>
             <div class="form-group">
                 <label>Выберите место</label>
                 <span class="select_bounds_yamaps"></span>
                 <div id="map" style="width: 600px; height: 300px"></div>
             </div>
-            {#            <button type="button" class="btn btn-primary select_photo_for_event">Выбрать фото</button>#}
-            {#            <button type="button" class="btn btn-primary back_to_edit" style="display: none">Назад</button>#}
-            <button type="submit" class="btn btn-primary publish" >Опубликовать</button>
+            <button type="submit" class="purple_custom_btn publish" >Создать событие</button>
         </form>
 
         <div class="event_avatar_block">
-            <div style="width: 600px; height: 300px">
-                <img class="event_avatar" src="/media/avatar_event_default/default.png" width="600px" height="300px">
+            <div class="image">
+                <img class="event_item_avatar_img" src="/media/avatar_event_default/default.jpg" width="600px" height="300px">
             </div>
-            {#      TODO Перенесешь потом  На колумны не вешай классы (column_1)   #}
-            <style>
-                .recommend_image_block {
-                    display: flex;
-                }
-                .recommend_img {
-                    padding-right: 20px;
-                }
-                .rec_im img{
-                    width: 100px;
-                    height: 80px;
-                }
-                .rec_im {
-                    padding-bottom: 10px;
-                    padding-top: 10px;
-                }
-                .recommend_image_block {
-                    border: 1px solid red;
-                }
-                .recommend_img {
-                    display: none;
-                }
 
-            </style>
             <div class="recommend_image_block" >
-                <div class="column_1 recommend_img" category_name="" image_name="">
-                    <span class="category_name_column_1"></span>
+                <div class="column_1 recommend_img">
+                    <div class="cat_name_div">
+                        <h6 class="category_name_column_1 cat_name">Досуг</h6>
+                    </div>
+                    <div class="images">
+                    </div>
                 </div>
-                <div class="column_2 recommend_img" category_name="" image_name="">
-                    <span class="category_name_column_2"></span>
+                <div class="column_2 recommend_img">
+                    <div class="cat_name_div">
+                        <h6 class="category_name_column_2 cat_name">Досуг</h6>
+                    </div>
+                    <div class="images">
+                    </div>
                 </div>
-                <div class="column_3 recommend_img" category_name="" image_name="">
-                    <span class="category_name_column_3"></span>
+                <div class="column_3 recommend_img">
+                    <div class="cat_name_div">
+                        <h6 class="category_name_column_3 cat_name">Досуг</h6>
+                    </div>
+                    <div class="images">
+                    </div>
                 </div>
             </div>
         </div>
 
+        <div class="choose_button">
+            <button class="purple_custom_btn change_avatar image_editor"
+                    data-url="/profile/change_avatar"
+                    data-not_for_save="true">Смена фото</button>
+            <p>Вы можете загрузить изображения в формате JPG или PNG</p>
+        </div>
 
-        <button class="change_avatar image_editor" data-url="/profile/change_avatar">Смена аватара</button>
-        <button class="change_mini image_editor" data-url="/profile/change_mini">Смена миниатюры</button>
         <div id="dialog_img" class="d_none"></div>
     </div>
     <script>
+        var eventHandler = function(name) {
+            return function () {
+                get_default_images();
+            }
+        };
+
+        $('#select-tools').selectize({
+            maxItems: 3,
+            plugins: ['remove_button'],
+            persist: false,
+            create: true,
+            render: {
+                item: function(data, escape) {
+                    return '<div>"' + escape(data.text) + '"</div>';
+                }
+            },
+            onBlur: eventHandler('onBlur'),
+        });
+
+        $.ajax({
+            url: '/cities_/get_cities_for_event',
+            type: 'GET',
+            data: {
+                'event_city': {{ user_city.city_id }}
+            },
+            success: function (data) {
+                if (data) {
+                    $('#select-state').html(data).selectize();
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+        let $active= $('#id_active');
+        $active.removeClass('form-control');
+        $active.selectize();
+        $active.siblings('.selectize-control').css('padding-bottom', '15px');
+
         var is_create = true,
             is_edit = false,
             is_view = true,

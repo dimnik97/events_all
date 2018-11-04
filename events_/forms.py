@@ -77,7 +77,6 @@ class EventForm(forms.Form):
             'wrong_field': ''
         }
         try:
-            cities = CityTable.objects.get(city_id=request.POST['location'])
             categories = (request.POST['categories']).split(',')
             categories.pop()
             if len(categories) == 0:
@@ -113,8 +112,14 @@ class EventForm(forms.Form):
                 pass
 
             event.creator_id = request.user
-            event.location = cities
-            event.location_name = cities.city
+
+            if 'select_city' in request.POST:
+                try:
+                    city = CityTable.objects.get(city_id=request.POST['select_city'])
+                    event.location = city
+                    event.location_name = city.city
+                except CityTable.DoesNotExist:
+                    pass
             event.start_time = request.POST['start_time']
             event.end_time = request.POST['end_time']
             event.active = request.POST['active']

@@ -87,6 +87,11 @@ class PhotoEditor:
                 else:
                     image_type = 'avatar'
 
+                if 'to_event' in request.GET:
+                    from events_.models import Event_avatar
+                    file_name = Event_avatar.temporary(request, image)
+                    return HttpResponse(file_name)
+
                 model.image = image
                 model.save(admin_panel=False, request=request, image_type=image_type)
 
@@ -238,14 +243,13 @@ class PhotoEditor:
             img_path_1 = op.join('media', 'avatar_event_default', categories[0], images_names[0] + '.png')
             img1 = Image.open(img_path_1)
             draw1 = ImageDraw.Draw(img1)
-            h1 = img1.height
-            w1 = img1.width
+            w1, h1 = img1.size
             draw1.polygon([(w1, h1), (0, h1), (w1, 0)], fill=(0, 0, 0, 0))
+
             img_path_2 = op.join('media', 'avatar_event_default', categories[1], images_names[1] + '.png')
             img2 = Image.open(img_path_2)
             draw2 = ImageDraw.Draw(img2)
-            h2 = img2.height
-            w2 = img2.width
+            w2, h2 = img2.size
             draw2.polygon([(0, 0), (0, h2), (w2, 0)], fill=(0, 0, 0, 0))
             img = PhotoEditor.add_watermark(img1, img2)
 
@@ -265,24 +269,21 @@ class PhotoEditor:
             img_path_1 = op.join('media', 'avatar_event_default', categories[0], images_names[0] + '.png')
             img1 = Image.open(img_path_1)
             draw1 = ImageDraw.Draw(img1)
-            h1 = img1.height
-            w1 = img1.width
+            w1, h1 = img1.size
             draw1.polygon([(w1/2, 0), (w1, 0), (w1, h1), (w1/2, h1)], fill=(0, 0, 0, 0))
             draw1.polygon([(w1, h1), (0, h1), (w1, 0)], fill=(0, 0, 0, 0))
 
             img_path_2 = op.join('media', 'avatar_event_default', categories[1], images_names[1] + '.png')
             img2 = Image.open(img_path_2)
             draw2 = ImageDraw.Draw(img2)
-            h2 = img2.height
-            w2 = img2.width
+            w2, h2 = img2.size
             draw2.polygon([(w2/2, 0), (0, 0), (0, h2), (w2/2, h2)], fill=(0, 0, 0, 0))
             draw2.polygon([(0, 0), (0, h2), (w2, h2)], fill=(0, 0, 0, 0))
 
             img_path_3 = op.join('media', 'avatar_event_default', categories[2], images_names[2] + '.png')
             img3 = Image.open(img_path_3)
             draw3 = ImageDraw.Draw(img3)
-            h3 = img3.height
-            w3 = img3.width
+            w3, h3 = img2.size
             draw3.polygon([(0, 0), (w3, 0), (w3, h3)], fill=(0, 0, 0, 0))
             draw3.polygon([(0, h3), (0, 0), (w3, 0)], fill=(0, 0, 0, 0))
 

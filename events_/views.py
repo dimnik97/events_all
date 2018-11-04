@@ -262,7 +262,7 @@ def change_default_image(request):
         file_names = []
         for key in json_items:
             categories.append(key)
-            file_names.append(json_items[key])
+            file_names.append(json_items[key].split('/')[-1].split('.')[0])
 
         if len(json_items) == 1:
             try:
@@ -298,17 +298,37 @@ def change_default_image(request):
 
 
 @login_required(login_url='/accounts/signup-or-login/')
-def get_images_by_categories(request):   # TODO Вынести в класс работы с изображениями
+def get_images_by_categories(request):
     if 'categories' in request.POST:
-        category = request.POST['categories']
-        directory = op.join('media', 'avatar_event_default', category)
-        files = os.listdir(directory)
+        categories = json.loads(request.POST['categories'])
+        all_categories = {
+            'category_1': {
+                'name': '',
+                'list': []
+            },
+            'category_2': {
+                'name': '',
+                'list': []
+            },
+            'category_3': {
+                'name': '',
+                'list': []
+            },
+        }
 
-        file_list = list()
-        for file in files:
-            if os.path.splitext(file)[1] == '.png' or os.path.splitext(file)[1] == '.jpg' or os.path.splitext(file)[1] == '.svg':
-                file_list.append(op.join('media', 'avatar_event_default', category, file))
-        return HttpResponse(json.dumps(file_list))
+        i = 1
+        for category in categories:
+            directory = op.join('media', 'avatar_event_default', category)
+            files = os.listdir(directory)
+
+            file_list = list()
+            for file in files:
+                if os.path.splitext(file)[1] == '.png' or os.path.splitext(file)[1] == '.jpg':
+                    file_list.append(op.join('media', 'avatar_event_default', category, file))
+            all_categories['category_' + str(i)]['list'] = file_list
+            all_categories['category_' + str(i)]['name'] = category
+            i = i + 1
+        return HttpResponse(json.dumps(all_categories))
     return HttpResponse('error')
 
 
@@ -366,6 +386,7 @@ def create_news(request):
         if form.is_valid():
             return EventNews.check_rights_and_create_news(request, form)  # Вынес, чтобы не захлямлять вьюху
     raise Http404
+
 
 # Удаление новостей событий
 def delete_event_news(request):

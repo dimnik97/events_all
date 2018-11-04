@@ -76,7 +76,6 @@ class EditProfile(forms.Form):
                 user.profile.location_name = city.city
             except CityTable.DoesNotExist:
                 pass
-        # user.profile.birth_date = self.cleaned_data['birth_date']
         user.profile.gender = self.cleaned_data['gender']
         user.save()
         return HttpResponse(str(200))

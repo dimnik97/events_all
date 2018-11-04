@@ -42,7 +42,7 @@
                         <span class="creator_avatar">
                             <a href="/profile/{{ event.creator_id_id }}">
                                 <img src="{{ event.creator_id.profileavatar.mini_url }}" class="creator_avatar_img"
-                                alt="{{ event.creator_id.first_name }} {{ event.creator_id.last_name }}">
+                                     alt="{{ event.creator_id.first_name }} {{ event.creator_id.last_name }}">
                             </a>
                         </span>
                         <span class="location_nameг">
@@ -60,7 +60,7 @@
                                 <button class="purple_custom_btn subscribe_event" data-action="subscribe">Присоединиться</button>
                             {% endif %}
                         </span>
-                    <span class="stat_block">
+                        <span class="stat_block">
                             <span class="event_stat_item">
                                 <img {{ event.id|like:request.user }} class="event_stat_icon" alt="">
                                 <span class="like_count">{{ event.id|likes }}</span>

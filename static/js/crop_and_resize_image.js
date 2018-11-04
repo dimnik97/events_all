@@ -207,6 +207,10 @@ function reset_all() {
 }
 
 function to_second_step() {
+    let save_url_second_step = save_url
+    if ($('.change_avatar').data('not_for_save')) {
+        save_url_second_step += '?to_event=true'
+    }
     var $help_image_div = $('.help_image_div'),
         form = new FormData($('.uploader').find('form').get(0));
 
@@ -228,7 +232,7 @@ function to_second_step() {
     form.append('rotate', $help_image_div.data('rotate'));
     form.append('model', $('.group_item').data('group_id'));
     $.ajax({
-        url: save_url,
+        url: save_url_second_step,
         type: 'POST',
         data: form,
         async: true,
@@ -239,10 +243,17 @@ function to_second_step() {
         success: function (response) {
             $('.upload-progress').show();
             var text = $('#file_info');
-            if (response.status == 200) {
+
+            if (response.status === 200) {
                 text.text('Успешно сохранено');
-            } else if (response.status == 'size_error') {
+                return
+            } else if (response.status === 'size_error') {
                 text.text('Размер загружаемого файла не должен превышать 25МБ')
+            }
+            if (response) {
+                $('.event_item_avatar_img').attr('src', response);
+                text.text('Успешно добавлено');
+                return
             }
             else {
                 console.log(response);

@@ -1,6 +1,6 @@
 from django.db import models
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.template.loader import render_to_string
 
 
@@ -46,3 +46,17 @@ class CityTable(models.Model):
         }
         return HttpResponse(render_to_string('profiles/option_cities.html', context=context))
 
+    @staticmethod
+    def get_cities_for_event(request):
+        if 'event_city' in request.GET:
+            try:
+                event_city = CityTable.objects.get(city_id=request.GET['event_city'])
+                city_list = CityTable.all_city_exclude_user_city(event_city)
+                context = {
+                    'city_list': city_list,
+                    'user_city': event_city
+                }
+                return HttpResponse(render_to_string('profiles/option_cities.html', context=context))
+            except CityTable.DoesNotExist:
+                pass
+        raise Http404

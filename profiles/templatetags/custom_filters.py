@@ -50,6 +50,16 @@ def ev_inv(event_id):
 
 
 @register.filter
+def others(length):
+    length = length - 3
+    if length > 10:
+        res = '< 10'
+    else:
+        res = '+' + str(length)
+    return res
+
+
+@register.filter
 def like(event_id, user):
     try:  # если неавторизован
         if EventLikes.objects.filter(event_id=event_id, user=user).exists():

@@ -109,11 +109,11 @@
                             </span>
                             {% endif %}
                         </div>
-
+                        <hr>
                         <div class="subscribers_detail_block">
                             <div data-url="/events/get_subscribers?event={{ event.id }}" class=" f-s-15 see_all_event_subscribers text_a_r">Подписчики события</div>
                             <div class="subscribers_block_line d-flex f-s-15">
-                                {% for item in subscribers|slice:":4" %}
+                                {% for item in subscribers|slice:":3" %}
                                     <div class="subscriber_item_detail">
                                         <a href="/profile/{{ item.person.user.id }}">
                                             <img src="{{ item.person.user.profileavatar.mini_url }}" class="avatar_round">
@@ -122,6 +122,11 @@
                                         <a href="/profile/{{ item.person.user.id }}"> {{ item.person.user.first_name }}<br>{{ item.person.user.last_name }} </a>
                                     </div>
                                 {% endfor %}
+                                {% if subscribers.count > 3 %}
+                                    <div class="subscriber_item_detail_add see_all_event_subscribers" data-url="/events/get_subscribers?event={{ event.id }}" >
+                                        <span>{{ subscribers.count|others }}</span>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
 

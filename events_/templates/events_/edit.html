@@ -22,17 +22,9 @@
                     {% endfor %}
                 </div>
             </div>
-            <div class="form-group">
-                <label>Город</label>
-                <div id="location" class="custom_select">
-                    <input type="text" placeholder="Начните вводить" class="find_city" >
-                    <div class="custom_select_items">
-                        <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
-                        {% for city in city_list %}
-                            <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
-                        {% endfor %}
-                    </div>
-                </div>
+            <div class="form-group ">
+                <select id="select-state" name="select_city" placeholder="Начните вводить...">
+                </select>
             </div>
             <div class="form-group">
                 <label>Выберите место</label>
@@ -50,6 +42,25 @@
     </div>
 
     <script>
+
+        $.ajax({
+            url: '/cities_/get_cities_for_event',
+            type: 'GET',
+            data: {
+                'event_city': {{ user_city.city_id }}
+            },
+            success: function (data) {
+                if (data) {
+                    $('#select-state').html(data).selectize();
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+        let $active= $('#id_active');
+        $active.removeClass('form-control');
+        $active.selectize();
+        $active.siblings('.selectize-control').css('padding-bottom', '15px');
 
         var is_create = false,
             is_edit = true,

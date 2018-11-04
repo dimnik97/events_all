@@ -554,6 +554,35 @@ class Event_avatar(models.Model):
     reduced_path = property(_get_reduced_path)
     reduced_url = property(_get_reduced_url)
 
+    # Сохранение изображения и кроп во временную папку, чтобы потом оттуда сохранить (только для эвентов)
+    @classmethod
+    def temporary(cls, request, image):
+        from _md5 import md5
+        file_obj = image
+        name = 'temporary_for_event' + str(datetime.datetime.now())
+        filename = md5(name.encode('utf8')).hexdigest() + '.' + file_obj.name.split('.')[-1]
+
+        from django.core.files.storage import default_storage
+        with default_storage.open('temporary/' + filename, 'wb+') as destination:
+            for chunk in file_obj.chunks():
+                destination.write(chunk)
+
+        if request.POST['rotate'] == 'undefined':
+            angle = 0
+        else:
+            angle = 360 - int(request.POST['rotate'])
+
+        reduced = Image.open('media/temporary/' + filename)
+        new_response = reduced.rotate(angle).crop((float(request.POST['crop_x1']),
+                                                   float(request.POST['crop_y1']),
+                                                   float(request.POST['crop_x2']),
+                                                   float(request.POST['crop_y2'])))
+
+        quality_val = 85
+        reduced = helper.create_medium_image(new_response)
+        reduced.save('media/temporary/' + filename, quality=quality_val, optimize=True, progressive=True)
+        return '/media/temporary/' + filename
+
     # Создаем свою save
     # Добавляем:
     # - создание миниатюры
