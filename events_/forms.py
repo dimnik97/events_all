@@ -57,17 +57,27 @@ class CreateEventNews(forms.Form):
 class EventForm(forms.Form):
     id = forms.CharField(required=False, widget=forms.HiddenInput(), max_length=30, label='id')
     name = forms.CharField(required=True, max_length=100, label='Название события')
-    description = forms.CharField(required=False, widget=forms.Textarea(), max_length=1000, label='Описание')
+    description = forms.CharField(required=True, widget=forms.Textarea(), max_length=1000, label='Описание')
 
-    start_time = forms.CharField(required=False,
-                                 widget=CustomDateTimePicker(prams={'default_time': '1'}),
-                                 label='Дата начала')
-    end_time = forms.CharField(required=False,
-                               widget=CustomDateTimePicker(prams={'default_time_plus_delta': '1'}),
-                               label='Дата окончания')
+    start_time = forms.DateField(required=True,
+                                 label='Дата начала',
+                                 widget=forms.TextInput(attrs={'placeholder': 'Дата начала'}),
+                                 input_formats=['%d-%m-%Y %H:%M'])
+    end_time = forms.DateField(required=True,
+                               label='Дата окончания',
+                               widget=forms.TextInput(attrs={'placeholder': 'Дата окончания'}),
+                               input_formats=['%d-%m-%Y %H:%M'])
+    # start_time = forms.CharField(required=False,
+    #                              widget=CustomDateTimePicker(prams={'default_time': '1'}),
+    #                              label='Дата начала')
+    # end_time = forms.CharField(required=False,
+    #                            widget=CustomDateTimePicker(prams={'default_time_plus_delta': '1'}),
+    #                            label='Дата окончания')
     CHOICES = (('1', 'Открытое'),
                ('2', 'Закрытое'))
-    active = forms.ChoiceField(widget=forms.Select, choices=CHOICES, label='Тип события', required=True)
+
+    # TODO Убрал все привязки на закрытость
+    # active = forms.ChoiceField(widget=forms.Select, choices=CHOICES, label='Тип события', required=True)
 
     # метод для сохранения данных из формы, вызывается аяксом, валидируется на стороне сервера
     def save(self, request, is_creation=None):
@@ -77,8 +87,7 @@ class EventForm(forms.Form):
             'wrong_field': ''
         }
         try:
-            categories = (request.POST['categories']).split(',')
-            categories.pop()
+            categories = (request.POST['categories_']).split(',')
             if len(categories) == 0:
                 result['status'] = 400  # Ошибка
                 result['wrong_field'] = 'categories'
@@ -120,23 +129,31 @@ class EventForm(forms.Form):
                     event.location_name = city.city
                 except CityTable.DoesNotExist:
                     pass
-            event.start_time = request.POST['start_time']
-            event.end_time = request.POST['end_time']
-            event.active = request.POST['active']
+            event.start_time = request.POST['start_time_']
+            event.end_time = request.POST['end_time_']
+            # event.active = request.POST['active']  # TODO Убрал все привязки на закрытость
+            event.active = 1
             event.save()
 
             if is_creation == 1:
                 EventMembership.objects.create(event=event, person=request.user.profile)
                 # Временное решение
-                Event_avatar.objects.create(event=event)
+                event_avatar = Event_avatar()
+                event_avatar.event = event
+                from django.core.files import File
+                reopen = open(request.POST['image_string'].split('/', 1)[-1], 'rb')
+                django_file = File(reopen)
+
+                event_avatar.image = django_file
+                event_avatar.save()
                 # Временное решение
             else:
                 EventCategoryRelation.objects.filter(event=event).delete()
             for category in categories:
-                EventCategoryRelation.objects.create(event=event, category=EventCategory.objects.get(id=category))
+                EventCategoryRelation.objects.create(event=event, category=EventCategory.objects.get(description=category))
             result['url'] = event.id
             return result
-        except CityTable.DoesNotExist:
+        except:
             result['status'] = 400  # Ошибка
             return result
 

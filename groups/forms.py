@@ -11,7 +11,7 @@ class GroupsForm(forms.Form):
     description = forms.CharField(required=False, max_length=1000, widget=forms.Textarea(), label='Описание')
     CHOICES_С = (('1', 'Открытая'),
                  ('2', 'Закрытая'))
-    type = forms.ChoiceField(widget=forms.Select, choices=CHOICES_С, label='Тип группы', required=False)
+    # type = forms.ChoiceField(widget=forms.Select, choices=CHOICES_С, label='Тип группы', required=False) # TODO Убрал все привязки на закрытость
 
     def save(self, request):
         # Редактирование группы
@@ -46,9 +46,6 @@ def save_group(self, group):
     group.name = self.cleaned_data['name']
     group.description = self.cleaned_data['description']
     group.status = self.cleaned_data['status']
-    # Если группа закрытая, то "закрываются" и все события с ней связанные, так же в обратную сторону
-    group.type = self.cleaned_data['type']
+    # group.type = self.cleaned_data['type'] # TODO Убрал все привязки на закрытость
+    group.type = 1
     group.save()
-    from django.db.models import Q
-    Event.objects.filter(Q(active='1') | Q(active='2'), created_by_group=group, ) \
-        .update(active=self.cleaned_data['type'])

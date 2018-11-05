@@ -43,7 +43,6 @@ function SetTimeToUser_js_str(DateStr){
     let date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
     let date_with_timezone = new Date(+date - timezone * 6e4);
 
-
     let strdate = date_with_timezone.getFullYear()+'-'+
         GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
         GetCorrectNumber(date_with_timezone.getDate()) +' '+
@@ -56,17 +55,10 @@ function SetTimeToUser_js_str(DateStr){
 }
 
 function SetTimeToServer(DateStr){
-
     let d = new Date();
     let timezone = d.getTimezoneOffset();
-    let date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$3/$1'));
+    let date = new Date(DateStr.replace(/(\d+)-(\d+)-(\d+)/, '$2/$1/$3'));
     let date_with_timezone = new Date(+date + timezone * 6e4);
-    let minutes;
-    if (date_with_timezone.getMinutes() < 10) {
-        minutes = '0'+ date_with_timezone.getMinutes();
-    } else {
-        minutes = date_with_timezone.getMinutes();
-    }
 
     let str_date = date_with_timezone.getFullYear()+'-'+
         GetCorrectNumber(date_with_timezone.getMonth(), 1) +'-'+
@@ -179,7 +171,7 @@ var categories = {
  * Получение дефолтных картинок для события
  *
  */
-function get_default_images() {
+function get_default_images(need_change=true) {
     $.ajax({
         type: "POST",
         url: '/events/get_images_by_categories',
@@ -205,7 +197,8 @@ function get_default_images() {
                     $('.column_' + j).hide();
                 }
             }
-            change_event_avatar();
+            if (need_change)
+                change_event_avatar();
         }
     })
 }
@@ -228,6 +221,7 @@ function change_event_avatar() {
         dataType: 'json',
         success: function(data) {
             $('.event_item_avatar_img').attr('src', '/media/avatar_event_default/'+ data.image);
+            $('.event_item_avatar_img_hidden_input').val('/media/avatar_event_default/'+ data.image);
         }
     });
 }
@@ -285,7 +279,7 @@ $(document).ready(function() {
             f_phone = true;
         } else {
             if ( !$.isNumeric(phone.val())) {
-                phone.after('<div class="invalid-feedback"> ' + 'Некорректный номер телефона' + '</div>');
+                phone.before('<div class="invalid-feedback"> ' + 'Некорректный номер телефона' + '</div>');
                 phone.addClass('is-invalid');
                 f_phone = true;
             }
@@ -545,7 +539,7 @@ $(document).ready(function() {
             for (let i = 0; i < errors.length; i++) {
                 let $field = $form.find(errors[i].key);
                 $field.addClass('is-invalid');
-                $field.after('<div class="invalid-feedback">' + errors[i].desc + '</div>');
+                $field.before('<div class="invalid-feedback">' + errors[i].desc + '</div>');
             }
         }
     }
@@ -575,8 +569,7 @@ $(document).ready(function() {
      *
      */
     $('.change_avatar, .change_mini').on('click', function () {
-        let url = $(this).data('url'),
-            title = $(this).html();
+        let url = $(this).data('url');
 
         let beforeClose_ = function(){
             $('.help_image_div').imgAreaSelect({
@@ -1223,12 +1216,15 @@ $(document).ready(function() {
 
         let location = get_value_from_custom_select($('#location'));
         unindexed_array.push({name: 'location', value: location.data('city_id')});
-        let categories = '';
-        $('.custom_multiply_select').find('.remove_categories').each(function (key, value) {
-            categories += ($(this).data('categories_id')).toString() + ',';
-        });
-        indexed_array['categories'] = categories;
 
+        if ($('#select-tools').val() !== null) {
+            indexed_array['categories_'] = $('#select-tools').val().join(',');
+        } else {
+            $('#select-tools').parent().find('.selectize-input').addClass('is-invalid');
+        }
+
+        indexed_array['start_time_'] = SetTimeToServer($('#id_start_time').val());
+        indexed_array['end_time_'] = SetTimeToServer($('#id_end_time').val());
         indexed_array = get_geo_values(indexed_array, $('.select_bounds_yamaps'));
 
         $.map(unindexed_array, function(n, i){
@@ -1413,6 +1409,7 @@ $(document).ready(function() {
         if (parseInt($(this).val()) === 6) {
             $('#date').closest('div').append('<input class="date_filter" name="date_filter">')
             $('.date_filter').datetimepicker({
+                lang:'ru',
                 timepicker:false,
                 format:'Y-m-d'
             });

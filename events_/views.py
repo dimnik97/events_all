@@ -188,8 +188,8 @@ def edit(request, id, group_id=None):
             form = EventForm({'id': event.id,
                               'name': event.name,
                               'description': event.description,
-                              'start_time': event.start_time,
-                              'end_time': event.end_time,
+                              'start_time': event.start_time.strftime("%Y-%m-%d %H:%M"),
+                              'end_time': event.end_time.strftime("%Y-%m-%d %H:%M"),
                               'active': event.active
                               })
 
@@ -209,7 +209,7 @@ def edit(request, id, group_id=None):
             'categories': list(set(categories) - set(selected_categories)),
             'selected_categories': selected_categories,
             'active': event.active,
-            'id': event.id,
+            'event': event,
             'user': request.user
         }
 

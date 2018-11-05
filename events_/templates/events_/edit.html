@@ -8,19 +8,14 @@
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <div class="form-group">
-                <label>Категории</label>
-                <span id="categories" class="custom_multiply_select">
+                <select id="select-tools" name="categories" multiple>
                     {% for category in selected_categories %}
-                        <span class="remove_categories" data-categories_id="{{ category.id }}"
-                              data-categories_description="{{ category.description }}">{{ category.name }}</span>
+                        <option value="{{ category.description }}" selected>{{ category.name }}</option>
                     {% endfor %}
-                </span>
-                <div class="custom_multiply_select_items" style="display: inline-grid;">
                     {% for category in categories %}
-                        <span class="multiply_select_item" data-categories_id="{{ category.id }}"
-                              data-categories_description="{{ category.description }}">{{ category.name }}</span>
+                        <option value="{{ category.description }}">{{ category.name }}</option>
                     {% endfor %}
-                </div>
+                </select>
             </div>
             <div class="form-group ">
                 <select id="select-state" name="select_city" placeholder="Начните вводить...">
@@ -31,7 +26,48 @@
                 <span class="select_bounds_yamaps">{{ geo_point.name }}</span>
                 <div id="map" style="width: 600px; height: 300px"></div>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <div>
+                <input class="hidden event_item_avatar_img_hidden_input" name="image_string">
+            </div>
+            <div class="form-group">
+                <div class="event_avatar_block">
+                    <div class="image">
+                        <img class="event_item_avatar_img" src="{{ event.event_avatar.image.url }}" alt="{{ event.name }}" width="600px" height="300px">
+                    </div>
+
+                    <div class="recommend_image_block" >
+                        <div class="column_1 recommend_img">
+                            <div class="cat_name_div">
+                                <h6 class="category_name_column_1 cat_name">Досуг</h6>
+                            </div>
+                            <div class="images">
+                            </div>
+                        </div>
+                        <div class="column_2 recommend_img">
+                            <div class="cat_name_div">
+                                <h6 class="category_name_column_2 cat_name">Досуг</h6>
+                            </div>
+                            <div class="images">
+                            </div>
+                        </div>
+                        <div class="column_3 recommend_img">
+                            <div class="cat_name_div">
+                                <h6 class="category_name_column_3 cat_name">Досуг</h6>
+                            </div>
+                            <div class="images">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="choose_button">
+                    <button class="purple_custom_btn change_avatar image_editor" type="button"
+                            data-url="/profile/change_avatar"
+                            data-not_for_save="true">Смена фото</button>
+                    <p>Вы можете загрузить изображения в формате JPG или PNG</p>
+                </div>
+            </div>
+            <button type="submit" class="purple_custom_btn">Сохранить изменения</button>
         </form>
 
         {% if active == '3' %}
@@ -42,6 +78,24 @@
     </div>
 
     <script>
+        var eventHandler = function(name) {
+            return function () {
+                get_default_images();
+            }
+        };
+
+        $('#select-tools').selectize({
+            maxItems: 3,
+            plugins: ['remove_button'],
+            persist: false,
+            create: true,
+            render: {
+                item: function(data, escape) {
+                    return '<div>"' + escape(data.text) + '"</div>';
+                }
+            },
+            onBlur: eventHandler('onBlur'),
+        });
 
         $.ajax({
             url: '/cities_/get_cities_for_event',
@@ -57,6 +111,41 @@
                 }
             }
         });
+
+
+        $(document).ready(function() {
+            let $start_time = $('#id_start_time'),
+                $end_time = $('#id_end_time');
+            $start_time.datetimepicker({
+                value: SetTimeToUser_js_str($start_time.val()),
+                timepicker: true,
+                lang: 'ru',
+                minDate: 0,
+                step: 10,
+                minTime: 0,
+                format: "d-m-Y H:i",
+                autoclose: true,
+            });
+
+            $end_time.datetimepicker({
+                value: SetTimeToUser_js_str($end_time.val()),
+                timepicker: true,
+                lang: 'ru',
+                minDate: 0,
+                minTime: 0,
+                step: 10,
+                format: "d-m-Y H:i",
+                autoclose: true,
+            });
+
+            $start_time.parent().find('.invalid-feedback').empty();
+            $end_time.parent().find('.invalid-feedback').empty();
+            $start_time.removeClass('is-invalid');
+            $end_time.removeClass('is-invalid');
+            get_default_images(false);
+        });
+
+
         let $active= $('#id_active');
         $active.removeClass('form-control');
         $active.selectize();
@@ -71,5 +160,5 @@
     </script>
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 
-    <div id="dialog_confirm" data-event_id="{{ id }}"></div>
+    <div id="dialog_confirm" data-event_id="{{ event.id }}"></div>
 {% endblock %}

@@ -99,6 +99,7 @@ class CustomDateTimePicker(forms.PasswordInput):
 
                 date.mask('9999-99-99');
                 date.datetimepicker({
+                    lang:'ru',
                     value:date_in,
                     timepicker:false,
                     format:'Y-m-d',
@@ -150,6 +151,7 @@ class CustomDatePicker(forms.PasswordInput):
             <script type="text/javascript">
             $(document).ready(function() {
                 $('[is_datepicker]').datetimepicker({
+                    lang:'ru',
                     timepicker:false,
                     format:'Y-m-d'
                 });

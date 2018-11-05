@@ -8,7 +8,7 @@
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
             <div class="form-group">
-                <select id="select-tools" multiple>
+                <select id="select-tools" name="categories" multiple>
                     <option value="" disabled selected>Выберите категории</option>
                     {% for category in categories %}
                         <option value="{{ category.description }}">{{ category.name }}</option>
@@ -24,45 +24,49 @@
                 <span class="select_bounds_yamaps"></span>
                 <div id="map" style="width: 600px; height: 300px"></div>
             </div>
+            <div>
+                <input class="hidden event_item_avatar_img_hidden_input" name="image_string">
+            </div>
+            <div class="form-group">
+                <div class="event_avatar_block">
+                    <div class="image">
+                        <img class="event_item_avatar_img" src="/media/avatar_event_default/default.jpg" width="600px" height="300px">
+                    </div>
+
+                    <div class="recommend_image_block" >
+                        <div class="column_1 recommend_img">
+                            <div class="cat_name_div">
+                                <h6 class="category_name_column_1 cat_name">Досуг</h6>
+                            </div>
+                            <div class="images">
+                            </div>
+                        </div>
+                        <div class="column_2 recommend_img">
+                            <div class="cat_name_div">
+                                <h6 class="category_name_column_2 cat_name">Досуг</h6>
+                            </div>
+                            <div class="images">
+                            </div>
+                        </div>
+                        <div class="column_3 recommend_img">
+                            <div class="cat_name_div">
+                                <h6 class="category_name_column_3 cat_name">Досуг</h6>
+                            </div>
+                            <div class="images">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="choose_button">
+                    <button class="purple_custom_btn change_avatar image_editor" type="button"
+                            data-url="/profile/change_avatar"
+                            data-not_for_save="true">Смена фото</button>
+                    <p>Вы можете загрузить изображения в формате JPG или PNG</p>
+                </div>
+            </div>
             <button type="submit" class="purple_custom_btn publish" >Создать событие</button>
         </form>
-
-        <div class="event_avatar_block">
-            <div class="image">
-                <img class="event_item_avatar_img" src="/media/avatar_event_default/default.jpg" width="600px" height="300px">
-            </div>
-
-            <div class="recommend_image_block" >
-                <div class="column_1 recommend_img">
-                    <div class="cat_name_div">
-                        <h6 class="category_name_column_1 cat_name">Досуг</h6>
-                    </div>
-                    <div class="images">
-                    </div>
-                </div>
-                <div class="column_2 recommend_img">
-                    <div class="cat_name_div">
-                        <h6 class="category_name_column_2 cat_name">Досуг</h6>
-                    </div>
-                    <div class="images">
-                    </div>
-                </div>
-                <div class="column_3 recommend_img">
-                    <div class="cat_name_div">
-                        <h6 class="category_name_column_3 cat_name">Досуг</h6>
-                    </div>
-                    <div class="images">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="choose_button">
-            <button class="purple_custom_btn change_avatar image_editor"
-                    data-url="/profile/change_avatar"
-                    data-not_for_save="true">Смена фото</button>
-            <p>Вы можете загрузить изображения в формате JPG или PNG</p>
-        </div>
 
         <div id="dialog_img" class="d_none"></div>
     </div>
@@ -100,6 +104,27 @@
                 }
             }
         });
+
+        $('#id_start_time').datetimepicker({
+            timepicker: true,
+            lang:'ru',
+            minDate:0,
+            step:10,
+            minTime:0,
+            format: "d-m-Y H:i",
+            autoclose: true,
+        });
+
+        $('#id_end_time').datetimepicker({
+            timepicker: true,
+            lang:'ru',
+            minDate:0,
+            minTime:0,
+            step:10,
+            format: "d-m-Y H:i",
+            autoclose: true,
+        });
+
         let $active= $('#id_active');
         $active.removeClass('form-control');
         $active.selectize();

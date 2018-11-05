@@ -252,6 +252,7 @@ function to_second_step() {
             }
             if (response) {
                 $('.event_item_avatar_img').attr('src', response);
+                $('.event_item_avatar_img_hidden_input').val(response);
                 text.text('Успешно добавлено');
                 return
             }
