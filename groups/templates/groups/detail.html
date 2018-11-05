@@ -1,6 +1,10 @@
 {% extends "main_template.html" %}
 {% load staticfiles %}
 
+{% block title %}{{ group.name }}{% endblock %}
+{% block description %}{{ group.description }}{% endblock %}
+{% block Keywords %}{{ group.name }}{% endblock %}
+
 {% block content %}
     <div class="content">
         <div class="group_item" data-group_id="{{group.id}}" >

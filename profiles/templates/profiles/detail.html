@@ -1,6 +1,9 @@
 {% extends "main_template.html" %}
 {% load staticfiles %}
 
+{% block title %}{{ cur_user.first_name }} {{ cur_user.last_name }}{% endblock %}
+{% block description %}{{ cur_user.profile.description }}{% endblock %}
+
 {% block content %}
     <div class="row main_content_block">
         <div class="profile_info_block">

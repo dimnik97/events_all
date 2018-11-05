@@ -2,6 +2,10 @@
 {% load staticfiles %}
 {% load custom_filters %}
 
+{% block title %}{{ event.name }}{% endblock %}
+{% block description %}{{ event.description }}{% endblock %}
+{% block Keywords %}{% for item in categories %} {{ item.name }},{%  endfor %} {{ event.name }} {% endblock %}
+
 {% block content %}
     <script type="text/javascript" src="https://vk.com/js/api/share.js?95" charset="windows-1251"></script>
     <div class="main_bidy_content">
