@@ -596,8 +596,8 @@ class Event_avatar(models.Model):
                 helper.ImageHelper.del_mini(obj.image.path, postfix='reduced')
                 if 'default' not in obj.image:
                     obj.image.delete()
-        except Event_avatar.DoesNotExist:
-            pass
+        finally:
+            print('except on event_avatar')
 
         super(Event_avatar, self).save()
         mini = Image.open(self.image.path)

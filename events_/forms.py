@@ -137,18 +137,18 @@ class EventForm(forms.Form):
 
             if is_creation == 1:
                 EventMembership.objects.create(event=event, person=request.user.profile)
-                # Временное решение
                 event_avatar = Event_avatar()
-                event_avatar.event = event
-                from django.core.files import File
-                reopen = open(request.POST['image_string'].split('/', 1)[-1], 'rb')
-                django_file = File(reopen)
-
-                event_avatar.image = django_file
-                event_avatar.save()
-                # Временное решение
             else:
                 EventCategoryRelation.objects.filter(event=event).delete()
+                event_avatar = Event_avatar.objects.get(event=event)
+
+            event_avatar.event = event
+            from django.core.files import File
+            reopen = open(request.POST['image_string'].split('/', 1)[-1], 'rb')
+            django_file = File(reopen)
+            event_avatar.image = django_file
+            event_avatar.save()
+
             for category in categories:
                 EventCategoryRelation.objects.create(event=event, category=EventCategory.objects.get(description=category))
             result['url'] = event.id
