@@ -1,13 +1,16 @@
 {% load chats_filters %}
 
 {% for item in groups %}
-    <div class="infinite-item_groups">
+    <div class="infinite-item_groups line mtop-35">
         <a href="/groups/{{ item.id }}">
-            <img src="{{ item.groupavatar.mini_url }}" class="avatar_round">
+            <img src="{{ item.groupavatar.mini_url }}" class="sqr_avatar">
         </a>
-        <a class="username" href="/groups/{{ item.id }}">{{ item.name }}</a>
-        <span>{{ item.status }} </span>
-    <br>
+        <div class="group_info">
+            <div class="event_name"><a class="username" href="/groups/{{ item.id }}">{{ item.name }}</a></div>
+            <div class="group_description">{{ item.status }} </div>
+            <div class="group_members">12</div> {# участники #}
+            <div class="join_group"><button class="purple_custom_btn">Вступить</button></div>
+        </div>
         {% if is_my %}
             <label>Роль:</label>
             {{ item|ru_role:user.profile.id }}
