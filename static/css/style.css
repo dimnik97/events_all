@@ -1437,3 +1437,47 @@ a{
     font-size: 10px;
     color: #7971EA;
 }
+
+.sqr_avatar{
+    object-fit: cover;
+}
+.sqr_avatar{
+    width: 100px;
+    height: 100px;
+}
+
+.infinite-item_groups{
+    max-width: 730px;
+    max-height: 100px;
+}
+
+.group_description{
+    font-size: 16px;
+    color: #7B7B7B;
+    margin-top: 15px;
+    margin-left: 45px;
+    overflow-y: hidden;
+    max-width: 390px;
+}
+
+.group_info{
+    position: relative;
+    width: 100%;
+}
+
+.group_members{
+    font-size: 16px;
+    color: #7B7B7B;
+    position: absolute;
+    bottom: 0;
+    margin-left: 45px;
+}
+
+.join_group{
+    position: absolute;
+    right: 0;
+
+    top: 50%;
+    transform: translate(0, -50%);
+    /*margin-left: 75px;*/
+}
