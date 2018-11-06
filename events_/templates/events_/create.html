@@ -11,7 +11,7 @@
         </div>
 
 
-        <div class="create_content" style="padding-bottom: 200px;">
+        <div class="create_content" >
             <form method="post" enctype="multipart/form-data" id="event_form_create" novalidate>
                 {% csrf_token %}
                 {% include 'includes/bootstrap4_form.html' with form=form %}
