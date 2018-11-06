@@ -100,6 +100,12 @@
             onBlur: eventHandler('onBlur'),
         });
 
+        var eventHandlerCity = function(name) {
+            return function () {
+                set_center_by_city_name($('.item', '.selectize-input').html());
+            }
+        };
+
         $.ajax({
             url: '/cities_/get_cities_for_event',
             type: 'GET',
@@ -108,7 +114,9 @@
             },
             success: function (data) {
                 if (data) {
-                    $('#select-state').html(data).selectize();
+                    $('#select-state').html(data).selectize({
+                        onBlur       : eventHandlerCity('onItemAdd'),
+                    });
                 } else {
                     // TODO заполнить error
                 }
@@ -159,7 +167,8 @@
             is_view = false,
             geo_lat ='{{ geo_point.lat }}',
             geo_lng ='{{ geo_point.lng }}',
-            event_map = false;
+            event_map = false,
+            city = '{{ user_city.city }}';
     </script>
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 

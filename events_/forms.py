@@ -136,9 +136,11 @@ class EventForm(forms.Form):
             event.save()
 
             if is_creation == 1:
+                create_flag = True
                 EventMembership.objects.create(event=event, person=request.user.profile)
                 event_avatar = Event_avatar()
             else:
+                create_flag = False
                 EventCategoryRelation.objects.filter(event=event).delete()
                 event_avatar = Event_avatar.objects.get(event=event)
 
@@ -147,7 +149,7 @@ class EventForm(forms.Form):
             reopen = open(request.POST['image_string'].split('/', 1)[-1], 'rb')
             django_file = File(reopen)
             event_avatar.image = django_file
-            event_avatar.save()
+            event_avatar.save(create=create_flag)
 
             for category in categories:
                 EventCategoryRelation.objects.create(event=event, category=EventCategory.objects.get(description=category))

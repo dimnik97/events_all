@@ -7,7 +7,6 @@ from events_ import views as event_view
 
 urlpatterns = [
      url(r'^map$', views.event_map, name='map'),
-     url(r'^get_event_map$', views.get_event_map, name='get_event_map'),
      url(r'^signup_check/$', Users.signup_check, name='signup_check'),
      url(r'^subscribe_event/$', event_view.subsc_unsubsc, name='subscribe_event'),
      url(r'^get_infinite_events$', views.get_infinite_events, name='get_infinite_events'),

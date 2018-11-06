@@ -242,7 +242,6 @@ def create(request):
         'title': 'Создание события',
         'form': form,
         "csrf_token": get_token(request),
-        'city_list': CityTable.all_city_exclude_user_city(user_city),
         'user_city': user_city,
         'categories': categories,
         'user': request.user

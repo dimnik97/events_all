@@ -7,7 +7,7 @@
 
     <div class="content_wrapper">
         <div class="create_page_title">
-            Создание События
+            Создание события
         </div>
 
 
@@ -85,11 +85,6 @@
 
     </div>
 
-
-
-
-
-
     <script>
         var eventHandler = function(name) {
             return function () {
@@ -110,6 +105,12 @@
             onBlur: eventHandler('onBlur'),
         });
 
+        var eventHandlerCity = function(name) {
+            return function () {
+                set_center_by_city_name($('.item', '.selectize-input').html());
+            }
+        };
+
         $.ajax({
             url: '/cities_/get_cities_for_event',
             type: 'GET',
@@ -118,7 +119,9 @@
             },
             success: function (data) {
                 if (data) {
-                    $('#select-state').html(data).selectize();
+                    $('#select-state').html(data).selectize({
+                        onBlur       : eventHandlerCity('onItemAdd'),
+                    });
                 } else {
                     // TODO заполнить error
                 }
@@ -153,7 +156,8 @@
         var is_create = true,
             is_edit = false,
             is_view = true,
-            event_map = false;
+            event_map = false,
+            city = '{{ user_city.city }}';
     </script>
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
 

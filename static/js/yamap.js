@@ -10,8 +10,9 @@ var myCollection;
 function get_form_with_custom_modules($form) {
     let unindexed_array = $form.serializeArray(),
         indexed_array = {};
+    let location = $('#select-state').val() || '';
+    indexed_array['location'] = location;
 
-    let location = $('#location').find('.selected');
     if (typeof $('#select-tools').val() !== 'undefined')
         indexed_array['categories_'] = $('#select-tools').val().join(',');
 
@@ -37,7 +38,8 @@ function init() {
     myCollection = new ymaps.GeoObjectCollection();
 
     if (event_map === true) {
-        ajax_get_events()   // Получение данных для карты
+        set_center_by_city_name(city);
+        ajax_get_events() ;  // Получение данных для карты
     }
     if (is_create === true || (is_edit === true)) {
         if (is_edit === true && geo_lat && geo_lng) {
@@ -45,7 +47,7 @@ function init() {
             set_center_by_cords(coords);
             create_and_add_place_mark(coords, true);
         } else {
-            set_center_by_city_name($('.custom_select_items').find('.selected').html());
+            set_center_by_city_name(city);
         }
 
         myMap.events.add('click', function (e) {
@@ -105,10 +107,19 @@ function init() {
         myMap.geoObjects.add(myPlacemark);
     }
 }
+
+/**
+ * Выставляем центр карты по координатам
+ *
+ */
 function set_center_by_cords(cords) {
     myMap.setCenter(cords, 13);
 }
 
+/**
+ * Выставляем центр карты по имени города
+ *
+ */
 function set_center_by_city_name(city_name) {
     ymaps.geocode(city_name, {
         results: 1
@@ -119,6 +130,10 @@ function set_center_by_city_name(city_name) {
     });
 }
 
+/**
+ * Добавление точки, вешаем события при клике
+ *
+ */
 function add_bounds(bounds) {
     var coords;
     if (typeof bounds.lat !== 'number' && typeof bounds.lng !== 'number') {
@@ -144,6 +159,11 @@ function add_bounds(bounds) {
     myPlacemark.geometry.setCoordinates(coords);
 }
 
+
+/**
+ * Создание метки карты
+ *
+ */
 // Создание метки.
 function createPlacemark(coords) {
     return new ymaps.Placemark(coords, {
@@ -154,6 +174,10 @@ function createPlacemark(coords) {
     });
 }
 
+/**
+ * Создание метки карты с id
+ *
+ */
 function createPlacemark_event_map(coords, bounds) {
     return new ymaps.Placemark(coords, {
         myid: bounds.id,
@@ -165,32 +189,33 @@ function createPlacemark_event_map(coords, bounds) {
 }
 
 /**
- * Ajax для формы EventForm (Редактирование)
+ * Обработчик клика по фильтру
  *
  */
 $('body').on('click', '.submit_event_map_filter', function(e){
     ajax_get_events();
 });
 
-
+/**
+ * Ajax для формы EventForm (Редактирование)
+ *
+ */
 function ajax_get_events() {
     $.ajax({
         url: '/main_app/get_events_map',
         type: 'POST',
-        data: get_form_with_custom_modules($('.event_map_filter_block')),
         dataType: 'json',
+        data: get_form_with_custom_modules($('.event_map_filter_block')),
         success: function (data) {
             if (data) {
-                debugger;
                 myCollection.removeAll();
-                set_center_by_city_name(data.user_city);
                 let i;
-                for (i = 0; i <  data.events.length; i++) {
+                for (i = 0; i <  data.length; i++) {
                     add_bounds({
-                        'name': data.events[i].name,
-                        'lat': data.events[i].lat,
-                        'lng': data.events[i].lng,
-                        'id': data.events[i].id,
+                        'name': data[i].name,
+                        'lat': data[i].lat,
+                        'lng': data[i].lng,
+                        'id': data[i].id,
                     })
                 }
                 myMap.geoObjects.add(myCollection);

@@ -28,19 +28,10 @@
         var is_create = false,
             is_edit = false,
             is_view = false,
-            event_map = true;
+            event_map = true,
+            city = '{{ user_city.city }}';
 
         var first_bounds = [];
-        {% for event in events %}
-            {% if event.geo_point %}
-                first_bounds[{{ forloop.counter0 }}] = {
-                    'name': '{{ event.name }}',
-                    'lat': '{{ event.geo_point.lat }}',
-                    'lng': '{{ event.geo_point.lng }}',
-                    'image': '{{ event.event_avatar.mini_url }}'
-                };
-            {% endif %}
-        {% endfor %}
     </script>
 
     <script type="text/javascript" src="{% static 'js/yamap.js' %}"></script>
@@ -59,22 +50,10 @@
         </div>
         <div>
             <div class="form-group ">
-                <select id="select-state" name="select_city" placeholder="Начните вводить...">
+                <select id="select-state" name="select_city" class="select_city" placeholder="Начните вводить...">
                 </select>
             </div>
         </div>
-{#        <div>#}
-{#            <label>Город</label>#}
-{#            <div id="location" class="custom_select">#}
-{#                <input type="text" placeholder="Начните вводить" class="find_city">#}
-{#                <div class="custom_select_items">#}
-{#                    <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>#}
-{#                    {% for city in city_list %}#}
-{#                        <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>#}
-{#                    {% endfor %}#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
         <div>
             <label>Дата начала</label>
             <select id="date">
@@ -95,12 +74,21 @@
             $('#date, #category').selectize();
         });
 
+        var eventHandlerCity = function(name) {
+            return function () {
+                set_center_by_city_name($('.item', '.select_city').html());
+                $('.submit_event_map_filter').click();
+            }
+        };
+
         $.ajax({
             url: '/cities_/get_cities?no_need_ip=false',
             type: 'GET',
             success: function (data) {
                 if (data) {
-                    $('#select-state').html(data).selectize();
+                    $('#select-state').html(data).selectize({
+                        onBlur       : eventHandlerCity('onItemAdd'),
+                    });
                 } else {
                     // TODO заполнить error
                 }

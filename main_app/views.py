@@ -49,36 +49,15 @@ def event_map(request):
     user = request.user
     category_list = EventCategory.objects.all()
     # Не забыть про закрытые эвенты
-
-    user_city = Users.get_user_locations(request, need_ip=True)  # город либо через IP либо через установленный
-    city_list = CityTable.all_city_exclude_user_city(user_city)
+    user_city = Users.get_user_locations(request, need_ip=False)  # город либо через IP либо через установленный
 
     context = {
         'user': user,
         'category_list': category_list,
-        'city_list': city_list,
         'user_city': user_city,
     }
 
     return render_to_response('main_app/map.html', context)
-
-
-# Получение данных на карту событий при смене города
-def get_event_map(request):
-    if 'city_id' in request.POST:
-        city_id = request.POST['city_id']
-        events = Event.objects.filter(location=city_id).only('name', 'geo_point__lng',
-                                                             'geo_point__lat', 'geo_point__name',
-                                                             'id').select_related('event_avatar')
-        result = []
-        for event in events:
-            result.append({
-                'name': event.name,
-                'lat': event.geo_point.lat,
-                'lng': event.geo_point.lng,
-                'image': event.event_avatar.mini_url,
-            })
-        return HttpResponse(json.dumps(result))
 
 
 # Паджинация основной ленты
@@ -98,23 +77,16 @@ def get_friend_events(request):
 # Карта событий
 def get_events_map(request):
     events = []
-    if 'select_city' in request.POST:
-        user_city = CityTable.objects.get(city_id=request.POST['select_city']).city
-    else:
-        user_city = Users.get_user_locations(request, need_ip=True).city
     for event in Event.get_events(request, is_simple=True):
-        if event.geo_point:
+        if event.geo_point and event.geo_point.lat == event.geo_point.lat and event.geo_point.lng == event.geo_point.lng:
             events.append({
                 'name': event.name,
                 'lat': event.geo_point.lat,
                 'lng': event.geo_point.lng,
                 'id': event.id
             })
-    context = {
-        'events': events,
-        'user_city': user_city
-    }
-    return HttpResponse(json.dumps(context), content_type="application/json")
+
+    return HttpResponse(json.dumps(events, ensure_ascii=False))
 
 
 # Подгрузка новых событий

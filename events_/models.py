@@ -16,7 +16,7 @@ from groups.models import Group, Membership, AllRoles
 import datetime
 from django.utils.timezone import utc
 
-from profiles.models import Profile, ProfileSubscribers
+from profiles.models import Profile, ProfileSubscribers, Users
 
 
 class EventCategory(models.Model):
@@ -149,6 +149,9 @@ class Event(models.Model):
         if 'location' in request.POST and request.POST['location'] != '':
             if int(request.POST['location']) > 0:
                 q_objects.add(Q(location=request.POST['location']), Q.AND)
+        else:
+            locations = Users.get_user_locations(request, need_ip=False).city_id
+            q_objects.add(Q(location=locations), Q.AND)
 
         if 'name' in request.POST and request.POST['name'] != '':
             q_objects.add(Q(name__icontains=request.POST['name']), Q.AND)
@@ -230,7 +233,7 @@ class Event(models.Model):
     def event_query(q_objects, is_simple=False):
         if is_simple:
             return Event.objects.filter(q_objects).only('name', 'geo_point__lng', 'geo_point__lat', 'geo_point__name',
-                                                        'id').select_related('event_avatar')
+                                                        'id').select_related('event_avatar', 'geo_point')
         else:
             return Event.objects.filter(q_objects). \
                 only('name', 'creator_id__first_name', 'description', 'last_update',
@@ -588,16 +591,10 @@ class Event_avatar(models.Model):
     # - создание миниатюры
     # - удаление миниатюры и основного изображения
     #   при попытке записи поверх существующей записи
-    def save(self, force_insert=False, force_update=False, using=None):
-        try:
-            obj = Event_avatar.objects.get(id=self.id)
-            if obj.image.path != self.image.path:
-                helper.ImageHelper.del_mini(obj.image.path, postfix='mini')
-                helper.ImageHelper.del_mini(obj.image.path, postfix='reduced')
-                if 'default' not in obj.image:
-                    obj.image.delete()
-        finally:
-            print('except on event_avatar')
+    def save(self, force_insert=False, force_update=False, using=None, create=False):
+        if create is False:
+            helper.ImageHelper.del_mini(self.image.path, postfix='mini')
+            helper.ImageHelper.del_mini(self.image.path, postfix='reduced')
 
         super(Event_avatar, self).save()
         mini = Image.open(self.image.path)

@@ -1184,6 +1184,7 @@ $(document).ready(function() {
     function get_value_from_custom_select(parent_selector) {
         return parent_selector.find('.selected');
     }
+
     /**
      * Получение отмеченного на карте маяка
      *
@@ -1196,6 +1197,7 @@ $(document).ready(function() {
         }
         return indexed_array;
     }
+
     /**
      * Получение формы с кастомными модулями, например селект по городам
      *
@@ -1226,7 +1228,6 @@ $(document).ready(function() {
         if (group_id !== null || group_id !== '' ) {
             indexed_array['group_id'] = group_id;
         }
-
         return indexed_array;
     }
 
@@ -1265,7 +1266,7 @@ $(document).ready(function() {
     });
 
     /**
-     * удаление события
+     * Восстановление события
      *
      */
     $('.restore_or_delete_event').off('click').on('click', function () {
@@ -1310,7 +1311,6 @@ $(document).ready(function() {
             }
         });
     }
-
 
     /**
      * удаление новости
@@ -1395,6 +1395,10 @@ $(document).ready(function() {
         });
     });
 
+    /**
+     *  Датапикер
+     *
+     */
     $('#date', '.event_filter_block').on('change', function () {
         if (parseInt($(this).val()) === 6) {
             $('#date').closest('div').append('<input class="date_filter" name="date_filter">')
@@ -1408,6 +1412,10 @@ $(document).ready(function() {
         }
     });
 
+    /**
+     *  Поставить лайк
+     *
+     */
     $body.on('click', '[data-like="like"]', function () {
         let $this = $(this),
             event_id = $this.closest('.event_item_block').data('event_id');
@@ -1432,7 +1440,10 @@ $(document).ready(function() {
         });
     });
 
-
+    /**
+     *  Убрать лайк
+     *
+     */
     $body.on('click', '[data-like="unlike"]', function () {
         let $this = $(this),
             event_id = $this.closest('.event_item_block').data('event_id');
@@ -1474,5 +1485,9 @@ $(document).ready(function() {
                 $('.event_send_request').remove();
             }
         });
+    });
+
+    $('.selectize-dropdown').on('click', '.option', function () {
+        set_center_by_city_name($(this).html());
     });
 });
