@@ -33,6 +33,7 @@
         $gender.removeClass('form-control');
         $gender.selectize();
         $gender.siblings('.selectize-control').css('padding-bottom', '15px');
+
         $.ajax({
             url: '/cities_/get_cities?no_need_ip=true',
             type: 'GET',

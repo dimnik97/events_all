@@ -691,8 +691,6 @@ $(document).ready(function() {
         });
     });
 
-
-
     /**
      * Удаление группы, диалог, обработчики
      *
@@ -742,7 +740,6 @@ $(document).ready(function() {
         });
     }
 
-
     /**
      * Отправка заявки на вступление в группу
      *
@@ -764,7 +761,6 @@ $(document).ready(function() {
         });
     });
 
-
     /**
      * Выделение сообщений
      *
@@ -784,7 +780,6 @@ $(document).ready(function() {
         }
     });
 
-
     /**
      * Обработка редактирования сообщений
      *
@@ -798,7 +793,6 @@ $(document).ready(function() {
         $input.addClass('edited_message');
         $input.attr('message_id', id_message);
     });
-
 
     /**
      * Обработка удаления сообщений
@@ -822,7 +816,6 @@ $(document).ready(function() {
             }
         });
     });
-
 
     /**
      * Переход в определенный чат (Либо диалог, либо комната)
@@ -1000,7 +993,6 @@ $(document).ready(function() {
         });
     });
 
-
     /**
      * Создать чат, включает в себя:
      *
@@ -1059,7 +1051,6 @@ $(document).ready(function() {
         });
     });
 
-
     /**
      * Принять заявку на чат
      *
@@ -1082,7 +1073,6 @@ $(document).ready(function() {
             }
         });
     });
-
 
     /**
      * Отклонить заявку на чат
@@ -1482,7 +1472,6 @@ $(document).ready(function() {
             dataType: 'json',
             success: function (data) {
                 $('.event_send_request').remove();
-
             }
         });
     });

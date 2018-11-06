@@ -1322,3 +1322,9 @@ h5 {
     background: #7971EA !important;
     box-shadow: none !important;
 }
+.main_custom_select {
+    border-radius: 20px;
+}
+.event_map_filter_block .find_events {
+    width: 400px;
+}

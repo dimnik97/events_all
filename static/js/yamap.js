@@ -12,12 +12,8 @@ function get_form_with_custom_modules($form) {
         indexed_array = {};
 
     let location = $('#location').find('.selected');
-    unindexed_array.push({name: 'location', value: location.data('city_id')});
-    let categories = '';
-    $('.custom_multiply_select').find('.remove_categories').each(function (key, value) {
-        categories += ($(this).data('categories_id')).toString() + ',';
-    });
-    indexed_array['categories'] = categories;
+    if (typeof $('#select-tools').val() !== 'undefined')
+        indexed_array['categories_'] = $('#select-tools').val().join(',');
 
     $.map(unindexed_array, function(n, i){
         indexed_array[n['name']] = n['value'];
@@ -132,9 +128,9 @@ function add_bounds(bounds) {
     }
     myPlacemark = createPlacemark_event_map(coords, bounds);
 
-    myPlacemark.events.add('click', function () {
+    myPlacemark.events.add('click', function (e) {
         $.ajax({
-            url: '/events/' + myPlacemark.properties._data.myid + '?is_card_on_event_map=True',
+            url: '/events/' + e.get('target').properties.get('myid') + '?is_card_on_event_map=True',
             type: 'GET',
             dataType: 'json',
             success: function (data) {
@@ -185,6 +181,7 @@ function ajax_get_events() {
         dataType: 'json',
         success: function (data) {
             if (data) {
+                debugger;
                 myCollection.removeAll();
                 set_center_by_city_name(data.user_city);
                 let i;

@@ -98,6 +98,10 @@ def get_friend_events(request):
 # Карта событий
 def get_events_map(request):
     events = []
+    if 'select_city' in request.POST:
+        user_city = CityTable.objects.get(city_id=request.POST['select_city']).city
+    else:
+        user_city = Users.get_user_locations(request, need_ip=True).city
     for event in Event.get_events(request, is_simple=True):
         if event.geo_point:
             events.append({
@@ -108,9 +112,9 @@ def get_events_map(request):
             })
     context = {
         'events': events,
-        'user_city': CityTable.objects.get(city_id=request.POST['location']).city
+        'user_city': user_city
     }
-    return HttpResponse(json.dumps(context))
+    return HttpResponse(json.dumps(context), content_type="application/json")
 
 
 # Подгрузка новых событий

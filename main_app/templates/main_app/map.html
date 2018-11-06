@@ -1,6 +1,8 @@
 {% extends "main_template.html" %}
 {% load staticfiles %}
 
+{% block title %}Карта событий{% endblock %}
+
 {% block content %}
     <style>
         .navbar {
@@ -45,30 +47,34 @@
 
     <form class="event_map_filter_block" >
         <div>
-            <label>Свободный поиск</label>
-            <input type="text" name="name" placeholder="Начните вводить" class="find_groups" >
+            <input type="text" name="name" placeholder="Название события" class="find_events" >
         </div>
         <div>
-            <label>Категория</label>
-            <select id="category" name="category">
-                <option value="all" selected>Все</option>
+            <select id="category" name="category" class="main_custom_select width225_center z_index_selectize">
+                <option value="all" selected>Категория</option>
                 {% for category in category_list %}
                     <option value="{{ category.id }}">{{ category.name }}</option>
                 {% endfor %}
             </select>
         </div>
         <div>
-            <label>Город</label>
-            <div id="location" class="custom_select">
-                <input type="text" placeholder="Начните вводить" class="find_city">
-                <div class="custom_select_items">
-                    <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>
-                    {% for city in city_list %}
-                        <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>
-                    {% endfor %}
-                </div>
+            <div class="form-group ">
+                <select id="select-state" name="select_city" placeholder="Начните вводить...">
+                </select>
             </div>
         </div>
+{#        <div>#}
+{#            <label>Город</label>#}
+{#            <div id="location" class="custom_select">#}
+{#                <input type="text" placeholder="Начните вводить" class="find_city">#}
+{#                <div class="custom_select_items">#}
+{#                    <span  class='select_item selected' data-city_id="{{ user_city.city_id }}">{{ user_city.city}}</span>#}
+{#                    {% for city in city_list %}#}
+{#                        <span class="select_item" data-city_id="{{ city.city_id }}">{{ city.city}}</span>#}
+{#                    {% endfor %}#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
         <div>
             <label>Дата начала</label>
             <select id="date">
@@ -84,6 +90,23 @@
         <button type='button' class="submit_event_map_filter">Найти</button>
     </form>
 
+    <script>
+        $(function() {
+            $('#date, #category').selectize();
+        });
+
+        $.ajax({
+            url: '/cities_/get_cities?no_need_ip=false',
+            type: 'GET',
+            success: function (data) {
+                if (data) {
+                    $('#select-state').html(data).selectize();
+                } else {
+                    // TODO заполнить error
+                }
+            }
+        });
+    </script>
     <div class="event_card">
     </div>
 
