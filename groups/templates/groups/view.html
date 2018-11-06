@@ -4,20 +4,22 @@
 {% block title %}Группы JoinMe{% endblock %}
 
 {% block content %}
-    <div class="main_block">
-        <a href="/groups/create">Создать группу</a>
-        <ul class="nav nav-tabs">
-            <li class="active"><a data-toggle="tab" href="#panel1">Список групп</a></li>
-            {% if is_my %}
-                <li class="activate_panel2_groups"><a data-toggle="tab" href="#panel2">Приглашения и заявки</a></li>
-            {% endif %}
-        </ul>
+    <div class="main_block groups_main_block">
+        <div class="line position_rel birder_botton_grey">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#panel1">Список групп</a></li>
+                {% if is_my %}
+                    <li class="activate_panel2_groups"><a data-toggle="tab" href="#panel2">Приглашения и заявки</a></li>
+                {% endif %}
+            </ul>
+            <button class="purple_custom_btn create_gr_btn"><a class="" href="/groups/create">Создать группу</a></button>
+        </div>
         <div class="tab-content">
             <div id="panel1" class="tab-pane fade in active">
                 <br>
                 <form class="groups_filter">
                     <input type="text" name="name" placeholder="Начните вводить" class="find_groups" >
-                    <label>Поиск по всем группам</label>
+                    <label class="purple_custom_label">Поиск по всем группам</label>
                     <input type="checkbox" name="all" class="all_groups">
                 </form>
                 <div class="content_paginator_groups" data-url="/groups/get_groups?id={{ user.id }}">
