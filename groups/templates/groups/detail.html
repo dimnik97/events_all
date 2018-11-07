@@ -6,60 +6,158 @@
 {% block Keywords %}{{ group.name }}{% endblock %}
 
 {% block content %}
-    <div class="content">
-        <div class="group_item" data-group_id="{{group.id}}" >
+
+    <div class="row main_content_block">
+        <div class="profile_info_block group_item"  data-group_id="{{group.id}}" >
             <div class="avatar_image">
-                <p>
-                    <img src="{{ avatar.reduced_url }}" width="300px" height="200px" alt="{{ group.name }}">
-                </p>
-            </div>
-            {% if roles.role == 'admin'%}
-                <button class="change_avatar" data-url="/groups/change_avatar">Смена аватара</button><br>
-                <button class="change_mini" data-url="/groups/change_mini">Смена миниатюры</button><br>
-                <a href="/groups/edit/{{ group.id }}">Редактировать</a><br>
-            {% else %}
-                {% if roles.role == 'subscribers' or roles.role == 'editor' %}
-                    <a href="/chats/?room={{ chat.id }}">Перейти к чату</a><br>
-                    <button class="subscribe_group" data-action="remove">Выйти из группы</button><br>
-                {% else %}
-                    <button class="subscribe_group" data-action="add">Вступить в группу</button><br>
+                {% if roles.role == 'admin' or roles.role == 'editor' %}
+                    <div class=""><img class="change_avatar" data-url="/groups/change_avatar" src="/static/img/editing.svg"></div>
                 {% endif %}
-            {% endif %}
-            {% if roles.role == 'admin' or roles.role == 'editor' %}
-                <a href="/events/create?group_id={{ group.id }}">Создать событие</a><br>
-            {% endif %}
-        </div>
+                <img class="group_main_avatar" src="{{ avatar.reduced_url }}">
 
-        <div>
-            Название: {{ group.name }} <br>
-            Описание: {{ group.description }}
-        </div>
+                {% if roles.role == 'admin'%}
+                    {#                <button class="change_avatar" data-url="/groups/change_avatar">Смена аватара</button><br>#}
+                    {#                <button class="change_mini" data-url="/groups/change_mini">Смена миниатюры</button><br>#}
+                    <div class="grey_text_btn mtop-35"><a class="grey_text_btn " href="/groups/edit/{{ group.id }}">Редактировать</a></div>
+                {% else %}
+                    {% if roles.role == 'subscribers' or roles.role == 'editor' %}
+                        <a href="/chats/?room={{ chat.id }}">Перейти к чату</a><br>
+                        <button class="subscribe_group purple_custom_btn" data-action="remove">Выйти из группы</button><br>
+                    {% else %}
+                        <button class="subscribe_group purple_custom_btn" data-action="add">Вступить в группу</button><br>
+                    {% endif %}
+                {% endif %}
+                {% if roles.role == 'admin' or roles.role == 'editor' %}
+                    <button class="purple_custom_btn mtop-35"><a href="/events/create?group_id={{ group.id }}">Создать событие</a></button><br>
+                {% endif %}
+            </div>
 
-        <div>
-            <span data-url="/profile/get_followers?user={{ user.id }}"
-                  class="all_followers">Подписчики {{ members|length }}</span>
-            <ul>
-                {% for item in members %}
-                    <div>
-                        <a href="/profile/{{ item.person.user.id }}">
-                            <img src="{{ item.person.user.profileavatar.mini_url }}" class="avatar_round">
-                        </a>
-                        <a href="/profile/{{ item.person.user.id }}">
-                            {{ item.person.user.first_name }}  {{ item.person.user.last_name }}
-                        </a>
-                        {{ item.role }}
+            <div class="row">
+                <div class="col-3 profile_left">
+
+                    <div class="block_info">
+                        <div class="name_block"><span class="name_text">{{group.name }}</span></div>
+                        <hr>
+
+                        <div class="about_info right_info_cur_user_block mtop-35">
+                            <p class="header mbot-20">Описание</p>
+                            <p class="fs16">{{ group.description }}</p>
+                        </div>
+
+                        <div class=" mtop-35">
+                            <div data-url="/events/get_subscribers?event={{ event.id }}" class=" f-s-15 see_all_event_subscribers">Участники</div>
+                            <div class="subscribers_block_line d-flex f-s-15">
+                                {#                                {% for item in subscribers|slice:":3" %}#}
+                                {% for item in members|slice:":3" %}
+                                    <div class="subscriber_item_detail">
+                                        <a href="/profile/{{ item.person.user.id }}">
+                                            <img src="{{ item.person.user.profileavatar.mini_url }}" class="avatar_round">
+                                        </a>
+                                        <br>
+                                        <a href="/profile/{{ item.person.user.id }}"> {{ item.person.user.first_name }}<br>{{ item.person.user.last_name }} </a>
+                                    </div>
+                                {% endfor %}
+                                {#                                {% if subscribers.count > 3 %}#}
+                                {#                                    <div class="subscriber_item_detail_add see_all_event_subscribers" data-url="/events/get_subscribers?event={{ event.id }}" >#}
+                                {#                                        <span>{{ subscribers.count|others }}</span>#}
+                                {#                                    </div>#}
+                                {#                                {% endif %}#}
+                            </div>
+                        </div>
+
                     </div>
-                {% endfor %}
-            </ul>
+                </div>
+            </div>
+        </div>
+        <div class="cur_user_events_block">
+
+            <div class="cur_user_events_header">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#panel1">Активные</a></li>
+                    <li class="activate_panel2_events"><a data-toggle="tab" href="#panel2">Мои</a></li>
+                    <li class="activate_panel3_events"><a data-toggle="tab" href="#panel3">Завершенные</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div id="panel1" class="tab-pane fade in active">
+                    <div class="content_paginator_active">
+                    </div>
+                </div>
+                <div id="panel2" class="tab-pane fade">
+                    <div class="content_paginator_user_events">
+                    </div>
+                </div>
+                <div id="panel3" class="tab-pane fade">
+                    <div class="content_paginator_ended">
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <script>
-            var id ={{ group.id }}, type ='detail'
-
-        </script>
-        <script type="text/javascript" src="{% static 'js/group_events.js' %}"></script>
-        <div class="content_paginator">
+        <div id="dialog" class="d_none">
+            <div class="content_paginator">
+            </div>
         </div>
+        <div id="dialog_img" class="d_none">
+        </div>
+    </div>
+
+
+
+    {#    <div class="content">#}
+    {#        <div class="group_item" data-group_id="{{group.id}}" >#}
+    {#            <div class="avatar_image">#}
+    {#                <p>#}
+    {#                    <img src="{{ avatar.reduced_url }}" width="300px" height="200px" alt="{{ group.name }}">#}
+    {#                </p>#}
+    {#            </div>#}
+    {#            {% if roles.role == 'admin'%}#}
+    {#                <button class="change_avatar" data-url="/groups/change_avatar">Смена аватара</button><br>#}
+    {#                <button class="change_mini" data-url="/groups/change_mini">Смена миниатюры</button><br>#}
+    {#                <a href="/groups/edit/{{ group.id }}">Редактировать</a><br>#}
+    {#            {% else %}#}
+    {#                {% if roles.role == 'subscribers' or roles.role == 'editor' %}#}
+    {#                    <a href="/chats/?room={{ chat.id }}">Перейти к чату</a><br>#}
+    {#                    <button class="subscribe_group" data-action="remove">Выйти из группы</button><br>#}
+    {#                {% else %}#}
+    {#                    <button class="subscribe_group" data-action="add">Вступить в группу</button><br>#}
+    {#                {% endif %}#}
+    {#            {% endif %}#}
+    {#            {% if roles.role == 'admin' or roles.role == 'editor' %}#}
+    {#                <a href="/events/create?group_id={{ group.id }}">Создать событие</a><br>#}
+    {#            {% endif %}#}
+    {#        </div>#}
+    {##}
+    {#        <div>#}
+    {#            Название: {{ group.name }} <br>#}
+    {#            Описание: {{ group.description }}#}
+    {#        </div>#}
+    {##}
+    {#        <div>#}
+    {#            <span data-url="/profile/get_followers?user={{ user.id }}"#}
+    {#                  class="all_followers">Подписчики {{ members|length }}</span>#}
+    {#            <ul>#}
+    {#                {% for item in members %}#}
+    {#                    <div>#}
+    {#                        <a href="/profile/{{ item.person.user.id }}">#}
+    {#                            <img src="{{ item.person.user.profileavatar.mini_url }}" class="avatar_round">#}
+    {#                        </a>#}
+    {#                        <a href="/profile/{{ item.person.user.id }}">#}
+    {#                            {{ item.person.user.first_name }}  {{ item.person.user.last_name }}#}
+    {#                        </a>#}
+    {#                        {{ item.role }}#}
+    {#                    </div>#}
+    {#                {% endfor %}#}
+    {#            </ul>#}
+    {#        </div>#}
+
+    <script>
+        var id ={{ group.id }}, type ='detail'
+
+    </script>
+    <script type="text/javascript" src="{% static 'js/group_events.js' %}"></script>
+    <div class="content_paginator">
+    </div>
     </div>
     <div id="dialog_img" class="d_none"></div>
 {% endblock %}

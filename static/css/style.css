@@ -276,9 +276,9 @@ li.dialog_row {
 }
 
 .auth_block_header {
-    float: right;
-    /*padding-top: 5px;*/
     width: 238px;
+    position: absolute;
+    right: 0;
 }
 
 .auth_block_header .main_menu{
@@ -1479,5 +1479,11 @@ a{
 
     top: 50%;
     transform: translate(0, -50%);
-    /*margin-left: 75px;*/
+}
+
+img.group_main_avatar{
+    object-fit: cover;
+    width: 167px;
+    height: 167px;
+    border-radius: unset;
 }
