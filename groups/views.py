@@ -2,11 +2,11 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse, Http404
 from django.middleware.csrf import get_token
 from django.shortcuts import render, get_object_or_404, render_to_response, redirect
 from chats.models import Room, RoomMembers
+from events_all import helper
 from groups.forms import GroupsForm
 from groups.models import Group, AllRoles, Membership, GroupAvatar
 from images_custom.models import PhotoEditor
@@ -19,7 +19,7 @@ def detail(request, id):
     if context['status']:
         group = get_object_or_404(Group, id=id)
 
-        members = Membership.objects.filter(group=group, role__role__in=['admin', 'editor', 'subscribers'])\
+        members = Membership.objects.filter(group=group, role__role__in=['admin', 'editor', 'subscribers']) \
             .only('role')
 
         try:
@@ -45,24 +45,34 @@ def detail(request, id):
 # Список всех групп
 @login_required(login_url='/accounts/signup-or-login/')
 def view(request):
-    is_my = False
-    if 'id' in request.GET:  # Если нет id, то ошибка
-        user = User.objects.get(id=request.GET['id'])
-        if user == request.user:
-            is_my = True
-    else:
-        return  # TODO Придумать как обрабатывать ошибки
+    cur_user, is_my = check_is_my_acount(request)
+    user = request.user
+
     context = {
         'user': user,
-        'is_my': is_my
+        'is_my': is_my,
+        'cur_user': cur_user
     }
     return render_to_response('groups/view.html', context)
 
 
-# Получение списка всех групп с последующей фильтрацией
-def get_groups(request):
+# Проверка явяется ли аккаунт моим или передан параметр и это просмотр другого профиля
+def check_is_my_acount(request):
     is_my = False  # Если страница пользователя, то показывать административные поля
-    user = request.user  # По умолчанию юзер из реквеста
+    try:
+        cur_user = User.objects.get(id=request.GET['id'])
+    except User.DoesNotExist:
+        cur_user = request.user  # По умолчанию юзер из реквеста
+
+    if cur_user == request.user:
+        is_my = True
+    return cur_user, is_my
+
+
+# Получение списка всех групп с последующей фильтрацией
+@login_required(login_url='/accounts/signup-or-login/')
+def get_groups(request):
+    cur_user, is_my = check_is_my_acount(request)
     # Параметры приходящие постом
     if 'name' in request.POST:
         name = request.POST['name']
@@ -70,24 +80,18 @@ def get_groups(request):
         name = ''
 
     if 'all' in request.POST:
-        groups = Group.objects.filter(name__icontains=name)\
+        groups = Group.objects.filter(name__icontains=name) \
             .only('id', 'name', 'status', ).select_related('groupavatar')
     else:
-        groups = Group.objects.filter(membership__person=user.profile, name__icontains=name)\
+        groups = Group.objects.filter(membership__person=cur_user.profile, name__icontains=name) \
             .only('id', 'name', 'status', ).select_related('groupavatar')
     # Параметры приходящие постом
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(groups, 20)
-    try:
-        groups = paginator.page(page)
-    except PageNotAnInteger:
-        groups = paginator.page(1)
-    except EmptyPage:
-        groups = paginator.page(paginator.num_pages)
+    groups = helper.helper_paginator(request, groups)
 
     context = {
-        'user': user,
+        'cur_user': cur_user,
+        'user': request.user,
         'is_my': is_my,
         'find': name,
         'groups': groups
@@ -139,7 +143,7 @@ def edit(request, id=None):
         roles = ''
 
     #  TODO оптимизировать
-    members = Membership.objects.filter(group=group).only('role', 'person').\
+    members = Membership.objects.filter(group=group).only('role', 'person'). \
         select_related('person__user__profileavatar', 'person__user')
 
     editors = set()
@@ -207,36 +211,34 @@ def create(request, id=None):
     return render_to_response('groups/create.html', context)
 
 
+@login_required(login_url='/accounts/signup-or-login/')
 def subscribe_group(request):
-    if request.user.is_authenticated:
-        if request.is_ajax():
-            try:
-                group = Group.objects.get(id=request.POST['group_id'])
-                action = request.POST['action']
-                user = request.user
-                if action == "add":
-                    room = Room.objects.get(group=group)
-                    if not RoomMembers.objects.filter(user_rel=request.user, room_rel=room):
-                        RoomMembers.objects.create(user_rel=request.user, room_rel=room)
-                        Membership.subscribe(user, group)
-                        RoomMembers.invite_message(request.user, room.id, True)
-                elif action == 'remove':
-                    Membership.unsubscribe(user, group)
-                    room = Room.objects.get(group=group)
-                    member = RoomMembers.objects.filter(user_rel=request.user,
-                                                        room_rel=room)
+    if request.is_ajax():
+        try:
+            group = Group.objects.get(id=request.POST['group_id'])
+            action = request.POST['action']
+            user = request.user
+            if action == "add":
+                room = Room.objects.get(group=group)
+                if not RoomMembers.objects.filter(user_rel=request.user, room_rel=room):
+                    RoomMembers.objects.create(user_rel=request.user, room_rel=room)
+                    Membership.subscribe(user, group)
+                    RoomMembers.invite_message(request.user, room.id, True)
+            elif action == 'remove':
+                Membership.unsubscribe(user, group)
+                room = Room.objects.get(group=group)
+                member = RoomMembers.objects.filter(user_rel=request.user,
+                                                    room_rel=room)
 
-                    member.delete()
-                    RoomMembers.invite_message(request.user, room.id, False)
-                else:
-                    return HttpResponse(str(400))  # Todo Посмотреть что по статусам
-            except KeyError:
-                return HttpResponse('Error')
-            return HttpResponse(str(200))
-        else:
-            raise Http404
+                member.delete()
+                RoomMembers.invite_message(request.user, room.id, False)
+            else:
+                return HttpResponse(str(400))  # Todo Посмотреть что по статусам
+        except KeyError:
+            return HttpResponse('Error')
+        return HttpResponse(str(200))
     else:
-        return redirect('/accounts/signup-or-login')
+        raise Http404
 
 
 # Поиск подписчика по имени или фамилии

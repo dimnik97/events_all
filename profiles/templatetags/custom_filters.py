@@ -1,6 +1,8 @@
 from django import template
 
 from events_.models import EventMembership, EventViews, EventLikes
+from events_all import helper
+from groups.models import Membership
 
 register = template.Library()
 
@@ -14,6 +16,15 @@ def count(members):
 def is_subscribe(event_id, arg):
     try:
         EventMembership.objects.get(person=arg.profile, event_id=event_id)
+        return True
+    except:
+        return False
+
+
+@register.filter
+def is_subscribe_group(group_id, arg):
+    try:
+        Membership.objects.get(person=arg.profile, group_id=group_id)
         return True
     except:
         return False
@@ -67,3 +78,21 @@ def like(event_id, user):
         return 'src=/static/img/star_empty.svg data-like=like'   # Лайк не стоит       убрать Хардкод # TODO
     except:
         return 'src=/static/img/star_empty.svg data-like=like'   # Лайк не стоит     убрать Хардкод # TODO
+
+
+# Проверка ролей для групп
+@register.filter
+def ru_role(group, profile_id):
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute("""SELECT r.ru_role FROM groups_membership m
+                        left join groups_allroles r on m.role_id = r.id
+                        where m.group_id = %s 
+                        and ( r.role = 'admin' or r.role = 'editor') 
+                        and m.person_id = %s""", [group.id, profile_id])
+
+    row = helper.dictfetchall(cursor)
+    try:
+        return row[0]['ru_role']
+    except IndexError:
+        return ''

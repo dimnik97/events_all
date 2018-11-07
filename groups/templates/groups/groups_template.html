@@ -1,19 +1,26 @@
-{% load chats_filters %}
+{% load custom_filters %}
 
-{% for item in groups %}
-    <div class="infinite-item_groups line mtop-35">
-        <a href="/groups/{{ item.id }}">
-            <img src="{{ item.groupavatar.mini_url }}" class="sqr_avatar">
+{% for group in groups %}
+    <div class="infinite-group_groups line mtop-35 group_item" data-group_id="{{group.id}}">
+        <a href="/groups/{{ group.id }}">
+            <img src="{{ group.groupavatar.mini_url }}" class="sqr_avatar">
         </a>
         <div class="group_info">
-            <div class="event_name"><a class="username" href="/groups/{{ item.id }}">{{ item.name }}</a></div>
-            <div class="group_description">{{ item.status }} </div>
+            <div class="event_name"><a class="username" href="/groups/{{ group.id }}">{{ group.name }}</a></div>
+            <div class="group_description">{{ group.status }} </div>
             <div class="group_members">12</div> {# участники #}
-            <div class="join_group"><button class="purple_custom_btn">Вступить</button></div>
+
+            <div class="join_group">
+                {% if group.id|is_subscribe_group:user %}
+                    <button class="purple_custom_btn subscribe_group" data-action="remove">Отписаться</button>
+                {% else %}
+                    <button class="purple_custom_btn subscribe_group" data-action="add">Вступить</button>
+                {% endif %}
+            </div>
         </div>
         {% if is_my %}
             <label>Роль:</label>
-            {{ item|ru_role:user.profile.id }}
+            {{ group|ru_role:cur_user.profile.id }}
         {% endif %}
     </div>
 {% empty %}
@@ -22,7 +29,7 @@
 
 {% if groups.has_next %}
     <a class="infinite-more-link_groups"
-       href="/groups/get_groups?page={{ groups.next_page_number }}&id={{ user.id }}"
+       href="/groups/get_groups?page={{ groups.next_page_number }}&id={{ cur_user.id }}"
        data_next_page_number="{{ groups.number }}">More
     </a>
 {% endif %}

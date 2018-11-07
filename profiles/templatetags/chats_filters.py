@@ -98,20 +98,3 @@ def except_text(peer):
 @register.filter
 def print_timestamp(timestamp):
     return timestamp.timestamp()
-
-
-@register.filter
-def ru_role(group, profile_id):
-    from django.db import connection
-    cursor = connection.cursor()
-    cursor.execute("""SELECT r.ru_role FROM groups_membership m
-                        left join groups_allroles r on m.role_id = r.id
-                        where group_id = %s 
-                        and ( r.role = 'admin' or r.role = 'editor') 
-                        and m.person_id = %s""", [group.id, profile_id])
-
-    row = helper.dictfetchall(cursor)
-    try:
-        return row[0]['ru_role']
-    except IndexError:
-        return ''

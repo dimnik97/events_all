@@ -396,7 +396,7 @@ img.change_avatar{
 }
 
 .settings_link{
-    float: right;
+    margin-top: 14px;
 }
 
 .subscrbers_groups_events{
@@ -1424,7 +1424,7 @@ a{
     top:7px;
 }
 
-.birder_botton_grey{
+.birder_bottom_grey{
     border-bottom: 1px solid #EEEEEE;
 }
 
@@ -1480,4 +1480,25 @@ a{
     top: 50%;
     transform: translate(0, -50%);
     /*margin-left: 75px;*/
+}
+.settings_link a{
+    font-size: 14px;
+    color: #B5B5B5;
+}
+.mlr_a {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+.contact_info {
+    float: left;
+    width: 50%;
+    padding-right: 66px;
+}
+.contact_info_social .fs16{
+    white-space: nowrap;
+}
+.underline_span {
+    border-bottom: 2px solid #EEEEEE;
+    text-decoration: underline #EEEEEE;
 }

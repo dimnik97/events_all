@@ -57,6 +57,10 @@ class EditProfile(forms.Form):
     birth_date = forms.DateField(required=True, label='Дата рождения', input_formats=['%d-%m-%Y'])
     phone = forms.CharField(required=False, max_length=30, label='Телефонный номер')
 
+    vk = forms.CharField(required=False, max_length=30, label='Вконткте')
+    twitter = forms.CharField(required=False, max_length=30, label='Твиттер')
+    facebook = forms.CharField(required=False, max_length=30, label='Фейсбук')
+
     CHOICES_M = (('1', 'Мужской',),
                  ('2', 'Женский',))
     gender = forms.ChoiceField(widget=forms.Select, choices=CHOICES_M, label='Пол', required=False)
@@ -69,6 +73,9 @@ class EditProfile(forms.Form):
         user.profile.description = self.cleaned_data['description']
         user.profile.phone = self.cleaned_data['phone']
         user.profile.birth_date = self.cleaned_data['birth_date']
+        user.profile.vk = self.cleaned_data['vk']
+        user.profile.twitter = self.cleaned_data['twitter']
+        user.profile.facebook = self.cleaned_data['facebook']
         if 'select_city' in request.POST:
             try:
                 city = CityTable.objects.get(city_id=request.POST['select_city'])

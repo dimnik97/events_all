@@ -5,9 +5,14 @@
 
 {% block content %}
     <div class="main_block groups_main_block">
-        <div class="line position_rel birder_botton_grey">
+        <div class="line position_rel birder_bottom_grey">
             <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#panel1">Список групп</a></li>
+                <li class="active"><a data-toggle="tab" href="#panel1">Список групп
+                    {% if not is_my %}
+                        ({{ cur_user.first_name }} {{ cur_user.last_name }})
+    {#                    <li class="activate_panel2_groups"><a data-toggle="tab" href="#panel2">Приглашения и заявки</a></li>#}
+                    {% endif %}
+                </a></li>
                 {% if is_my %}
 {#                    <li class="activate_panel2_groups"><a data-toggle="tab" href="#panel2">Приглашения и заявки</a></li>#}
                 {% endif %}
@@ -22,25 +27,24 @@
                     <label class="purple_custom_label">Поиск по всем группам</label>
                     <input type="checkbox" name="all" class="all_groups">
                 </form>
-                <div class="content_paginator_groups" data-url="/groups/get_groups?id={{ user.id }}">
+                <div class="content_paginator_groups" data-url="/groups/get_groups?id={{ cur_user.id }}">
                     <div class="infinite-container_groups">
                     </div>
                 </div>
             </div>
             {% if is_my %}
                 <div id="panel2" class="tab-pane fade">
-                    <div class="content_paginator_invite" data-url="/groups/get_invite?id={{ user.id }}">
+                    <div class="content_paginator_invite" data-url="/groups/get_invite?id={{ cur_user.id }}">
                         <div class="infinite-container_invite">
                         </div>
                     </div>
                 </div>
             {% endif %}
         </div>
-
     </div>
 
     <script>
-        var type = 'all'
+        var type = 'all';
     </script>
     <script type="text/javascript" src="{% static 'js/group_events.js' %}"></script>
 {% endblock %}

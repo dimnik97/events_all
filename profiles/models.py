@@ -70,6 +70,9 @@ class Profile(models.Model):
     description = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phone = models.TextField(null=True, blank=True)
+    vk = models.TextField(max_length=100, blank=True, default=None)
+    twitter = models.TextField(max_length=100, blank=True, default=None)
+    facebook = models.TextField(max_length=100, blank=True, default=None)
     last_activity = models.DateTimeField(null=True, blank=True)
     gender = models.CharField(
         max_length=2,
@@ -134,7 +137,10 @@ class Profile(models.Model):
             'birth_date': user.profile.birth_date.strftime('%d-%m-%Y'),
             'phone': user.profile.phone,
             'description': user.profile.description,
-            'gender': user.profile.gender
+            'gender': user.profile.gender,
+            'vk': user.profile.vk,
+            'twitter': user.profile.twitter,
+            'facebook': user.profile.facebook
         })
         form_private = EditUserSettings({
             'messages':
@@ -263,7 +269,7 @@ class ProfileSubscribers(models.Model):
                 .select_related('from_profile__user__profileavatar', 'to_profile__user__profileavatar')
 
         followers = [
-            follower.to_profile for follower in followers_object.all()
+            follower.from_profile for follower in followers_object.all()
         ]
         followers = helper.helper_paginator(request, followers)
 
