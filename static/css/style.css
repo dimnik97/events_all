@@ -276,9 +276,9 @@ li.dialog_row {
 }
 
 .auth_block_header {
-    float: right;
-    /*padding-top: 5px;*/
     width: 238px;
+    position: absolute;
+    right: 0;
 }
 
 .auth_block_header .main_menu{
@@ -1479,6 +1479,7 @@ a{
 
     top: 50%;
     transform: translate(0, -50%);
+<<<<<<< HEAD
     /*margin-left: 75px;*/
 }
 .settings_link a{
@@ -1501,4 +1502,10 @@ a{
 .underline_span {
     border-bottom: 2px solid #EEEEEE;
     text-decoration: underline #EEEEEE;
+}
+img.group_main_avatar{
+    object-fit: cover;
+    width: 167px;
+    height: 167px;
+    border-radius: unset;
 }
