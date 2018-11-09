@@ -57,11 +57,11 @@
                                         <a href="/profile/{{ item.person.user.id }}"> {{ item.person.user.first_name }}<br>{{ item.person.user.last_name }} </a>
                                     </div>
                                 {% endfor %}
-                                {#                                {% if subscribers.count > 3 %}#}
-                                {#                                    <div class="subscriber_item_detail_add see_all_event_subscribers" data-url="/events/get_subscribers?event={{ event.id }}" >#}
-                                {#                                        <span>{{ subscribers.count|others }}</span>#}
-                                {#                                    </div>#}
-                                {#                                {% endif %}#}
+{#                                {% if subscribers.count > 3 %}#}
+{#                                    <div class="subscriber_item_detail_add see_all_event_subscribers" data-url="/events/get_subscribers?event={{ event.id }}" >#}
+{#                                        <span>{{ subscribers.count|others }}</span>#}
+{#                                    </div>#}
+{#                                {% endif %}#}
                             </div>
                         </div>
 
@@ -79,7 +79,7 @@
             </div>
             <div class="tab-content">
                 <div id="panel1" class="tab-pane fade in active">
-                    <div class="content_paginator_active">
+                    <div class="content_paginator">
                     </div>
                 </div>
                 <div id="panel2" class="tab-pane fade">
@@ -151,8 +151,6 @@
 
     </script>
     <script type="text/javascript" src="{% static 'js/group_events.js' %}"></script>
-    <div class="content_paginator">
-    </div>
-    </div>
+
     <div id="dialog_img" class="d_none"></div>
 {% endblock %}

@@ -5,25 +5,10 @@
 
 {% block content %}
     <style>
-        .navbar {
-            margin-bottom: 0;
-        }
-        .event_map_filter_block {
-            position: absolute;
-            top: 70px;
-            left: 100px;
-        }
-        .event_card {
-            position: absolute;
-            right: 0;
-            top: 40px;
-            background-color: white;
-            width: 300px;
-            height: 90vh;
-        }
+
     </style>
 
-    <div id="map" class="full_size_map" style="width: -1px; height: 90vh"></div>
+    <div id="map" class="full_size_map" ></div>
     <script>
         var is_create = false,
             is_edit = false,
@@ -41,7 +26,7 @@
             <input type="text" name="name" placeholder="Название события" class="find_events" >
         </div>
         <div>
-            <select id="category" name="category" class="main_custom_select width225_center z_index_selectize">
+            <select id="category" name="category" class="z_index_selectize">
                 <option value="all" selected>Категория</option>
                 {% for category in category_list %}
                     <option value="{{ category.id }}">{{ category.name }}</option>
@@ -66,7 +51,7 @@
                 <option value="6">Выбрать дату</option>
             </select>
         </div>
-        <button type='button' class="submit_event_map_filter">Найти</button>
+        <button type='button' class="submit_event_map_filter purple_custom_btn">Найти</button>
     </form>
 
     <script>

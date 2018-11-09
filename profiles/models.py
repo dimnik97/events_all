@@ -70,9 +70,9 @@ class Profile(models.Model):
     description = models.TextField(max_length=1000, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     phone = models.TextField(null=True, blank=True)
-    vk = models.TextField(max_length=100, blank=True, default=None)
-    twitter = models.TextField(max_length=100, blank=True, default=None)
-    facebook = models.TextField(max_length=100, blank=True, default=None)
+    vk = models.TextField(max_length=100, null=True, blank=True, default=None)
+    twitter = models.TextField(max_length=100, null=True, blank=True, default=None)
+    facebook = models.TextField(max_length=100, null=True, blank=True, default=None)
     last_activity = models.DateTimeField(null=True, blank=True)
     gender = models.CharField(
         max_length=2,
@@ -290,8 +290,8 @@ class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(
-        upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
-        # upload_to=helper.ImageHelper.upload_to,
+        # upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
+        upload_to=helper.ImageHelper.upload_to,
         default='avatar/default/img.jpg')
 
     class Meta:

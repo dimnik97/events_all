@@ -2,7 +2,7 @@
 <div class="infinite-container">
     {% for chat in chats %}
         <div class="dialog_row infinite-item {{ chat|is_my }}">
-            <div class="{{ chat|unreaded }}">
+            <div class="{{ chat|unreaded }} line dialog_item">
                 <div class="dialog_photo">
                     {% if chat.peer %}
                         <a href="{{ chat.peer.profile.get_absolute_url }}">
