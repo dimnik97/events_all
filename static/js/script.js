@@ -500,7 +500,7 @@ $(document).ready(function() {
         ajax_validate_form($('#main_info'), e)
     });
 
-    $('#settings').on('click', function(e){
+    $('#save_profile_settings', '#settings').on('click', function(e){
         e.preventDefault();
         ajax_validate_form($('#settings'), e)
     });
@@ -1140,7 +1140,7 @@ $(document).ready(function() {
      *
      */
     $('#event_form_create').on('submit', function(e){
-        custom_save_event_form($('#event_form_create'), e, '/events/create')
+        custom_save_event_form($('#event_form_create'), e, '/events/create/')
     });
 
     /**
@@ -1158,7 +1158,6 @@ $(document).ready(function() {
     function custom_save_event_form($form, e, url){
         e.preventDefault();
         let data = get_form_with_custom_modules($form);
-
         $.ajax({
             type: "POST",
             url: url,

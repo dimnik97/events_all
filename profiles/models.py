@@ -218,8 +218,7 @@ class ProfileSubscribers(models.Model):
         if 'action' in request.GET:
             action = request.GET.get('action')  # Тип - выбор подписчиков (с чекбоксами)
         else:
-            if str(request.user.id) == str(user_id):
-                action = 'context_menu'  # Тип - контекстное меню
+            action = 'context_menu'  # Тип - контекстное меню
 
         user = User.objects.get(id=user_id)
         if 'value' in request.POST and 'search' in request.POST:
@@ -227,12 +226,15 @@ class ProfileSubscribers(models.Model):
             subscribers_object = ProfileSubscribers.objects.filter(
                 Q(to_profile__user__last_name__icontains=request.POST['value'])
                 | Q(to_profile__user__first_name__icontains=request.POST['value']),
-                from_profile=user.profile).select_related('from_profile__user__profileavatar'
-                                                          , 'to_profile__user__profileavatar')
+                from_profile=user.profile).select_related('to_profile__user__profileavatar')\
+                .only('to_profile__user__first_name', 'to_profile__user__last_name')\
+                .exclude(from_profile=request.user.profile)
             flag = True
         else:
             subscribers_object = ProfileSubscribers.objects.filter(from_profile=user.profile) \
-                .select_related('from_profile__user__profileavatar', 'to_profile__user__profileavatar')
+                .select_related('to_profile__user__profileavatar') \
+                .only('to_profile__user__first_name', 'to_profile__user__last_name') \
+                .exclude(to_profile=request.user.profile)
 
         subscribers = [
             subscriber.to_profile for subscriber in subscribers_object.all()
@@ -255,12 +257,13 @@ class ProfileSubscribers(models.Model):
         else:
             user_id = request.user.id
         flag = False
+        action = 'context_menu'  # Тип - контекстное меню
         user = User.objects.get(id=user_id)
         if 'value' in request.POST and 'search' in request.POST:
             from django.db.models import Q
             followers_object = ProfileSubscribers.objects.filter(Q(user__first_name__istartswith=request.POST['value'])
                                                                  |Q(user__last_name__istartswith=request.POST['value']),
-                                                                 to_profile=user.profile) \
+                                                                 to_profile=user.profile).exclude(to_profile=request.user.profile) \
                 .select_related('from_profile__user__profileavatar',
                                 'to_profile__user__profileavatar')
             flag = True
@@ -277,7 +280,7 @@ class ProfileSubscribers(models.Model):
             'flag': flag,
             'items': followers,
             'user_id': user_id,
-            'action': False,
+            'action': action,
             'type': 'followers'
         }
 

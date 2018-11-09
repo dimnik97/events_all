@@ -1,5 +1,6 @@
 {% extends "main_template.html" %}
 {% load staticfiles %}
+{% load custom_filters %}
 
 {% block title %}{{ cur_user.first_name }} {{ cur_user.last_name }}{% endblock %}
 {% block description %}{{ cur_user.profile.description }}{% endblock %}
@@ -16,19 +17,23 @@
                          alt="{{ cur_user.first_name }} {{ cur_user.last_name }}">
                 </div>
                 {% if user and user.id != cur_user.id %}
-                    {% if cur_user.usersettings.messages == 1  %}
-                        <div class="settings_link"><a href="/chats/?peer={{ cur_user.id }}">Отправить сообщение</a></div>
-                    {% endif %}
-                    <button class="purple_custom_btn mtop-mbot20 mlr_a add_to_friend" data-user_id="{{ cur_user.id }}" data-action="{{ friend_flag }}">
+                    <button class="purple_custom_btn_background_white mtop-mbot20 mlr_a add_to_friend" data-user_id="{{ cur_user.id }}" data-action="{{ friend_flag }}">
                         {% if friend_flag == 'add'%}
                             Подписаться
                         {% else %}
                             Отписаться
                         {% endif %}
                     </button>
+                    {% if cur_user.usersettings.messages == '1'  %}
+                        <button class="purple_custom_btn mtop-mbot20 mlr_a"><a href="/chats/?peer={{ cur_user.id }}">Отправить сообщение</a></button>
+                    {% elif cur_user.usersettings.messages == '2' %}
+                        {% if cur_user|is_my_subscriber:user %}
+                            <button class="purple_custom_btn_background_white mtop-mbot20 mlr_a"><a href="/chats/?peer={{ cur_user.id }}">Отправить сообщение</a></button>
+                        {% endif %}
+                    {% endif %}
                 {% else %}
                     <div class="settings_link"><a href="edit">Редактировать профиль</a></div>
-                    <button class="mtop-mbot20 mlr_a purple_custom_btn"><a href="/events/create">Создать событие</a></button>
+                    <button class="mtop-mbot20 mlr_a purple_custom_btn"><a href="/events/create/">Создать событие</a></button>
                 {% endif %}
             </div>
 

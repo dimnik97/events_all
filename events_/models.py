@@ -142,16 +142,17 @@ class Event(models.Model):
         return events
 
     @staticmethod
-    def filter_event(request, q_objects):
+    def filter_event(request, q_objects, need_location=True):
         if 'category' in request.POST and request.POST['category'] != 'all':
             q_objects.add(Q(category=request.POST['category']), Q.AND)
 
-        if 'location' in request.POST and request.POST['location'] != '':
-            if int(request.POST['location']) > 0:
-                q_objects.add(Q(location=request.POST['location']), Q.AND)
-        else:
-            locations = Users.get_user_locations(request, need_ip=False).city_id
-            q_objects.add(Q(location=locations), Q.AND)
+        if need_location:
+            if 'location' in request.POST and request.POST['location'] != '':
+                if int(request.POST['location']) > 0:
+                    q_objects.add(Q(location=request.POST['location']), Q.AND)
+            else:
+                locations = Users.get_user_locations(request, need_ip=False).city_id
+                q_objects.add(Q(location=locations), Q.AND)
 
         if 'name' in request.POST and request.POST['name'] != '':
             q_objects.add(Q(name__icontains=request.POST['name']), Q.AND)
@@ -209,7 +210,7 @@ class Event(models.Model):
         from django.db.models import Q
         q_objects = Q()
         q_objects_2 = Q()
-        q_objects = Event.filter_event(request, q_objects)
+        q_objects = Event.filter_event(request, q_objects, need_location=False)
 
         q_objects.add(Q(active__in=['1', '2']), Q.AND)  # Если активное или закрытое
         q_objects_2.add(Q(created_by_group__in=groups_name), Q.AND)  # или группы

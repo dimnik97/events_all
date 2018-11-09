@@ -32,7 +32,7 @@
                 {% csrf_token %}
                 {% include 'includes/bootstrap4_form.html' with form=form_private %}
                 <input name="type" class="d_none" value="settings">
-                <button type="button" class="purple_custom_btn" id="settings">Сохранить</button>
+                <button type="button" class="purple_custom_btn" id="save_profile_settings">Сохранить</button>
             </form>
             <div class="mtop-mbot20"><a class="prev_step" href="/accounts/password/change/">Смена пароля</a></div>
             <div class="mtop-mbot20"><a class="prev_step" href="/accounts/email/">Смена Email</a></div>
@@ -41,16 +41,23 @@
     </div>
 
 
-    </div>
-
-
-
-
     <script>
-        let $gender = $('#id_gender');
-        $gender.removeClass('form-control');
-        $gender.selectize();
-        $gender.siblings('.selectize-control').css('padding-bottom', '15px');
+        let $gender = $('#id_gender'),
+            $messages = $('#id_messages'),
+            $invite = $('#id_invite');
+
+        $gender.removeClass('form-control')
+                .selectize()
+                .siblings('.selectize-control')
+                .css('padding-bottom', '15px');
+        $messages.removeClass('form-control')
+                .selectize()
+                .siblings('.selectize-control')
+                .css('padding-bottom', '15px');
+        $invite.removeClass('form-control')
+                .selectize()
+                .siblings('.selectize-control')
+                .css('padding-bottom', '15px');
 
         $.ajax({
             url: '/cities_/get_cities?no_need_ip=true',

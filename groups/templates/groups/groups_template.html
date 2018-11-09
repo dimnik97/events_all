@@ -8,7 +8,7 @@
         <div class="group_info">
             <div class="event_name"><a class="username" href="/groups/{{ group.id }}">{{ group.name }}</a></div>
             <div class="group_description">{{ group.status }} </div>
-            <div class="group_members">12</div> {# участники #}
+            <div class="group_members">Участников: {{ group.members.count }}</div> {# участники #}
 
             <div class="join_group">
                 {% if group.id|is_subscribe_group:user %}

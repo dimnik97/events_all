@@ -28,7 +28,7 @@
                     {% endif %}
                 {% endif %}
                 {% if roles.role == 'admin' or roles.role == 'editor' %}
-                    <button class="purple_custom_btn mtop-35"><a href="/events/create?group_id={{ group.id }}">Создать событие</a></button><br>
+                    <button class="purple_custom_btn mtop-35"><a href="/events/create/?group_id={{ group.id }}">Создать событие</a></button><br>
                 {% endif %}
             </div>
 
@@ -74,8 +74,7 @@
             <div class="cur_user_events_header">
                 <ul class="nav nav-tabs">
                     <li class="active"><a data-toggle="tab" href="#panel1">Активные</a></li>
-                    <li class="activate_panel2_events"><a data-toggle="tab" href="#panel2">Мои</a></li>
-                    <li class="activate_panel3_events"><a data-toggle="tab" href="#panel3">Завершенные</a></li>
+                    <li class="activate_panel2_groups"><a data-toggle="tab" href="#panel2">Завершенные</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -85,10 +84,6 @@
                 </div>
                 <div id="panel2" class="tab-pane fade">
                     <div class="content_paginator_user_events">
-                    </div>
-                </div>
-                <div id="panel3" class="tab-pane fade">
-                    <div class="content_paginator_ended">
                     </div>
                 </div>
             </div>

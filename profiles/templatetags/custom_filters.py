@@ -3,6 +3,7 @@ from django import template
 from events_.models import EventMembership, EventViews, EventLikes
 from events_all import helper
 from groups.models import Membership
+from profiles.models import ProfileSubscribers
 
 register = template.Library()
 
@@ -96,3 +97,13 @@ def ru_role(group, profile_id):
         return row[0]['ru_role']
     except IndexError:
         return ''
+
+
+# Проверка является ли подписчиком
+@register.filter
+def is_my_subscriber(cur_user, user):
+    try:
+        ProfileSubscribers.objects.get(from_profile=user.profile, to_profile=cur_user.profile)
+        return True
+    except:
+        return False

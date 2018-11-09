@@ -89,7 +89,7 @@ body {
     position: absolute;
     width: 500px;
     height: 500px;
-    top: -1px;
+    top: -2px;
     left: -1px;
     z-index: 1;
     border: none;
@@ -548,7 +548,7 @@ p {
 }
 
 
-.purple_custom_btn{
+.purple_custom_btn, .purple_custom_btn_background_white {
     width: 146px;
     height: 30px;
     background-color: #7971EA;
@@ -556,7 +556,6 @@ p {
     color: white;
     font-size: 14px;
 }
-
 
 .event_item_block{
     border: 1px solid #EEEEEE;
@@ -1479,7 +1478,6 @@ a{
 
     top: 50%;
     transform: translate(0, -50%);
-<<<<<<< HEAD
     /*margin-left: 75px;*/
 }
 .settings_link a{
@@ -1508,4 +1506,15 @@ img.group_main_avatar{
     width: 167px;
     height: 167px;
     border-radius: unset;
+}
+.purple_custom_btn_background_white {
+    background-color: white;
+    border: 1px solid #7971EA;
+}
+.purple_custom_btn_background_white {
+    color: #7971EA;
+    white-space: nowrap;
+}
+.profile_info_block .purple_custom_btn_background_white, .profile_info_block .purple_custom_btn {
+    width: 180px;
 }
