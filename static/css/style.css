@@ -124,7 +124,7 @@ body {
     border: none;
 }
 
-li.dialog_row {
+.dialog_row {
     cursor: pointer;
 }
 
@@ -1479,8 +1479,8 @@ a{
 
     top: 50%;
     transform: translate(0, -50%);
-<<<<<<< HEAD
-    /*margin-left: 75px;*/
+    <<<<<<< HEAD
+        /*margin-left: 75px;*/
 }
 .settings_link a{
     font-size: 14px;
@@ -1508,4 +1508,126 @@ img.group_main_avatar{
     width: 167px;
     height: 167px;
     border-radius: unset;
+}
+
+
+.full_size_map{
+    width: 100vw;
+    height: 100vh;
+}
+
+.navbar {
+    margin-bottom: 0;
+}
+.event_map_filter_block .selectize-input{
+    margin-bottom: 30px;
+}
+.event_map_filter_block {
+    position: absolute;
+    top: 50px;
+    left: 0px;
+    background-color: rgba(255, 255,255,0.8);
+    border-radius: 20px;
+    box-shadow: 0px 5px 13px rgba(0,0,0,0.15);
+    padding: 20px;
+}
+.event_card .event_item{
+    width: 100%;
+}
+.event_card .event_time{
+    margin-left: 15px;
+    margin-right: 30px;
+    font-size: 16px;
+}
+.event_card .event_date{
+    font-size: 14px;
+}
+.event_card h1{
+    font-size: 24px;
+}
+.event_card .creator_info{
+    margin-left: unset;
+}
+.event_card .subscribe_info_block{
+    margin-left: unset;
+}
+.event_card .event_news h2{
+    font-size: 20px;
+    color: #7971EA;
+}
+.event_card .event_news{
+    width: 100%;
+    padding-left: 0!important;
+}
+.event_card {
+    position: absolute;
+    right: 0;
+    top: 40px;
+    background-color: rgba(255, 255,255,0.9);
+    width: 375px;
+    height: 100vh;
+    overflow-y: scroll;
+    display: none;
+    padding: 20px;
+}
+
+.submit_event_map_filter{
+    margin-top: 15px;
+    margin-left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.map_card_event_img{
+    width: 100%;
+}
+
+.category_info{
+    margin-top: 5px;
+}
+
+.text_grey{
+    color: #7B7B7B;
+}
+
+.light_grey_text{
+    color: #B5B5B5;
+}
+
+.search_message_block{
+    margin-top: 50px;
+    display: flex;
+}
+
+.find_dialogs{
+    width: 100%;
+}
+
+.dialog_add_icon{
+    width: 20px;
+    margin-left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.circle_shadow{
+    margin-left: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    display: flex;
+    margin-right: 1px;
+}
+
+.content_paginator_chat{
+    width: 100%;
+}
+
+.dialog_row .dialog_item{
+    height: 90px;
+}
+
+.dialog_photo img {
+    width: 90px;
+    height: 90px;
 }

@@ -13,6 +13,7 @@
 
       .cls-3 {
         fill: #fff;
+        fill-opacity=".0"
       }
     </style>
     <clipPath id="clip-plus">

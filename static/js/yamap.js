@@ -150,7 +150,7 @@ function add_bounds(bounds) {
             dataType: 'json',
             success: function (data) {
                 if (data) {
-                    $('.event_card').html(data)
+                    $('.event_card').html(data).show();
                 }
             }
         });

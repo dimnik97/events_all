@@ -143,7 +143,7 @@ DATABASES = {
         # 'USER': 'postgreadmin',
         # 'PASSWORD': '4321',
         # 'HOST': 'localhost',
-        'NAME': 'local_2',
+        'NAME': 'local3',
         'USER': 'postgres',
         'PASSWORD': '',
         'HOST': host,
