@@ -17,7 +17,6 @@
                 <div class="dialog_last_info" data-chat_id="{{ chat.peer.id }}" data-room_id="{{ chat.room.id }}" data-id = "{{ chat.id }}">
                     {% if chat|message_flag == 'blocked' %}
                         <div class="chat_status blocked">
-                            C кем чат:
                             {{ chat.room.name }}
                         </div>
                         <div>
@@ -26,8 +25,7 @@
                             <input class="decline" type="button" value="Отклонить">
                         </div>
                     {% elif chat|message_flag == 'repost' %}
-                        <div>
-                            C кем чат:
+                        <div class="fs16">
                             {% if chat.peer %}
                                 {{ chat.peer|fullname }}
                             {% else %}
@@ -40,17 +38,16 @@
                             Текст сообщения: (Событие с ленты) Нужно по особомо оформить
                         </div>
                     {% else %}
-                        <div>
-                            C кем чат:
+                        <div class="fs16">
                             {% if chat.peer %}
                                 {{ chat.peer|fullname }}
                             {% else %}
                                 {{ chat.room.name }}
                             {% endif %}
                         </div>
-                        <div>
-                            Последнее сообщение от: {{ chat|income_or_outgoing }} <br>
-                            Текст сообщения: {{ chat.text }}
+                        <div class="line mtop-15">
+                            {{ chat|income_or_outgoing }}:
+                            {{ chat.text }}
                         </div>
                     {% endif %}
                     <div class="date_create_dailogs">

@@ -314,7 +314,7 @@ body {
 }
 
 .date_create_dailogs {
-    color: rgba(120, 127, 140, 0.6);
+    /*color: rgba(120, 127, 140, 0.6);*/
 }
 
 .unreaded_message {
@@ -1632,9 +1632,35 @@ img.group_main_avatar{
 
 .dialog_row .dialog_item{
     height: 90px;
+    position: relative;
+    border: 1px solid #EEEEEE;
+    margin-bottom: 10px;
 }
 
-.dialog_photo img {
+.dialog_photo img.avatar_round{
+    width: 100%;
+    height: 100%;
+}
+.dialog_photo {
     width: 90px;
     height: 90px;
+    padding: 5px;
+}
+
+.date_create_dailogs{
+    position: absolute;
+    top: 12px;
+    right: 15px;
+}
+
+.dialog_last_info{
+    margin-top: 18px;
+    margin-left: 20px;
+    max-width: 500px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.mtop-15{
+    margin-top: 15px;
 }
