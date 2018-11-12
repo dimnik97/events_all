@@ -191,7 +191,7 @@ body {
 }
 
 .main_menu {
-    padding-right: 45px;
+    margin-right: 45px;
     /*font-family: Roboto;*/
     font-size: 14px;
 }
@@ -1094,7 +1094,7 @@ input, button {outline:none;}
     margin-top: 25px;
     border-bottom: 1px solid #EEEEEE;
 }
-#id_birth_date,  #id_start_time, #id_end_time {
+#id_birth_date,  #id_start_time, #id_end_time, .date_filter {
     background-image: url("/static/svg/calendar.svg");
     background-repeat: no-repeat;
     background-size: 18px, 50%;
@@ -1429,7 +1429,6 @@ a{
 
 .find_groups{
     max-width: 570px;
-    width: 100%;
 }
 
 .purple_custom_label{
@@ -1450,7 +1449,7 @@ a{
     max-height: 100px;
 }
 
-.group_description{
+.group_description, .view_user_city{
     font-size: 16px;
     color: #7B7B7B;
     margin-top: 15px;
@@ -1637,4 +1636,69 @@ img.group_main_avatar{
 .dialog_photo img {
     width: 90px;
     height: 90px;
+}
+.main_menu.active {
+    padding-bottom: 11px;
+    border-bottom: 1px solid #7971EA;
+}
+.date_filter {
+    display: block;
+    margin: 0 auto;
+    width: 185px;
+    margin-top: 14px;
+}
+.submit_event_filter:hover {
+    background-color: #7971EA;
+    color: white;
+    cursor: pointer;
+}
+.w100p {
+    width: 100%
+}
+.w70p {
+    width: 80%;
+}
+.find_users {
+    margin-top: 15px;
+}
+.find_input {
+    background-image: url("/static/svg/search.svg");
+    background-repeat: no-repeat;
+    background-size: 18px, 50%;
+    background-position: center right; /* legacy browser support */
+    background-position: center right 10px, center right 38px;
+}
+a.send_messages_button {
+    color: #7971EA;
+    text-decoration: underline!important;
+    font-size: 16px;
+    line-height: 19px;
+}
+.avatar_round_big {
+    width: 80px;
+    height: 80px;
+    border-radius: 100px;
+    box-shadow: 0 0 7px #666;
+}
+a.username {
+    font-size: 19px;
+    color: #393E46;
+}
+.view_user_city {
+    font-size: 14px;
+    color: #B5B5B5;
+    margin-top: 9px;
+    margin-left: 30px;
+}
+.view_user_name {
+    margin-left: 30px;
+}
+.view_user_send_message {
+    margin-left: 30px;
+    position: absolute;
+    margin-top: 8px;
+}
+.main_menu_right {
+    padding-right: 10px;
+    font-size: 14px;
 }

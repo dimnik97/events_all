@@ -1,16 +1,11 @@
 import json
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse, Http404
-from django.template.loader import render_to_string
-from django.views.generic import FormView
-
-from cities_.models import CityTable
+from django.http import HttpResponse
 from groups.models import Group
 from images_custom.models import PhotoEditor
 from profiles.forms import ImageUploadForm
-from profiles.models import Profile, ProfileAvatar, Users, ProfileSubscribers
-from django.shortcuts import get_object_or_404, render_to_response, render, redirect
+from profiles.models import Profile, ProfileAvatar, ProfileSubscribers
+from django.shortcuts import get_object_or_404, render_to_response, render
 from allauth.account.views import *
 from allauth.account.forms import LoginForm, SignupForm
 
@@ -22,6 +17,7 @@ def my_profile(request):
     return redirect(url)
 
 
+# Детальноая пользователя
 @login_required(login_url='/accounts/signup-or-login/')
 def detail(request, id):
     user = request.user  # Залогиненный пользователь
@@ -75,6 +71,7 @@ def add_or_remove_friends(request):
         raise Http404
 
 
+# Если это аякс, то валидируем и сохраняем профиль пользователя
 @login_required(login_url='/accounts/signup-or-login/')
 def edit_view(request):
     context, is_validate = Profile.edit(request)
@@ -83,7 +80,9 @@ def edit_view(request):
     return render(request, 'profiles/edit.html', context)
 
 
+# Класс редактирования пользователя (по сути работа с аватаром)
 class Edit(FormView):
+    # Смена аватара, отрисовка шаблона
     @staticmethod
     def change_avatar(request):
         if request.method == 'POST' and request.is_ajax():
@@ -96,6 +95,7 @@ class Edit(FormView):
         }
         return render(request, 'profiles/change_avatar.html', context)
 
+    # Смена миниатюры, отрисовка шаблона (не используется)
     @staticmethod
     def change_mini(request):
         if request.method == 'POST' and request.is_ajax():
@@ -115,6 +115,7 @@ class Edit(FormView):
         }
         return render(request, 'profiles/change_mini.html', context)
 
+    # Смена миниатюры, отрисовка шаблона (не используется)
     @staticmethod
     def save_image(request):
         if request.method == 'POST' and request.is_ajax():
@@ -122,6 +123,7 @@ class Edit(FormView):
             return PhotoEditor.save_image(request, model)
 
 
+# Получение подписок (для диалога)
 def get_subscribers(request):
     context = ProfileSubscribers.get_subscribers(request)
     if not context['flag']:
@@ -130,6 +132,7 @@ def get_subscribers(request):
         return render(request, 'profiles/search_subscribers_items.html', context)
 
 
+# Получение подписчиков (для диалога)
 def get_followers(request):
     context = ProfileSubscribers.get_followers(request)
     if not context['flag']:
@@ -138,31 +141,55 @@ def get_followers(request):
         return render(request, 'profiles/search_subscribers_items.html', context)
 
 
-def custom_fields_for_signup(request):
-    city_list = CityTable.objects.filter(city__isnull=False).values('city', 'city_id').order_by('city')[:30]
-    user_city = Users.get_user_locations(request)
-    context = {
-        'city_list': city_list,
-        'user_city': user_city
-    }
-    return HttpResponse(render_to_string('profiles/custom_fields_for_signup.html', context=context))
-
-
-# Список всех пользователей
+# Просмотр всех пользователей, основной шаблон
 @login_required(login_url='/accounts/signup-or-login/')
 def view(request):
-    items = Profile.get_all_users(request)
     context = {
-        'items': items,
         'user': request.user,
     }
-    if request.is_ajax():
-        return render_to_response('profiles/search_subscribers_items.html', context)
-        # return HttpResponse(json.dumps(render_to_string('profiles/search_subscribers_items.html')))
-
     return render_to_response('profiles/view.html', context)
 
 
+# получение подписок (на страницу просмотра)
+@login_required(login_url='/accounts/signup-or-login/')
+def view_subscribers(request):
+    if request.is_ajax():
+        context = ProfileSubscribers.get_subscribers(request)
+        context.update({'user': request.user})
+        from django.template.loader import render_to_string
+        html = render_to_string('profiles/view_template.html', context)
+        return HttpResponse(html)
+    else:
+        raise Http404
+
+
+# получение подписчиков (на страницу просмотра)
+@login_required(login_url='/accounts/signup-or-login/')
+def view_followers(request):
+    if request.is_ajax():
+        from django.template.loader import render_to_string
+        context = ProfileSubscribers.get_followers(request)
+        context.update({'user': request.user})
+        html = render_to_string('profiles/view_template.html', context)
+        return HttpResponse(html)
+    else:
+        raise Http404
+
+
+# получение всех пользователей (на страницу просмотра)
+@login_required(login_url='/accounts/signup-or-login/')
+def view_all_users(request):
+    if request.is_ajax():
+        from django.template.loader import render_to_string
+        context = ProfileSubscribers.get_all_users(request)
+        context.update({'user': request.user})
+        html = render_to_string('profiles/view_template.html', context)
+        return HttpResponse(html)
+    else:
+        raise Http404
+
+
+# Совмещение класса регистрации и авторизации, для отображения на одной странице
 class JointLoginSignupView(LoginView):
     form_class = LoginForm
     signup_form = SignupForm

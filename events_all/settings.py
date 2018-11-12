@@ -139,15 +139,15 @@ host = '127.0.0.1'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'HOST': host,
-        # 'NAME': 'test9',
-        # 'USER': 'postgreadmin',
-        # 'PASSWORD': '4321',
-        # 'HOST': 'localhost',
-        'NAME': 'local3',
-        'USER': 'postgres',
-        'PASSWORD': '',
         'HOST': host,
+        'NAME': 'test9',
+        'USER': 'postgreadmin',
+        'PASSWORD': '4321',
+        # 'HOST': 'localhost',
+        # 'NAME': 'local3',
+        # 'USER': 'postgres',
+        # 'PASSWORD': '',
+        # 'HOST': host,
         'PORT': '5432',
     }
 }
@@ -218,4 +218,4 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 X_FRAME_OPTIONS = 'DENY'
 
-APPEND_SLASH = False
+APPEND_SLASH = True

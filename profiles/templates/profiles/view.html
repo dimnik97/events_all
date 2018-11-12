@@ -1,32 +1,38 @@
 {% extends "main_template.html" %}
 {% load staticfiles %}
 
+{% block title %}Пользователи{% endblock %}
+
 {% block content %}
-    <div class="main_block">
-        <div >
-            <br>
-            <form class="users_filter">
-                <input type="text" name="name" placeholder="Начните вводить" class="find_users" >
-            </form>
-            <div class="content_paginator_users" data-url="/profile/view">
-                <div class="infinite-container_users">
-                    {% for item in items %}
-                        <div class="infinite-item">
-                            <a href="/profile/{{ item.user.id }}">
-                                <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round">
-                            </a>
-                            <a class="username" href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
-                            {% if action == 'context_menu' %}
-                                <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+    <div class="main_block groups_main_block">
+        <form class="users_filter">
+            <input type="text" name="value" placeholder="Начните вводить" class="find_users w70p find_input find_input" >
+        </form>
+        <div class="line position_rel birder_bottom_grey">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#panel1">Подписки</a></li>
+                <li class="activate_panel2_users"><a data-toggle="tab" href="#panel2">Подписчики</a></li>
+                <li class="activate_panel3_users"><a data-toggle="tab" href="#panel3">Все пользователи</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div id="panel1" class="tab-pane fade in active">
+                <div class="content_paginator_subscribers content_pag" data-url="/profile/view_subscribers/">
+                    <div class="infinite-container_subscribers infinite_cont">
+                    </div>
                 </div>
-                {% if items.has_next %}
-                    <a class="infinite-more-link_users"
-                       href="/profile/view?page={{ items.next_page_number }}">Загрузка
-                    </a>
-                {% endif %}
+            </div>
+            <div id="panel2" class="tab-pane fade">
+                <div class="content_paginator_followers content_pag" data-url="/profile/view_followers/">
+                    <div class="infinite-container_followers infinite_cont">
+                    </div>
+                </div>
+            </div>
+            <div id="panel3" class="tab-pane fade">
+                <div class="content_paginator_users content_pag" data-url="/profile/view_all_users/">
+                    <div class="infinite-container_users infinite_cont">
+                    </div>
+                </div>
             </div>
         </div>
     </div>

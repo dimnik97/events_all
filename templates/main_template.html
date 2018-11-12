@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load menubuilder %}
+{% load custom_filters %}
 
 {% block main %}
     {% block main_col %}
@@ -6,11 +8,10 @@
         <header class="navbar navbar-fixed-top__">
             <div class="head_wrapper">
                 <!-- Главное меню -->
-                {% load menubuilder %}
                 {% menu main_menu %}
                 <span class="main_logo">JoinMe</span>
                 {% for item in menuitems %}
-                    <span class="main_menu" {% if item.current %}class="active"{% endif %}>
+                    <span class="main_menu {% if item.url == page_url %} active {% endif %} ">
                         <a href="{{ item.url }}" title="{{ item.title|escape }}">{{ item.title }}</a>
                     </span>
                 {% endfor %}
@@ -20,20 +21,20 @@
                 {% block signin %}
                     <span class="auth_block_header">
                         {% if user.is_authenticated %}
-                            <span class="main_menu">
+                            <span class="main_menu_right">
                                 <a href="/profile/"><img class="avatar_img_header"
-                                                         src="/media/{{ user.profileavatar.image }}" alt=""></a>
+                                                         src="{{ user.profileavatar.mini_url }}" alt=""></a>
                             </span>
-                            <span class="main_menu">
+                            <span class="main_menu_right">
                                 <a href="/profile/{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</a>
                             </span>
-                            <img src="../static/img/chevrondown.svg" class="popup_header_menu_down" alt="">
-                            <img src="../static/img/chevronup.svg" class="popup_header_menu_up d_none" alt="">
+                            <img src="/static/img/chevrondown.svg" class="popup_header_menu_down" alt="">
+                            <img src="/static/img/chevronup.svg" class="popup_header_menu_up d_none" alt="">
                         {% else %}
-                            <span class="main_menu">
+                            <span class="main_menu_right">
                                 <a href="/accounts/signup-or-login/">Войдите</a>
                             </span>
-                            <span class="main_menu registrarion_button">
+                            <span class="main_menu_right registrarion_button">
                                 <a href="/accounts/signup-or-login/">Или зарегестрируйтесь</a>
                             </span>
                         {% endif %}
@@ -45,7 +46,6 @@
                                     <a href="{{ item.url }}" title="{{ item.title|escape }}">{{ item.title }}</a>
                                 </div>
                             {% endfor %}
-
                         </div>
 
                     </span>

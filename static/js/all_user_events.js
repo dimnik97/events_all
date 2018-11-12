@@ -1,10 +1,15 @@
 $(document).ready(function() {
 
+    /**
+     * Для первой подгрузки подписок пользователя
+     *
+     */
     $.ajax({
-        url: $('.content_paginator_users').data('url'),
+        url: $('.content_paginator_subscribers', '.tab-content').data('url'),
         async: false,
+        type: 'GET',
         success: function (data) {
-            $('.infinite-container_users').append(data);
+            $('.infinite-container_subscribers').append(data);
             waypoints_init();
         }
     });
@@ -12,54 +17,69 @@ $(document).ready(function() {
      * Поиск группы по вводимому тексту
      *
      */
-    $('.find_groups').on('input', function () {
-        find_groups()
+    $('.find_users').on('input', function () {
+        find_users()
+    });
+
+    /**
+     * Ajax для вкладок
+     *
+     */
+    $('.activate_panel2_users, .activate_panel3_users', '.nav-tabs').on('click', function () {
+        let panel_id = $(this).find('a').attr('href'),
+            $panel = $(panel_id);
+        if ($(this).hasClass('active'))
+            return false;
+        $('.find_users').val('');
+        let url = $('.content_pag', $panel).data('url');
+
+        $.ajax({
+            url: url,
+            async: false,
+            type: 'GET',
+            success: function (data) {
+                $('.infinite_cont', $panel).html(data);
+                waypoints_init($('.content_pag', $panel), {});
+            }
+        });
     });
 
     function find_users() {
-        let url = $('.content_paginator_users').data('url');
+        let filter = {
+                'search': true,
+                'value': $('.find_users', '.users_filter').val()
+            },
+            $tab = $('.tab-pane.active', '.tab-content'),
+            url = $('.content_pag', $tab).data('url');
         $.ajax({
             url: url,
             type: 'POST',
-            data: get_filter('users_filter'),
+            data: filter,
             success: function (data) {
-                debugger;
                 if (data) {
-                    $('.infinite-container_users').html(data);
-                    waypoints_init(get_filter('users_filter'));
+                    $('.infinite_cont', $tab).html(data);
+                    let container = $('.content_pag', $tab);
+                    waypoints_init(container ,filter);
                 } else {
-                    // TODO заполнить error
+                    $('.infinite_cont', $tab).html('');
                 }
             }
         });
     }
     /**
-     * Получение параметров фильтрации для POST запроса
-     *
-     */
-    function get_filter(selector) {
-        let unindexed_array = $('.'+selector).serializeArray(),
-            indexed_array = {};
-
-        $.map(unindexed_array, function(n){
-            indexed_array[n['name']] = n['value'];
-        });
-        return indexed_array;
-    }
-
-
-    /**
      * Инициализация плагина инфинити скролла, что-то вроде дата тейбла
      *
      */
-    function waypoints_init(filter) {
+    function waypoints_init($container, filter) {
+        $container = $container || $('.content_paginator_subscribers', '.tab-content');
         new Waypoint.Infinite({
-            element: $('.infinite-container_users')[0],
-            more: '.infinite-more-link_users',
+            element: $('.infinite_cont', $container)[0],
+            more: $('.infinite-more-link_users', $container)[0],
             items: '.infinite-item',
             reverse: false,
             post: true,
-            filter: filter
+            filter: filter,
+            more_by_class: true,
         });
     }
 });

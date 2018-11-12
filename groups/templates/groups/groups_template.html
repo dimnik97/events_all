@@ -6,7 +6,9 @@
             <img src="{{ group.groupavatar.mini_url }}" class="sqr_avatar">
         </a>
         <div class="group_info">
-            <div class="event_name"><a class="username" href="/groups/{{ group.id }}">{{ group.name }}</a></div>
+            <div class="event_name"><a class="username" href="/groups/{{ group.id }}">{{ group.name }}
+                {% if is_my %}( {{ group|ru_role:cur_user.profile.id }} ){% endif %}
+            </a></div>
             <div class="group_description">{{ group.status }} </div>
             <div class="group_members">Участников: {{ group.members.count }}</div> {# участники #}
 
@@ -18,10 +20,6 @@
                 {% endif %}
             </div>
         </div>
-        {% if is_my %}
-            <label>Роль:</label>
-            {{ group|ru_role:cur_user.profile.id }}
-        {% endif %}
     </div>
 {% empty %}
     <div>У этого пользователя нет групп</div>
