@@ -1003,9 +1003,9 @@ $(document).ready(function() {
      */
     $('.create_chat').on('click', function () {
         $('.create_chat_wrapper').show();
-        $('.content_paginator_chat').hide();
-        $('.find_dialogs').hide();
-        $('.create_chat').hide();
+        // $('.content_paginator_chat').hide();
+        // $('.find_dialogs').hide();
+        // $('.create_chat').hide();
         $.ajax({
             url: '/profile/get_subscribers?action=checkbox',
             type: 'GET',

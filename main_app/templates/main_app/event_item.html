@@ -5,6 +5,12 @@
         <div class="event_item_block event_item infinite-item" data-event_id="{{event.id}}"
              data-last_update="{{ event.last_update|date:"Y-m-d H:i:s" }}">
             <div class="event_info">
+
+                <div class="category_info mleft-45 text_grey">Категории:
+                    {% for item in categories %}
+                        {{ item.name }}
+                    {%  endfor %}
+                </div>
                 <div class="header_event_info">
                     <span class="event_time"></span>
                     <span class="event_date"></span>
@@ -60,7 +66,7 @@
                                 <button class="purple_custom_btn subscribe_event" data-action="subscribe">Присоединиться</button>
                             {% endif %}
                         </span>
-                        <span class="stat_block">
+                    <span class="stat_block">
                             <span class="event_stat_item">
                                 <img {{ event.id|like:request.user }} class="event_stat_icon" alt="">
                                 <span class="like_count">{{ event.id|likes }}</span>
