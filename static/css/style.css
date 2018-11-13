@@ -564,7 +564,7 @@ p {
 }
 
 .event_item_avatar_img{
-    object-fit: cover;
+    object-fit: contain;
     width: 360px;
     height: 390px;
 }
@@ -1402,7 +1402,8 @@ a{
 /*}*/
 
 .event_avatar{
-    min-width: 380px;
+    min-width: 360px;
+    background-color: #FCFCFC;
 }
 
 .line{
@@ -1585,6 +1586,7 @@ img.group_main_avatar{
 
 .map_card_event_img{
     width: 100%;
+    background-color: #FCFCFC;
 }
 
 .category_info{
@@ -1726,4 +1728,10 @@ a.username {
 
 .mtop-15{
     margin-top: 15px;
+}
+.create_content {
+    margin-bottom: 200px;
+}
+.purple_custom_btn.big {
+    width: 180px;
 }

@@ -228,8 +228,13 @@ function change_event_avatar() {
 
 $(document).ready(function() {
     $('.recommend_image_block').on('click', '.rec_im', function () {
-        $(this).parent().find('.selected_img').removeClass('selected_img');
+        if($(this).hasClass('selected_img')) {
+            $(this).removeClass('selected_img');
+        } else {
+            $(this).parent().find('.selected_img').removeClass('selected_img');
         $(this).addClass('selected_img');
+        }
+
         change_event_avatar();
     });
     var $body = $('body');

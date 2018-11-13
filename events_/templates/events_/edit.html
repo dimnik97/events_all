@@ -3,8 +3,8 @@
 {% block title %}Редактирование {{ event.name }}{% endblock %}
 
 {% block content %}
-    <button class="btn btn-grey"><a href="/main_app">Назад ко всем событиям</a></button>
-    <div class="content">
+    <button class="btn btn-grey"><a href="/">Назад ко всем событиям</a></button>
+    <div class="create_content">
         <form method="post" enctype="multipart/form-data" id="event_form_edit" novalidate>
             {% csrf_token %}
             {% include 'includes/bootstrap4_form.html' with form=form %}
@@ -68,7 +68,7 @@
                     <p>Вы можете загрузить изображения в формате JPG или PNG</p>
                 </div>
             </div>
-            <button type="submit" class="purple_custom_btn">Сохранить изменения</button>
+            <button type="submit" class="purple_custom_btn big">Сохранить изменения</button>
         </form>
 
         <div id="dialog_img" class="d_none"></div>
