@@ -164,6 +164,10 @@ body {
 
 .create_chat_wrapper {
     display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    z-index: 10;
 }
 
 .add_chat_wrapper {
@@ -324,7 +328,7 @@ body {
 
 .is_my .unreaded_message {
     border-top: solid 1px #e7e8ec;
-    background: red;
+    background: rgba(121, 113, 234, 0.15);
 }
 
 .delete_from_chat_wrapper {
@@ -461,7 +465,7 @@ p {
 
 .header_event_info{
     width: 100%;
-    margin-top: 30px;
+    margin-top: 10px;
     border-left: #7971EA 3px solid;
     height: 50px;
     padding-top: 13px;
@@ -632,8 +636,9 @@ p {
 
 .toogler_arrow{
     height: 43px;
-    padding-left: 15px;
+    padding-left: 22px;
     padding-top: 15px;
+    padding-right: 13px;
 }
 
 .hide_area_filter{
@@ -1403,7 +1408,10 @@ a{
 
 .event_avatar{
     min-width: 360px;
+<<<<<<< HEAD
     background-color: #FCFCFC;
+=======
+>>>>>>> 092ab3987eee08d772ccc9cf5cb0f31fa3ee683b
 }
 
 .line{
@@ -1725,7 +1733,6 @@ a.username {
     margin-bottom: 10px;
     overflow: hidden;
 }
-
 .mtop-15{
     margin-top: 15px;
 }
@@ -1734,4 +1741,15 @@ a.username {
 }
 .purple_custom_btn.big {
     width: 180px;
+}
+.load_events{
+    width: 100%;
+    background-color: rgba(121, 113, 234, 0.15);
+}
+
+.mleft-45{
+    margin-left: 45px;
+}
+.event_item_block{
+    max-height: 390px;
 }
