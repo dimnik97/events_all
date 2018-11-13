@@ -1,5 +1,5 @@
 {% load custom_filters %}
-<input type="text" placeholder="Начните вводить" class="main_search_input find_people {{ type }}" data-user_id="{{ user_id }}">
+<input type="text" placeholder="Начните вводить" class="main_search_input find_people find_input {{ type }}" data-user_id="{{ user_id }}">
 <div class="infinite-container">
     {% for item in items %}
         <div class="infinite-item">
@@ -14,8 +14,6 @@
                     <button class="add_to_friend" data-user_id="{{ item.user.id }}" data-action="add">Подписаться</button>
                 {% endif %}
             {% elif action == 'checkbox' %}
-                <input type="checkbox" name="checkbox_{{ item.user.id }}" value="{{ item.user.id }}">
-            {% elif action == 'checkbox' and is_my_subscriber %}
                 <input type="checkbox" name="checkbox_{{ item.user.id }}" value="{{ item.user.id }}">
             {% endif %}
         </div>

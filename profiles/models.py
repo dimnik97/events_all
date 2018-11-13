@@ -162,20 +162,6 @@ class Profile(models.Model):
         }
         return context, False
 
-    @staticmethod
-    def get_all_users(request):
-        q_objects = Q()
-        q_objects.add(Q(active='1'), Q.AND)
-
-        if 'value' in request.POST and 'search' in request.POST:
-            q_objects.add(Q(to_profile__user__first_name__icontains=request.POST['value']), Q.AND)
-            q_objects.add(Q(to_profile__user__last_name__icontains=request.POST['value']), Q.AND)
-
-        users = Profile.objects.filter(q_objects).\
-            select_related('user', 'user__profileavatar').order_by('user__first_name')  # Берем только активных пользователей
-        ret_objects = helper.helper_paginator(request, users, count=2)
-        return ret_objects
-
     # Возвращает абсолютный URL
     def get_absolute_url(self):
         return "/profile/%i" % self.user.id
@@ -206,6 +192,13 @@ class ProfileSubscribers(models.Model):
         except ProfileSubscribers.DoesNotExist:
             raise Http404
 
+    # TODO - дописать exlude
+    # Возвращает список подписчиков
+    # Принимает GET параметры
+    # @user - пользователь, подписки которого необходимо показать
+    # @action - необходим для шаблона, например, КМ или выбор пользователей чекбоксами
+    # @search - индикатор поиска (необходим поиск или нет)
+    # @value - значение поиска, ищет по имени и фамилии
     @staticmethod
     def get_subscribers(request):
         if 'user' in request.GET:
@@ -221,18 +214,20 @@ class ProfileSubscribers(models.Model):
             action = 'context_menu'  # Тип - контекстное меню
 
         user = User.objects.get(id=user_id)
-        if 'value' in request.POST and 'search' in request.POST:
+        if ('value' in request.POST or 'value' in request.GET) and (
+                'search' in request.POST or 'search' in request.GET):
             from django.db.models import Q
             subscribers_object = ProfileSubscribers.objects.filter(
                 Q(to_profile__user__last_name__icontains=request.POST['value'])
                 | Q(to_profile__user__first_name__icontains=request.POST['value']),
-                from_profile=user.profile).select_related('to_profile__user__profileavatar')\
-                .only('to_profile__user__first_name', 'to_profile__user__last_name')\
-                .exclude(from_profile=request.user.profile)
+                from_profile=user.profile).select_related('to_profile__user__profileavatar',
+                                                          'to_profile__user__usersettings') \
+                .only('to_profile__user__first_name', 'to_profile__user__last_name') \
+                .exclude(to_profile=request.user.profile)
             flag = True
         else:
             subscribers_object = ProfileSubscribers.objects.filter(from_profile=user.profile) \
-                .select_related('to_profile__user__profileavatar') \
+                .select_related('to_profile__user__profileavatar', 'to_profile__user__usersettings') \
                 .only('to_profile__user__first_name', 'to_profile__user__last_name') \
                 .exclude(to_profile=request.user.profile)
 
@@ -240,7 +235,7 @@ class ProfileSubscribers(models.Model):
             subscriber.to_profile for subscriber in subscribers_object.all()
         ]
 
-        subscribers = helper.helper_paginator(request, subscribers)
+        subscribers = helper.helper_paginator(request, subscribers, 20)
 
         return {
             'flag': flag,
@@ -250,6 +245,13 @@ class ProfileSubscribers(models.Model):
             'type': 'subscribers'
         }
 
+    # TODO - дописать exlude
+    # Возвращает список подписчиков
+    # Принимает GET параметры
+    # @user - пользователь, подписчиков которого необходимо показать
+    # @action - необходим для шаблона, например, КМ или выбор пользователей чекбоксами
+    # @search - индикатор поиска (необходим поиск или нет)
+    # @value - значение поиска, ищет по имени и фамилии
     @staticmethod
     def get_followers(request):
         if 'user' in request.GET:
@@ -259,17 +261,20 @@ class ProfileSubscribers(models.Model):
         flag = False
         action = 'context_menu'  # Тип - контекстное меню
         user = User.objects.get(id=user_id)
-        if 'value' in request.POST and 'search' in request.POST:
+        if ('value' in request.POST or 'value' in request.GET) and (
+                'search' in request.POST or 'search' in request.GET):
             from django.db.models import Q
-            followers_object = ProfileSubscribers.objects.filter(Q(user__first_name__istartswith=request.POST['value'])
-                                                                 |Q(user__last_name__istartswith=request.POST['value']),
-                                                                 to_profile=user.profile).exclude(to_profile=request.user.profile) \
+            followers_object = ProfileSubscribers.objects.filter(
+                Q(from_profile__user__first_name__icontains=request.POST['value'])
+                |Q(from_profile__user__last_name__icontains=request.POST['value']),
+                to_profile=user.profile).exclude(from_profile=request.user.profile) \
                 .select_related('from_profile__user__profileavatar',
-                                'to_profile__user__profileavatar')
+                                'from_profile__user__usersettings')
             flag = True
         else:
             followers_object = ProfileSubscribers.objects.filter(to_profile=user.profile) \
-                .select_related('from_profile__user__profileavatar', 'to_profile__user__profileavatar')
+                .exclude(from_profile=request.user.profile)\
+                .select_related('from_profile__user__profileavatar', 'from_profile__user__usersettings')
 
         followers = [
             follower.from_profile for follower in followers_object.all()
@@ -284,14 +289,40 @@ class ProfileSubscribers(models.Model):
             'type': 'followers'
         }
 
+    @staticmethod
+    def get_all_users(request):
+        q_objects = Q()
+        q_objects.add(Q(active='1'), Q.AND)
+        flag = False
+        action = 'context_menu'
+
+        if ('value' in request.POST or 'value' in request.GET) and (
+                'search' in request.POST or 'search' in request.GET):
+            q_objects.add(Q(user__first_name__icontains=request.POST['value']), Q.AND)
+            q_objects.add(Q(user__last_name__icontains=request.POST['value']), Q.AND)
+            flag = True
+
+        users = Profile.objects.filter(q_objects) \
+            .select_related('user', 'user__profileavatar', 'user__usersettings') \
+            .order_by('user__first_name')
+
+        ret_objects = helper.helper_paginator(request, users, count=20)
+        return {
+            'flag': flag,
+            'items': ret_objects,
+            'user_id': '',
+            'action': action,
+            'type': 'all'
+        }
+
 
 # Аватарки и миниатюры пользователей
 class ProfileAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=True)
     last_update = models.DateField(null=True, blank=True, default=datetime.date.today)
     image = models.ImageField(
-        # upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
-        upload_to=helper.ImageHelper.upload_to,
+        upload_to=curry(helper.ImageHelper.upload_to, prefix='avatar'),
+        # upload_to=helper.ImageHelper.upload_to,
         default='avatar/default/img.jpg')
 
     class Meta:

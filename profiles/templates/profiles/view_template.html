@@ -1,0 +1,42 @@
+{% load custom_filters %}
+{% for item in items %}
+    <div class="infinite-group_groups line mtop-35 infinite-item" data-group_id="{{group.id}}">
+        <a href="/profile/{{ item.user.id }}">
+            <img src="{{ item.user.profileavatar.mini_url }}" class="avatar_round_big">
+        </a>
+        <div class="group_info">
+            <div class="view_user_name">
+                <a class="username" href="/profile/{{ item.user.id }}"> {{ item.user.first_name }}  {{ item.user.last_name }} </a>
+            </div>
+            <div class="view_user_city">г. {{ item.location_name }} </div>
+            <div class="view_user_send_message">
+                {% if item.user.usersettings.messages == '1'  %}
+                    <a class="send_messages_button" href="/chats/?peer={{ item.id }}">Отправить сообщение</a>
+                {% endif %}
+            </div> {# участники #}
+
+            <div class="join_group">
+                {% if type == 'subscribers' or item.user|is_my_subscriber:user %}
+                    <button class="add_to_friend purple_custom_btn_background_white" data-user_id="{{ item.user.id }}" data-action="remove">Отписаться</button>
+                {% else %}
+                    <button class="add_to_friend purple_custom_btn_background_white" data-user_id="{{ item.user.id }}" data-action="add">Подписаться</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+{% if items.has_next %}
+    {% if type == 'subscribers' %}
+        <a class="infinite-more-link_users"
+           href="/profile/view_subscribers/?page={{ items.next_page_number }}">Загрузка
+        </a>
+    {% elif type == 'followers' %}
+        <a class="infinite-more-link_users"
+           href="/profile/view_followers/?page={{ items.next_page_number }}">Загрузка
+        </a>
+    {% elif type == 'all' %}
+        <a class="infinite-more-link_users"
+           href="/profile/view_all_users/?page={{ items.next_page_number }}">Загрузка
+        </a>
+    {% endif %}
+{% endif %}

@@ -23,6 +23,7 @@ def index(request):
         'city_list': city_list,
         'user_city': user_city,
         'url': 'get_infinite_events',
+        'page_url': '/',
         'filter_city': True
     }
 

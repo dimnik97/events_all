@@ -107,3 +107,11 @@ def is_my_subscriber(cur_user, user):
         return True
     except:
         return False
+
+
+@register.filter
+def page_url(item_menu, page_url):
+    if page_url and item_menu == page_url:
+        return 'active'
+    return ''
+

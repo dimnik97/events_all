@@ -19,6 +19,7 @@ https://github.com/imakewebthings/waypoints/blob/master/licenses.txt
         }
         this.$container = $(this.container)
         this.$reverse = $(this.reverse)
+        this.more_by_class = $(this.more_by_class)
         this.$more = $(this.options.more)
 
         if (this.$more.length) {
@@ -40,7 +41,15 @@ https://github.com/imakewebthings/waypoints/blob/master/licenses.txt
                     data: this.options.filter,
                     success: $.proxy(function (data) {
                         var $data = $($.parseHTML(data));
-                        var $newMore = $data.filter(this.options.more);
+                        var $newMore;
+                        if (this.options.more_by_class) {
+                            this.options.more = '.' + $(this.options.more).attr('class');
+                            $newMore = $data.filter('.' + $(this.options.more).attr('class'))
+                        }
+                        else {
+                            let $more = this.options.more;
+                            $newMore = $data.filter($more);
+                        }
 
                         var $items = $data.find(this.options.items);
                         if (!$items.length) {
@@ -121,7 +130,8 @@ https://github.com/imakewebthings/waypoints/blob/master/licenses.txt
         onBeforePageLoad: $.noop,
         onAfterPageLoad: $.noop,
         post: false, // Для пост запросов, чтобы не парится с урлами и так далее
-        filter: {} // Фильтр
+        filter: {}, // Фильтр
+        more_by_class: false
     }
 
     Waypoint.Infinite = Infinite
