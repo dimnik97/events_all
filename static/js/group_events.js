@@ -39,43 +39,14 @@ if (type === 'detail') {
             async: false,
             success: function (data) {
                 $('.infinite-container_groups').append(data);
-                waypoints_init();
+                waypoints_init(null, {}, true);
             }
         });
     });
 
-    /**
-     * Получение параметров фильтрации для POST запроса
-     *
-     */
-    function get_filter(selector) {
-        let unindexed_array = $('.'+selector).serializeArray(),
-            indexed_array = {};
-
-        $.map(unindexed_array, function(n){
-            indexed_array[n['name']] = n['value'];
-        });
-        return indexed_array;
-    }
-
     $('.groups_filter', '.tab-content').on('submit', function (e) {
         e.preventDefault();  // Отмена стандартного обработчика сабмита
     });
-    /**
-     * Инициализация плагина инфинити скролла, что-то вроде дата тейбла
-     *
-     */
-    function waypoints_init(filter) {
-        new Waypoint.Infinite({
-            element: $('.infinite-container_groups')[0],
-            more: '.infinite-more-link_groups',
-            items: '.infinite-item_groups',
-            reverse: false,
-            post: true,
-            filter: filter
-        });
-    }
-
     /**
      * Поиск группы по вводимому тексту
      *
@@ -84,58 +55,67 @@ if (type === 'detail') {
         find_groups()
     });
 
-    /**
-     * Поиск группы (При нажатии чекбокса "Все")
-     *
-     */
-    $('.all_groups').on('change', function () {
-        find_groups()
-    });
-
     function find_groups() {
-        let url = $('.content_paginator_groups').data('url');
+        let filter = {
+                'name': $('.find_groups', '.groups_filter').val()
+            },
+            $tab = $('.tab-pane.active', '.tab-content'),
+            url = $('.content_paginator_groups').data('url');
         $.ajax({
             url: url,
             type: 'POST',
-            data: get_filter('groups_filter'),
+            data: filter,
             success: function (data) {
                 if (data) {
-                    $('.infinite-container_groups').html(data);
-                    waypoints_init(get_filter('groups_filter'));
+                    $('.infinite_cont', $tab).html(data);
+                    let container = $('.content_pag', $tab);
+                    waypoints_init(container ,filter);
                 } else {
-                    // TODO заполнить error
+                    $('.infinite_cont', $tab).html('');
                 }
             }
         });
     }
 
     /**
-     * Лента приглашений и заявок
+     * Ajax для вкладок
      *
      */
-    $('.activate_panel2_groups', '.nav-tabs').on('click', function () {
-        let url = $('.content_paginator_invite', '#panel2').data('url');
+    $('.activate_panel2_users, .activate_panel3_users', '.nav-tabs').on('click', function () {
+        let panel_id = $(this).find('a').attr('href'),
+            $panel = $(panel_id);
+        if ($(this).hasClass('active'))
+            return false;
+        $('.find_users').val('');
+        let url = $('.content_pag', $panel).data('url');
+
         $.ajax({
             url: url,
-            type: 'POST',
+            async: false,
+            type: 'GET',
             success: function (data) {
-                if (data) {
-                    $('.content_paginator_invite').html(data);
-                    let element = $('.infinite-container_invite', '.content_paginator_invite')[0],
-                        more = '.infinite-more-link_invite';
-                    new Waypoint.Infinite({
-                        element: element,
-                        more: more,
-                        items: '.infinite-item_invite',
-                        reverse: false,
-                        post: true
-                    });
-                } else {
-                    // TODO заполнить error
-                }
+                $('.infinite_cont', $panel).html(data);
+                waypoints_init($('.content_pag', $panel), {}, true);
             }
         });
     });
+
+    /**
+     * Инициализация плагина инфинити скролла, что-то вроде дата тейбла
+     *
+     */
+    function waypoints_init($container, filter, more_by_class=false) {
+        $container = $container || $('.content_paginator_groups', '.tab-content');
+        new Waypoint.Infinite({
+            element: $('.infinite_cont', $container)[0],
+            more: $('.infinite-more-link_groups', $container)[0],
+            items: '.infinite-group_groups',
+            reverse: false,
+            post: true,
+            filter: filter,
+            more_by_class: more_by_class
+        });
+    }
 }
 
 /**
@@ -200,7 +180,6 @@ function open_dialog() {
         ],
     }).dialog('open');
 }
-
 
 /**
  * Отменить заявку

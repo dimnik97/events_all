@@ -304,7 +304,8 @@ class ProfileSubscribers(models.Model):
 
         users = Profile.objects.filter(q_objects) \
             .select_related('user', 'user__profileavatar', 'user__usersettings') \
-            .order_by('user__first_name')
+            .order_by('user__first_name') \
+            .exclude(id=request.user.profile.id)
 
         ret_objects = helper.helper_paginator(request, users, count=20)
         return {

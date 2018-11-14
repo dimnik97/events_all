@@ -44,6 +44,10 @@ $(document).ready(function() {
         });
     });
 
+    /**
+     * Ajax для поиска, один метод на 3 функции
+     *
+     */
     function find_users() {
         let filter = {
                 'search': true,

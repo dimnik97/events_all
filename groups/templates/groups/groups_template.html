@@ -26,8 +26,15 @@
 {% endfor %}
 
 {% if groups.has_next %}
-    <a class="infinite-more-link_groups"
-       href="/groups/get_groups?page={{ groups.next_page_number }}&id={{ cur_user.id }}"
-       data_next_page_number="{{ groups.number }}">More
-    </a>
+    {% if type == 'cur_user_group' %}
+        <a class="infinite-more-link_groups"
+           href="/groups/get_groups?page={{ groups.next_page_number }}&id={{ cur_user.id }}"
+           data_next_page_number="{{ groups.number }}">More
+        </a>
+    {% elif type == 'all_groups' %}
+        <a class="infinite-more-link_groups" href="/groups/get_all_groups?page={{ groups.next_page_number }}">
+            More
+        </a>
+    {% endif %}
+
 {% endif %}

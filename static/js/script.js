@@ -1354,11 +1354,11 @@ $(document).ready(function() {
             type: 'POST',
             data: {
                 'event_id': $('#dialog_confirm').data('event_id'),
-                'news_id':  $button.closest('li').data('id')
+                'news_id':  $button.closest('.news_item').data('id')
             },
             success: function (data) {
                 if (data === "200") {
-                    $('[data-id='+$button.closest('li').data('id')+']').remove();
+                    $('[data-id='+$button.closest('.news_item').data('id')+']').remove();
                 } else {
                     // TODO заполнить error
                 }

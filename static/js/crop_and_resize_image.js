@@ -207,7 +207,6 @@ function reset_all() {
 }
 
 function to_second_step() {
-    debugger;
     let save_url_second_step = save_url
     if ($('.change_avatar').data('not_for_save')) {
         save_url_second_step += '?to_event=true'

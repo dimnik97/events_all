@@ -3,10 +3,11 @@ from groups import views
 
 urlpatterns = [
     url(r'^(?P<id>[0-9]+)$', views.detail, name='detail'),  # Группа детально
-    url(r'^create$', views.create, name='create'),  # Создание группы
+    url(r'^create/$', views.create, name='create'),  # Создание группы
     url(r'^edit/(?P<id>[0-9]+)$', views.edit, name='edit'),  # Редактирование группы
-    url(r'^view$', views.view, name='view'),  # Список всех групп
+    url(r'^view/$', views.view, name='view'),  # Список всех групп
     url(r'^get_groups$', views.get_groups, name='get_groups'),  # выборка групп пользователя
+    url(r'^get_all_groups$', views.get_all_groups, name='get_all_groups'),  # выборка всех групп
     url(r'^get_invite$', views.get_invite, name='get_invite'),  # Паджинация
     url(r'^subscribe_group/$', views.subscribe_group, name='subscribe_group'),  # Подписка на группу
     url(r'^change_avatar', views.change_avatar, name='change_avatar'),  # Смена аватара

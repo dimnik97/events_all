@@ -6,9 +6,7 @@
 {% block content %}
     <div class="main_block groups_main_block">
         <form class="groups_filter">
-            <input type="text" name="name" placeholder="Начните вводить" class="find_groups w100p find_input" >
-            <label class="purple_custom_label">Поиск по всем группам</label>
-            <input type="checkbox" name="all" class="all_groups">
+            <input type="text" name="name" placeholder="Начните вводить" class="find_groups w100p find_input">
         </form>
         <div class="line position_rel birder_bottom_grey">
             <ul class="nav nav-tabs">
@@ -19,21 +17,28 @@
                 </a></li>
                 {% if is_my %}
                     {#<li class="activate_panel2_groups"><a data-toggle="tab" href="#panel2">Приглашения и заявки</a></li>#}
+                    <li class="activate_panel3_users"><a data-toggle="tab" href="#panel3">Все группы</a></li>
                 {% endif %}
             </ul>
-            <button class="purple_custom_btn create_gr_btn"><a class="" href="/groups/create">Создать группу</a></button>
+            <button class="purple_custom_btn create_gr_btn"><a href="/groups/create/">Создать группу</a></button>
         </div>
         <div class="tab-content">
             <div id="panel1" class="tab-pane fade in active">
-                <div class="content_paginator_groups" data-url="/groups/get_groups?id={{ cur_user.id }}">
-                    <div class="infinite-container_groups">
+                <div class="content_paginator_groups content_pag" data-url="/groups/get_groups?id={{ cur_user.id }}">
+                    <div class="infinite-container_groups infinite_cont">
                     </div>
                 </div>
             </div>
             {% if is_my %}
-                <div id="panel2" class="tab-pane fade">
-                    <div class="content_paginator_invite" data-url="/groups/get_invite?id={{ cur_user.id }}">
-                        <div class="infinite-container_invite">
+{#                <div id="panel2" class="tab-pane fade">#}
+{#                    <div class="content_paginator_invite content_pag" data-url="/groups/get_invite?id={{ cur_user.id }}">#}
+{#                        <div class="infinite-container_invite infinite_cont">#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+                <div id="panel3" class="tab-pane fade">
+                    <div class="content_paginator_all_groups content_pag" data-url="/groups/get_all_groups">
+                        <div class="infinite-container_all_group infinite_cont">
                         </div>
                     </div>
                 </div>

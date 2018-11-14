@@ -50,7 +50,6 @@ https://github.com/imakewebthings/waypoints/blob/master/licenses.txt
                             let $more = this.options.more;
                             $newMore = $data.filter($more);
                         }
-
                         var $items = $data.find(this.options.items);
                         if (!$items.length) {
                             $items = $data.filter(this.options.items);

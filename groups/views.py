@@ -61,7 +61,7 @@ def check_is_my_acount(request):
     is_my = False  # Если страница пользователя, то показывать административные поля
     try:
         cur_user = User.objects.get(id=request.GET['id'])
-    except User.DoesNotExist:
+    except:
         cur_user = request.user  # По умолчанию юзер из реквеста
 
     if cur_user == request.user:
@@ -69,7 +69,7 @@ def check_is_my_acount(request):
     return cur_user, is_my
 
 
-# Получение списка всех групп с последующей фильтрацией
+# Получение списка группа пользователя
 @login_required(login_url='/accounts/signup-or-login/')
 def get_groups(request):
     cur_user, is_my = check_is_my_acount(request)
@@ -79,13 +79,8 @@ def get_groups(request):
     else:
         name = ''
 
-    if 'all' in request.POST:
-        groups = Group.objects.filter(name__icontains=name) \
-            .only('id', 'name', 'status', ).select_related('groupavatar')
-    else:
-        groups = Group.objects.filter(membership__person=cur_user.profile, name__icontains=name) \
-            .only('id', 'name', 'status', ).select_related('groupavatar')
-    # Параметры приходящие постом
+    groups = Group.objects.filter(membership__person=cur_user.profile, name__icontains=name) \
+        .only('id', 'name', 'status', ).select_related('groupavatar')
 
     groups = helper.helper_paginator(request, groups)
 
@@ -94,7 +89,34 @@ def get_groups(request):
         'user': request.user,
         'is_my': is_my,
         'find': name,
-        'groups': groups
+        'groups': groups,
+        'type': 'cur_user_group'
+    }
+    return render_to_response('groups/groups_template.html', context)
+
+
+# Получение списка всех групп
+@login_required(login_url='/accounts/signup-or-login/')
+def get_all_groups(request):
+    cur_user, is_my = check_is_my_acount(request)
+    # Параметры приходящие постом
+    if 'name' in request.POST:
+        name = request.POST['name']
+    else:
+        name = ''
+
+    groups = Group.objects.filter(name__icontains=name) \
+        .only('id', 'name', 'status').select_related('groupavatar')
+
+    groups = helper.helper_paginator(request, groups, 2)
+
+    context = {
+        'cur_user': cur_user,
+        'user': request.user,
+        'is_my': is_my,
+        'find': name,
+        'groups': groups,
+        'type': 'all_groups'
     }
     return render_to_response('groups/groups_template.html', context)
 

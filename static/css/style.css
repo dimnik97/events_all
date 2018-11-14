@@ -1742,7 +1742,9 @@ a.username {
 }
 .load_events{
     width: 100%;
-    background-color: rgba(121, 113, 234, 0.15);
+    background-color: white;
+    border: 1px solid #7971EA;
+    color: #7971EA;
 }
 
 .mleft-45{
