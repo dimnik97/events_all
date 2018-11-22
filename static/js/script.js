@@ -186,7 +186,6 @@ function get_default_images(need_change=true) {
                     let $selector = $('.images', '.column_' + j);
                     $selector.empty();
                     $('.category_name_column_' + j).html(categories[data['category_' + j]['name']]);
-                    // data['category_' + j]['list'].length TODO Пока ограничение на 3 картинки
                     for (let i = 0; i < 3; i++) {
                         $selector.append('<div en_name='+ data['category_' + j]['name']
                             +' class="rec_im"><img src="/' +

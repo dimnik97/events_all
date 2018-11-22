@@ -67,12 +67,6 @@ class EventForm(forms.Form):
                                label='Дата окончания',
                                widget=forms.TextInput(attrs={'placeholder': 'Дата окончания'}),
                                input_formats=['%d-%m-%Y %H:%M'])
-    # start_time = forms.CharField(required=False,
-    #                              widget=CustomDateTimePicker(prams={'default_time': '1'}),
-    #                              label='Дата начала')
-    # end_time = forms.CharField(required=False,
-    #                            widget=CustomDateTimePicker(prams={'default_time_plus_delta': '1'}),
-    #                            label='Дата окончания')
     CHOICES = (('1', 'Открытое'),
                ('2', 'Закрытое'))
 
@@ -92,7 +86,7 @@ class EventForm(forms.Form):
                 result['status'] = 400  # Ошибка
                 result['wrong_field'] = 'categories'
                 return result
-            if len(categories) > 3:
+            if len(categories) > 1:
                 categories = categories[:3]  # Ограничение на 3 категории
 
             if is_creation == 1:  # Если создание
